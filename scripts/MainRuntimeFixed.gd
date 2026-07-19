@@ -274,7 +274,7 @@ func build_ivo_frame_metadata() -> void:
 
 			var region := image.get_region(source_i)
 			var used := region.get_used_rect()
-			var visible_bottom := float(used.end.y) if not used.has_area() else float(source_i.size.y) * 0.93
+			var visible_bottom := float(used.end.y) if used.has_area() else float(source_i.size.y) * 0.93
 			var scaled_foot := visible_bottom / float(source_i.size.y) * IVO_WALK_DRAW_SIZE.y
 			ivo_frame_foot_anchors.append(clampf(scaled_foot, IVO_WALK_DRAW_SIZE.y * 0.72, IVO_WALK_DRAW_SIZE.y))
 
