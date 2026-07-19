@@ -494,10 +494,7 @@ func draw_cistern(font: Font) -> void:
 		draw_rect(Rect2(cistern_chest_position - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
 		draw_string(font, cistern_chest_position + Vector2(-28, 36), "BAÚ", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("ffe09b"))
 	draw_pixel_person(player, Color("55342f"), Color("bf4d55"))
-	draw_rect(Rect2(16, 13, 928, 42), Color(0.02, 0.05, 0.11, 0.9))
-	draw_string(font, Vector2(32, 39), "CISTERNA ESQUECIDA", HORIZONTAL_ALIGNMENT_LEFT, -1, 19, Color("d9f7ff"))
-	draw_string(font, Vector2(330, 39), "Vida: %d/%d  Essência: %d/%d  Ouro: %d  Ecos: %d/3" % [health, max_health, essence, max_essence, gold, relics], HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("cde6da"))
-	draw_string(font, Vector2(645, 39), "Objetivo: %s" % quest_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("f4d899"))
+	draw_hud(font, "CISTERNA ESQUECIDA")
 	if notice_time > 0.0:
 		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
 	if battle_open:
@@ -509,7 +506,20 @@ func draw_cistern(font: Font) -> void:
 	elif dialogue_open:
 		draw_dialogue(font)
 	else:
-		draw_string(font, Vector2(530, 520), "WASD/setas: explorar | E: interagir | J: vínculos | F5: salvar", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("d4d8e5"))
+		draw_controls(font)
+
+func draw_hud(font: Font, location: String) -> void:
+	draw_rect(Rect2(20, 16, 920, 56), Color(0.015, 0.03, 0.075, 0.92))
+	draw_rect(Rect2(20, 16, 920, 56), Color("7db8ca"), false, 1.5)
+	draw_string(font, Vector2(38, 40), location, HORIZONTAL_ALIGNMENT_LEFT, 230, 19, Color("f8edcf"))
+	draw_string(font, Vector2(38, 61), "Vida %d/%d  •  Essência %d/%d  •  Ouro %d" % [health, max_health, essence, max_essence, gold], HORIZONTAL_ALIGNMENT_LEFT, 310, 14, Color("d5e8ec"))
+	draw_rect(Rect2(600, 25, 320, 38), Color(0.08, 0.13, 0.22, 0.9))
+	draw_string(font, Vector2(616, 42), "OBJETIVO", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("e9c87e"))
+	draw_string(font, Vector2(616, 58), quest_text(), HORIZONTAL_ALIGNMENT_LEFT, 286, 14, Color("f5f7fb"))
+
+func draw_controls(font: Font) -> void:
+	draw_rect(Rect2(246, 501, 468, 25), Color(0.01, 0.02, 0.05, 0.78))
+	draw_string(font, Vector2(260, 519), "WASD mover  •  E interagir  •  I bolsa  •  J vínculos  •  F5 salvar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("e3e8f3"))
 
 func draw_pixel_person(position: Vector2, hair: Color, clothes: Color) -> void:
 	# Sprite procedural em grade de pixels: fácil de substituir por spritesheets finais sem mudar o gameplay.
@@ -575,22 +585,22 @@ func draw_inventory(font: Font) -> void:
 	draw_string(font, Vector2(559, 442), "[I/E] fechar", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("ffd888"))
 
 func draw_dialogue(font: Font) -> void:
-	draw_rect(Rect2(34, 320, 892, 193), Color(0.035, 0.045, 0.085, 0.96))
-	draw_rect(Rect2(34, 320, 892, 193), Color("d5b46d"), false, 3.0)
-	draw_string(font, Vector2(64, 353), dialogue_speaker.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f2cd7e"))
+	draw_rect(Rect2(28, 348, 904, 164), Color(0.02, 0.03, 0.07, 0.97))
+	draw_rect(Rect2(28, 348, 904, 164), Color("d5b46d"), false, 2.0)
+	draw_string(font, Vector2(58, 381), dialogue_speaker.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, 580, 18, Color("f2cd7e"))
 	for i in dialogue_lines.size():
-		draw_string(font, Vector2(64, 383 + i * 25), dialogue_lines[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f8f2e7"))
+		draw_string(font, Vector2(58, 411 + i * 23), dialogue_lines[i], HORIZONTAL_ALIGNMENT_LEFT, 625, 16, Color("f8f2e7"))
 	if dialogue_speaker == "Ariane":
 		var ariane_expression: Texture2D = ARIANE_EMBARRASSED_PORTRAIT if dialogue_expression == "embarrassed" else ARIANE_PORTRAIT
-		draw_texture_rect(ariane_expression, Rect2(690, 87, 214, 324), false, Color.WHITE)
+		draw_texture_rect(ariane_expression, Rect2(748, 92, 150, 240), false, Color.WHITE)
 	if dialogue_choices.is_empty():
-		draw_string(font, Vector2(775, 492), "[E] continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("d5b46d"))
+		draw_string(font, Vector2(800, 490), "[E] continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("d5b46d"))
 	else:
-		var start_y := 432
+		var start_y := 435
 		for i in dialogue_choices.size():
 			var color := Color("ffdf92") if i == choice_index else Color("e5e8f1")
 			var marker := "▶ " if i == choice_index else "  "
-			draw_string(font, Vector2(64, start_y + i * 22), marker + dialogue_choices[i], HORIZONTAL_ALIGNMENT_LEFT, -1, 15, color)
+			draw_string(font, Vector2(58, start_y + i * 21), marker + dialogue_choices[i], HORIZONTAL_ALIGNMENT_LEFT, 610, 14, color)
 
 func draw_battle(font: Font) -> void:
 	draw_rect(Rect2(90, 110, 780, 340), Color(0.03, 0.04, 0.08, 0.97))

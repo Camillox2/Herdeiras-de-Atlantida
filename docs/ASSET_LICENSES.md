@@ -33,6 +33,12 @@ Os assets do jogo final devem ter uma lista de origem e licença neste mesmo doc
 - Origem: cenário original gerado para este projeto com a ferramenta de geração de imagens da OpenAI.
 - Uso: exploração jogável do prólogo. Arte original; sem reprodução de ambiente, mapa ou composição de outros jogos.
 
+## Cenário do Porto de Nereu
+
+- Arquivo: `assets/backgrounds/nereu-harbor.png`
+- Origem: cenário original gerado para este projeto com a ferramenta de geração de imagens da OpenAI.
+- Uso: área visual preparada para o próximo capítulo. Arte original, sem reprodução de mapas ou cenários de outros jogos.
+
 ## Expressões envergonhadas das heroínas
 
 - Arquivos: `ariane-embarrassed-v2.png`, `melia-embarrassed.png`, `lyra-embarrassed.png`, `thalia-embarrassed.png`, `cassia-embarrassed.png`, `nerissa-embarrassed.png` em `assets/portraits/`.
