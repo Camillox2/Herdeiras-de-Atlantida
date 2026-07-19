@@ -7,6 +7,7 @@ const SHORT_TAP_BUFFER := 0.055
 const IVO_SHEET_COLUMNS := 4
 const IVO_SHEET_ROWS := 4
 const IVO_FOOT_SCREEN_OFFSET := Vector2(0, 2)
+const BASE_VIEWPORT_SIZE := Vector2i(960, 540)
 
 var ivo_frame_sources: Array[Rect2] = []
 var ivo_frame_foot_anchors: Array[float] = []
@@ -24,6 +25,91 @@ func _ready() -> void:
 # during a hitch instead of making Ivo appear to teleport.
 func _process(delta: float) -> void:
 	super(clampf(delta, 0.0, MAX_SIMULATION_DELTA))
+
+
+# Keep one stable 960x540 logical canvas while changing only the physical window.
+# Fullscreen follows the monitor's current physical resolution, while the selected
+# resolution is applied exactly in windowed mode. Borderless mode fills the usable
+# desktop area without relying on a maximize request that Windows may ignore.
+func apply_graphics_settings() -> void:
+	var root_window: Window = get_tree().root
+	root_window.content_scale_size = BASE_VIEWPORT_SIZE
+	root_window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root_window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	root_window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if scale_mode_index == 0 else CanvasItem.TEXTURE_FILTER_LINEAR
+	sync_water_post_effect()
+
+	if DisplayServer.get_name() == "headless":
+		return
+
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync_enabled else DisplayServer.VSYNC_DISABLED)
+	var requested: Vector2i = RESOLUTION_OPTIONS[resolution_index]
+	var screen_index := maxi(0, DisplayServer.window_get_current_screen())
+
+	match display_mode_index:
+		0:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+			call_deferred("_apply_windowed_geometry", requested, screen_index)
+		1:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+			call_deferred("_apply_borderless_geometry", screen_index)
+		2:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+			call_deferred("_verify_fullscreen_mode", screen_index)
+
+
+func _apply_windowed_geometry(requested: Vector2i, screen_index: int) -> void:
+	if display_mode_index != 0 or DisplayServer.get_name() == "headless":
+		return
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+	var usable := DisplayServer.screen_get_usable_rect(screen_index)
+	var fit_scale: float = minf(1.0, minf(float(usable.size.x) / float(requested.x), float(usable.size.y) / float(requested.y)))
+	var fitted := Vector2i(maxi(1, roundi(requested.x * fit_scale)), maxi(1, roundi(requested.y * fit_scale)))
+	DisplayServer.window_set_size(fitted)
+	DisplayServer.window_set_position(usable.position + (usable.size - fitted) / 2)
+
+
+func _apply_borderless_geometry(screen_index: int) -> void:
+	if display_mode_index != 1 or DisplayServer.get_name() == "headless":
+		return
+	var usable := DisplayServer.screen_get_usable_rect(screen_index)
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+	DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+	DisplayServer.window_set_size(usable.size)
+	DisplayServer.window_set_position(usable.position)
+
+
+func _verify_fullscreen_mode(screen_index: int) -> void:
+	if display_mode_index != 2 or DisplayServer.get_name() == "headless":
+		return
+	if DisplayServer.window_get_current_screen() != screen_index:
+		DisplayServer.window_set_current_screen(screen_index)
+	var current_mode := DisplayServer.window_get_mode()
+	if current_mode != DisplayServer.WINDOW_MODE_FULLSCREEN and current_mode != DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN:
+		DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
+
+
+func confirm_graphics_changes() -> void:
+	apply_graphics_settings()
+	save_graphics_settings()
+	graphics_snapshot.clear()
+	graphics_dirty = false
+	settings_open = false
+	pause_open = false
+	var requested := RESOLUTION_OPTIONS[resolution_index]
+	var mode_label := DISPLAY_MODE_LABELS[display_mode_index]
+	if display_mode_index == 2:
+		notice = "%s aplicado. A tela cheia usa a resolução atual do monitor." % mode_label
+	elif display_mode_index == 1:
+		notice = "%s aplicada na área útil do monitor." % mode_label
+	else:
+		notice = "%s aplicada em %d x %d." % [mode_label, requested.x, requested.y]
+	notice_time = 3.0
+	play_sound($AudioConfirm)
 
 
 # The exterior maps are authored 16:9 illustrations in the current build. The
