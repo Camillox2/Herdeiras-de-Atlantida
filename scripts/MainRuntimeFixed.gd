@@ -2,6 +2,28 @@ extends "res://scripts/Main.gd"
 
 const WATER_POSTFX_LINEAR_SHADER := preload("res://shaders/water_postprocess.gdshader")
 const WATER_POSTFX_NEAREST_SHADER := preload("res://shaders/water_postprocess_nearest.gdshader")
+const MAX_SIMULATION_DELTA := 1.0 / 30.0
+const SHORT_TAP_BUFFER := 0.055
+const IVO_SHEET_COLUMNS := 4
+const IVO_SHEET_ROWS := 4
+const IVO_FOOT_SCREEN_OFFSET := Vector2(0, 2)
+
+var ivo_frame_sources: Array[Rect2] = []
+var ivo_frame_foot_anchors: Array[float] = []
+
+
+func _ready() -> void:
+	super()
+	build_ivo_frame_metadata()
+	queue_redraw()
+
+
+# A render hitch must not turn into a large visible movement jump. The original
+# controller already sweeps collisions, but a full delayed frame was still drawn
+# as one long displacement. Capping the simulation step prefers a tiny slowdown
+# during a hitch instead of making Ivo appear to teleport.
+func _process(delta: float) -> void:
+	super(clampf(delta, 0.0, MAX_SIMULATION_DELTA))
 
 
 # The exterior maps are authored 16:9 illustrations in the current build. The
@@ -34,6 +56,14 @@ func handle_map_input() -> void:
 
 
 func _unhandled_input(event: InputEvent) -> void:
+	# Stop the short-tap assist as soon as the player releases the final movement
+	# key. This removes the residual glide that made a quick tap feel airborne.
+	if event is InputEventKey and not event.pressed:
+		if event.is_action_released("move_left") or event.is_action_released("move_right") or event.is_action_released("move_up") or event.is_action_released("move_down"):
+			var held_direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+			if held_direction.length_squared() <= 0.01:
+				tap_move_time = 0.0
+
 	if battle_open:
 		handle_battle_event(event)
 		return
@@ -47,9 +77,15 @@ func _unhandled_input(event: InputEvent) -> void:
 		handle_map_event(event)
 		return
 
-	# Title, pause, dialogue, exploration and short movement taps keep using the
+	# Title, pause, dialogue, exploration and directional presses keep using the
 	# thoroughly tested implementation in Main.gd.
 	super(event)
+
+	# Main.gd buffers taps for 110 ms. A shorter window retains responsive taps
+	# while avoiding the long coast after the key is released.
+	if is_fresh_key_press(event):
+		if event.is_action_pressed("move_left") or event.is_action_pressed("move_right") or event.is_action_pressed("move_up") or event.is_action_pressed("move_down"):
+			tap_move_time = minf(tap_move_time, SHORT_TAP_BUFFER)
 
 
 func is_fresh_key_press(event: InputEvent) -> bool:
@@ -211,6 +247,84 @@ func sync_water_post_effect() -> void:
 			material.shader = desired_shader
 		material.set_shader_parameter("water_top", surface_y / 540.0)
 		material.set_shader_parameter("motion_strength", 0.0018 if scale_mode_index == 0 else 0.0024)
+
+
+# The source sheet is 1254x1254, which is not evenly divisible by its 4x4 grid.
+# The previous 313.5-pixel Rect2 slices sampled half pixels and made consecutive
+# poses jump. Integer boundaries plus per-frame alpha-foot anchoring keep the
+# character's feet locked to the world while the body animates above them.
+func build_ivo_frame_metadata() -> void:
+	ivo_frame_sources.clear()
+	ivo_frame_foot_anchors.clear()
+	var image := IVO_WALK_SHEET.get_image()
+	if image == null or image.is_empty():
+		build_fallback_ivo_frame_metadata()
+		return
+
+	var sheet_width := image.get_width()
+	var sheet_height := image.get_height()
+	for row in IVO_SHEET_ROWS:
+		var top := roundi(float(row) * float(sheet_height) / float(IVO_SHEET_ROWS))
+		var bottom := roundi(float(row + 1) * float(sheet_height) / float(IVO_SHEET_ROWS))
+		for frame in IVO_SHEET_COLUMNS:
+			var left := roundi(float(frame) * float(sheet_width) / float(IVO_SHEET_COLUMNS))
+			var right := roundi(float(frame + 1) * float(sheet_width) / float(IVO_SHEET_COLUMNS))
+			var source_i := Rect2i(left, top, right - left, bottom - top)
+			ivo_frame_sources.append(Rect2(source_i.position, source_i.size))
+
+			var region := image.get_region(source_i)
+			var used := region.get_used_rect()
+			var visible_bottom := float(used.end.y) if not used.has_area() else float(source_i.size.y) * 0.93
+			var scaled_foot := visible_bottom / float(source_i.size.y) * IVO_WALK_DRAW_SIZE.y
+			ivo_frame_foot_anchors.append(clampf(scaled_foot, IVO_WALK_DRAW_SIZE.y * 0.72, IVO_WALK_DRAW_SIZE.y))
+
+
+func build_fallback_ivo_frame_metadata() -> void:
+	var sheet_width := IVO_WALK_SHEET.get_width()
+	var sheet_height := IVO_WALK_SHEET.get_height()
+	for row in IVO_SHEET_ROWS:
+		var top := roundi(float(row) * float(sheet_height) / float(IVO_SHEET_ROWS))
+		var bottom := roundi(float(row + 1) * float(sheet_height) / float(IVO_SHEET_ROWS))
+		for frame in IVO_SHEET_COLUMNS:
+			var left := roundi(float(frame) * float(sheet_width) / float(IVO_SHEET_COLUMNS))
+			var right := roundi(float(frame + 1) * float(sheet_width) / float(IVO_SHEET_COLUMNS))
+			ivo_frame_sources.append(Rect2(left, top, right - left, bottom - top))
+			ivo_frame_foot_anchors.append(IVO_WALK_DRAW_SIZE.y - 3.0)
+
+
+func draw_player_character(position: Vector2) -> void:
+	var direction_row := 0
+	if absf(player_facing.x) > absf(player_facing.y):
+		direction_row = 1 if player_facing.x < 0.0 else 2
+	elif player_facing.y < 0.0:
+		direction_row = 3
+
+	var frame := posmod(int(floor(walk_phase)), IVO_SHEET_COLUMNS) if player_moving else 0
+	var metadata_index := direction_row * IVO_SHEET_COLUMNS + frame
+	var source := Rect2(
+		frame * IVO_WALK_CELL_SIZE.x,
+		direction_row * IVO_WALK_CELL_SIZE.y,
+		IVO_WALK_CELL_SIZE.x,
+		IVO_WALK_CELL_SIZE.y
+	)
+	var foot_anchor := IVO_WALK_DRAW_SIZE.y - 3.0
+	if metadata_index >= 0 and metadata_index < ivo_frame_sources.size():
+		source = ivo_frame_sources[metadata_index]
+		foot_anchor = ivo_frame_foot_anchors[metadata_index]
+
+	var step := absf(sin(walk_phase * PI * 0.5)) if player_moving else 0.0
+	var shadow_width := lerpf(11.0, 13.0, step)
+	draw_sprite_shadow(position + Vector2(0, 2), Vector2(shadow_width, 3), Color(0.01, 0.02, 0.04, 0.34))
+
+	# No artificial vertical bob: the actual opaque foot line of each frame is the
+	# anchor. This removes the floating effect without making the animation static.
+	var destination_position := position + IVO_FOOT_SCREEN_OFFSET - Vector2(IVO_WALK_DRAW_SIZE.x * 0.5, foot_anchor)
+	var destination := Rect2(destination_position, IVO_WALK_DRAW_SIZE)
+	draw_texture_rect_region(IVO_WALK_SHEET, destination, source, Color.WHITE)
+
+	if player_moving and step > 0.86:
+		var dust_direction := Vector2(-signf(player_facing.x), 0.4).normalized()
+		draw_circle(position + dust_direction * Vector2(11, 5) + Vector2(0, 3), 2.0, Color(0.78, 0.68, 0.48, 0.32))
 
 
 func draw_inventory(font: Font) -> void:
