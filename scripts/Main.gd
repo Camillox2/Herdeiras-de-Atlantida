@@ -3,6 +3,7 @@ extends Node2D
 const SPEED := 190.0
 const WORLD := Rect2(28, 70, 904, 530)
 const SAVE_PATH := "user://otherworld_save.cfg"
+const GRAPHICS_PATH := "user://otherworld_graphics.cfg"
 const TILE_SIZE := 32
 const TOWN_ORIGIN := Vector2(0, 72)
 const TOWN_COLUMNS := 30
@@ -48,6 +49,9 @@ const PENSION_EXTERIOR := preload("res://assets/custom/pension-exterior-v1.png")
 const MARKET_EXTERIOR := preload("res://assets/custom/market-exterior-v1.png")
 const ARCHIVE_EXTERIOR := preload("res://assets/custom/archive-exterior-v1.png")
 const PENSION_INTERIOR := preload("res://assets/custom/pension-interior-v2.png")
+const KALLIPOLIS_EXTERIOR := preload("res://assets/custom/kallipolis-exterior-v4.png")
+const AGORA_EXTERIOR := preload("res://assets/custom/agora-exterior-v2.png")
+const NEREU_EXTERIOR := preload("res://assets/custom/nereu-exterior-v1.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
@@ -61,6 +65,10 @@ const ART_TILE_SCALE := 32.0 / 289.0
 const CHARACTER_DRAW_SIZE := Vector2(72, 72)
 const CHARACTER_DRAW_OFFSET := Vector2(36, 63)
 const IVO_WALK_DRAW_SIZE := Vector2(96, 96)
+const RESOLUTION_OPTIONS := [Vector2i(960, 540), Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
+const RESOLUTION_LABELS := ["960 x 540", "1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440"]
+const DISPLAY_MODE_LABELS := ["Janela", "Janela sem bordas", "Tela cheia"]
+const SCALE_MODE_LABELS := ["Pixels nítidos", "Suavização HD"]
 
 var player := Vector2(496, 456)
 var gold := 7
@@ -103,6 +111,18 @@ var gallery_expression := 0
 var inventory_open := false
 var map_open := false
 var pause_open := false
+var pause_selection := 0
+var settings_open := false
+var settings_selection := 0
+var resolution_index := 0
+var display_mode_index := 0
+var scale_mode_index := 0
+var vsync_enabled := true
+var shadows_enabled := true
+var water_effects_enabled := true
+var warm_lighting_enabled := true
+var brightness_percent := 100
+var water_phase := 0.0
 var title_open := true
 var player_moving := false
 var player_facing := Vector2.DOWN
@@ -114,14 +134,18 @@ var cistern_door_position := Vector2(840, 150)
 var cistern_exit_position := Vector2(104, 452)
 var cistern_gate_position := Vector2(895, 420)
 var cistern_chest_position := Vector2(456, 420)
-var inn_door_position := Vector2(270, 248)
+var inn_door_position := Vector2(242, 325)
 var inn_exit_position := Vector2(480, 552)
 var inn_lysandra_position := Vector2(690, 335)
 var inn_counter_interaction_position := Vector2(548, 350)
-var agora_gate_position := Vector2(910, 240)
-var agora_exit_position := Vector2(82, 500)
-var agora_polemon_position := Vector2(515, 296)
-var agora_notice_board_position := Vector2(304, 312)
+var agora_gate_position := Vector2(726, 346)
+var agora_exit_position := Vector2(480, 500)
+var agora_polemon_position := Vector2(348, 408)
+var agora_notice_board_position := Vector2(282, 379)
+var agora_route_position := Vector2(898, 327)
+var nereu_exit_position := Vector2(480, 500)
+var nereu_nerissa_position := Vector2(704, 366)
+var nereu_palace_position := Vector2(480, 292)
 
 var heroines := [
 	{"name": "Ariane", "age": 18, "role": "Mensageira e ladra", "color": Color("4f87c8"), "portrait": ARIANE_PORTRAIT, "embarrassed": ARIANE_EMBARRASSED_PORTRAIT},
@@ -143,6 +167,7 @@ var crate_position := Vector2(656, 442)
 
 func _ready() -> void:
 	load_game()
+	load_graphics_settings()
 	var launch_arguments := OS.get_cmdline_user_args()
 	if "--skip-title" in launch_arguments:
 		title_open = false
@@ -155,6 +180,34 @@ func _ready() -> void:
 		zone = "inn"
 		player = Vector2(548, 360)
 		player_facing = Vector2.RIGHT
+	if "--qa-agora" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "agora"
+		player = Vector2(480, 500)
+		player_facing = Vector2.UP
+	if "--qa-nereu" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "nereu"
+		quest_stage = max(quest_stage, 9)
+		player = Vector2(480, 500)
+		player_facing = Vector2.UP
+	if "--qa-settings" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "kallipolis"
+		player = Vector2(480, 440)
+		pause_open = true
+		settings_open = true
+	if "--qa-nerissa-dialogue" in launch_arguments:
+		title_open = false
+		pause_open = false
+		settings_open = false
+		zone = "nereu"
+		player = Vector2(650, 400)
+		start_nerissa_intro()
+	apply_graphics_settings()
 	configure_kallipolis_layers()
 	configure_agora_layers()
 	sync_world_visibility()
@@ -223,11 +276,12 @@ func build_agora_tilemaps() -> void:
 		props.set_cell(position_and_tile[0], 0, position_and_tile[1])
 
 func sync_world_visibility() -> void:
-	var in_city := zone == "kallipolis"
+	# Exterior districts now use single, authored map illustrations. Legacy TileMaps stay
+	# available as source material, but no longer leak repeated tiles behind the new art.
 	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Props, $World/Roofs, $World/LightLayer]:
-		layer.visible = in_city
+		layer.visible = false
 	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraProps, $World/AgoraRoofs]:
-		layer.visible = zone == "agora"
+		layer.visible = false
 
 func create_art_tile_set(texture: Texture2D) -> TileSet:
 	var tile_set := TileSet.new()
@@ -358,6 +412,8 @@ func build_kallipolis_tilemaps() -> void:
 
 func _process(delta: float) -> void:
 	player_moving = false
+	if water_effects_enabled:
+		water_phase = fmod(water_phase + delta * 1.4, TAU)
 	if notice_time > 0.0:
 		notice_time -= delta
 	if title_open:
@@ -375,9 +431,9 @@ func _process(delta: float) -> void:
 	elif map_open:
 		handle_map_input()
 	elif pause_open:
-		handle_pause_input()
+		pass # Pause and graphics navigation are event-driven in _unhandled_input.
 	elif dialogue_open:
-		handle_dialogue_input()
+		pass # Dialogue choices are also event-driven for reliable short key taps.
 	else:
 		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 		player_moving = direction.length_squared() > 0.01
@@ -406,7 +462,13 @@ func _process(delta: float) -> void:
 
 func _unhandled_input(event: InputEvent) -> void:
 	# A short key tap still advances one readable step; holding the key remains smooth in _process.
-	if title_open or dialogue_open or battle_open or gallery_open or inventory_open or map_open or pause_open:
+	if pause_open:
+		handle_pause_event(event)
+		return
+	if dialogue_open:
+		handle_dialogue_event(event)
+		return
+	if title_open or battle_open or gallery_open or inventory_open or map_open:
 		return
 	var tapped_direction := Vector2.ZERO
 	if event is InputEventKey and event.pressed and not event.echo:
@@ -431,9 +493,71 @@ func _unhandled_input(event: InputEvent) -> void:
 		try_move_player(tapped_direction * 8.0)
 		queue_redraw()
 
+func handle_pause_event(event: InputEvent) -> void:
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	var code: Key = event.keycode if event.keycode != 0 else event.physical_keycode
+	var go_up: bool = code in [KEY_W, KEY_UP] or event.is_action_pressed("move_up")
+	var go_down: bool = code in [KEY_S, KEY_DOWN] or event.is_action_pressed("move_down")
+	var go_left: bool = code in [KEY_A, KEY_LEFT] or event.is_action_pressed("move_left")
+	var go_right: bool = code in [KEY_D, KEY_RIGHT] or event.is_action_pressed("move_right")
+	var confirm: bool = code in [KEY_E, KEY_SPACE, KEY_ENTER] or event.is_action_pressed("interact")
+	var cancel: bool = code == KEY_ESCAPE or event.is_action_pressed("pause_menu")
+	if settings_open:
+		if cancel:
+			settings_open = false
+			save_graphics_settings()
+			$AudioClick.play()
+		elif go_up:
+			settings_selection = posmod(settings_selection - 1, 8)
+			$AudioClick.play()
+		elif go_down:
+			settings_selection = posmod(settings_selection + 1, 8)
+			$AudioClick.play()
+		elif go_left:
+			change_graphics_setting(-1)
+		elif go_right or confirm:
+			change_graphics_setting(1)
+		queue_redraw()
+		return
+	if cancel:
+		pause_open = false
+		$AudioClick.play()
+	elif go_up:
+		pause_selection = posmod(pause_selection - 1, 4)
+		$AudioClick.play()
+	elif go_down:
+		pause_selection = posmod(pause_selection + 1, 4)
+		$AudioClick.play()
+	elif confirm:
+		activate_pause_selection()
+	queue_redraw()
+
+func handle_dialogue_event(event: InputEvent) -> void:
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	var code: Key = event.keycode if event.keycode != 0 else event.physical_keycode
+	var go_up: bool = code in [KEY_W, KEY_UP] or event.is_action_pressed("move_up")
+	var go_down: bool = code in [KEY_S, KEY_DOWN] or event.is_action_pressed("move_down")
+	var confirm: bool = code in [KEY_E, KEY_SPACE, KEY_ENTER] or event.is_action_pressed("interact")
+	if not dialogue_choices.is_empty():
+		if go_up:
+			choice_index = posmod(choice_index - 1, dialogue_choices.size())
+			$AudioClick.play()
+		elif go_down:
+			choice_index = posmod(choice_index + 1, dialogue_choices.size())
+			$AudioClick.play()
+		elif confirm:
+			choose_dialogue()
+			$AudioConfirm.play()
+	elif confirm:
+		close_dialogue()
+		$AudioClick.play()
+	queue_redraw()
+
 func try_move_player(motion: Vector2) -> void:
 	var candidate := player + motion
-	if zone == "kallipolis" or zone == "inn" or zone == "agora":
+	if zone in ["kallipolis", "inn", "agora", "nereu"]:
 		candidate.x = clampf(candidate.x, 16.0, 944.0)
 		candidate.y = clampf(candidate.y, TOWN_ORIGIN.y + 16.0, TOWN_ORIGIN.y + TOWN_ROWS * TILE_SIZE - 16.0)
 	else:
@@ -444,8 +568,7 @@ func try_move_player(motion: Vector2) -> void:
 
 func can_walk_to(candidate: Vector2) -> bool:
 	if zone == "kallipolis":
-		var tile := town_tile_from_position(candidate)
-		return town_tile_kind(tile.x, tile.y) not in ["water", "building", "tree"]
+		return can_walk_kallipolis(candidate)
 	if zone == "cistern":
 		var tile := town_tile_from_position(candidate)
 		return cistern_tile_kind(tile.x, tile.y) != "wall"
@@ -461,8 +584,45 @@ func can_walk_to(candidate: Vector2) -> bool:
 			if obstacle.grow(9.0).has_point(candidate):
 				return false
 	if zone == "agora":
-		var tile := town_tile_from_position(candidate)
-		return agora_tile_kind(tile.x, tile.y) != "building"
+		return can_walk_agora(candidate)
+	if zone == "nereu":
+		return can_walk_nereu(candidate)
+	return true
+
+func can_walk_kallipolis(candidate: Vector2) -> bool:
+	# World coordinates are 72 px below the painted viewport. Broad regions keep
+	# movement readable while landmark silhouettes, fountain and sea stay solid.
+	var on_promenade := Rect2(64, 310, 832, 154).has_point(candidate)
+	var on_west_pier := Rect2(58, 418, 190, 118).has_point(candidate)
+	var on_sea_gate_landing := Rect2(430, 418, 100, 76).has_point(candidate)
+	if not (on_promenade or on_west_pier or on_sea_gate_landing):
+		return false
+	var fountain_center := Vector2(480, 374)
+	if candidate.distance_to(fountain_center) < 56.0:
+		return false
+	return true
+
+func can_walk_agora(candidate: Vector2) -> bool:
+	var in_central_plaza := Rect2(205, 220, 555, 300).has_point(candidate)
+	var in_market_lane := Rect2(145, 315, 245, 165).has_point(candidate)
+	var in_route_lane := Rect2(720, 245, 195, 170).has_point(candidate)
+	if not (in_central_plaza or in_market_lane or in_route_lane):
+		return false
+	var armillary_center := Vector2(480, 340)
+	if candidate.distance_to(armillary_center) < 58.0:
+		return false
+	return true
+
+func can_walk_nereu(candidate: Vector2) -> bool:
+	var in_lower_quay := Rect2(365, 392, 230, 142).has_point(candidate)
+	var in_outer_boulevard := Rect2(90, 318, 790, 168).has_point(candidate)
+	var in_north_avenue := Rect2(405, 220, 150, 170).has_point(candidate)
+	var in_side_gate := Rect2(45, 280, 125, 135).has_point(candidate) or Rect2(820, 275, 115, 145).has_point(candidate)
+	if not (in_lower_quay or in_outer_boulevard or in_north_avenue or in_side_gate):
+		return false
+	var central_pool := Vector2(480, 345)
+	if candidate.distance_to(central_pool) < 98.0:
+		return false
 	return true
 
 func town_tile_from_position(position: Vector2) -> Vector2i:
@@ -530,21 +690,86 @@ func handle_map_input() -> void:
 		map_open = false
 		$AudioClick.play()
 
-func handle_pause_input() -> void:
-	if Input.is_action_just_pressed("pause_menu") or Input.is_action_just_pressed("interact"):
-		pause_open = false
-		$AudioClick.play()
+func activate_pause_selection() -> void:
+	match pause_selection:
+		0:
+			pause_open = false
+		1:
+			settings_open = true
+			settings_selection = 0
+		2:
+			save_game()
+		3:
+			pause_open = false
+			title_open = true
+	$AudioConfirm.play()
 
-func handle_dialogue_input() -> void:
-	if not dialogue_choices.is_empty():
-		if Input.is_action_just_pressed("move_up"):
-			choice_index = posmod(choice_index - 1, dialogue_choices.size())
-		if Input.is_action_just_pressed("move_down"):
-			choice_index = posmod(choice_index + 1, dialogue_choices.size())
-		if Input.is_action_just_pressed("interact"):
-			choose_dialogue()
-	elif Input.is_action_just_pressed("interact"):
-		close_dialogue()
+func change_graphics_setting(change: int) -> void:
+	match settings_selection:
+		0: display_mode_index = posmod(display_mode_index + change, DISPLAY_MODE_LABELS.size())
+		1: resolution_index = posmod(resolution_index + change, RESOLUTION_OPTIONS.size())
+		2: scale_mode_index = posmod(scale_mode_index + change, SCALE_MODE_LABELS.size())
+		3: vsync_enabled = not vsync_enabled
+		4: shadows_enabled = not shadows_enabled
+		5: water_effects_enabled = not water_effects_enabled
+		6: warm_lighting_enabled = not warm_lighting_enabled
+		7: brightness_percent = clampi(brightness_percent + change * 5, 70, 120)
+	apply_graphics_settings()
+	save_graphics_settings()
+	$AudioConfirm.play()
+
+func load_graphics_settings() -> void:
+	var config := ConfigFile.new()
+	if config.load(GRAPHICS_PATH) != OK:
+		return
+	display_mode_index = clampi(config.get_value("graphics", "display_mode", display_mode_index), 0, DISPLAY_MODE_LABELS.size() - 1)
+	resolution_index = clampi(config.get_value("graphics", "resolution", resolution_index), 0, RESOLUTION_OPTIONS.size() - 1)
+	scale_mode_index = clampi(config.get_value("graphics", "scale_mode", scale_mode_index), 0, SCALE_MODE_LABELS.size() - 1)
+	vsync_enabled = config.get_value("graphics", "vsync", vsync_enabled)
+	shadows_enabled = config.get_value("graphics", "shadows", shadows_enabled)
+	water_effects_enabled = config.get_value("graphics", "water_effects", water_effects_enabled)
+	warm_lighting_enabled = config.get_value("graphics", "warm_lighting", warm_lighting_enabled)
+	brightness_percent = clampi(config.get_value("graphics", "brightness", brightness_percent), 70, 120)
+
+func save_graphics_settings() -> void:
+	var config := ConfigFile.new()
+	config.set_value("graphics", "display_mode", display_mode_index)
+	config.set_value("graphics", "resolution", resolution_index)
+	config.set_value("graphics", "scale_mode", scale_mode_index)
+	config.set_value("graphics", "vsync", vsync_enabled)
+	config.set_value("graphics", "shadows", shadows_enabled)
+	config.set_value("graphics", "water_effects", water_effects_enabled)
+	config.set_value("graphics", "warm_lighting", warm_lighting_enabled)
+	config.set_value("graphics", "brightness", brightness_percent)
+	config.save(GRAPHICS_PATH)
+
+func apply_graphics_settings() -> void:
+	var root_window := get_tree().root
+	root_window.content_scale_mode = Window.CONTENT_SCALE_MODE_CANVAS_ITEMS
+	root_window.content_scale_aspect = Window.CONTENT_SCALE_ASPECT_KEEP
+	# Fractional stretch fills every 16:9 mode; texture filtering decides whether
+	# the enlarged pixels stay crisp or receive a softer high-resolution pass.
+	root_window.content_scale_stretch = Window.CONTENT_SCALE_STRETCH_FRACTIONAL
+	texture_filter = CanvasItem.TEXTURE_FILTER_NEAREST if scale_mode_index == 0 else CanvasItem.TEXTURE_FILTER_LINEAR
+	if DisplayServer.get_name() == "headless":
+		return
+	DisplayServer.window_set_vsync_mode(DisplayServer.VSYNC_ENABLED if vsync_enabled else DisplayServer.VSYNC_DISABLED)
+	match display_mode_index:
+		0:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_WINDOWED)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+			var usable := DisplayServer.screen_get_usable_rect()
+			var requested: Vector2i = RESOLUTION_OPTIONS[resolution_index]
+			var fit_scale: float = minf(1.0, minf(float(usable.size.x) / requested.x, float(usable.size.y) / requested.y))
+			var fitted := Vector2i(roundi(requested.x * fit_scale), roundi(requested.y * fit_scale))
+			DisplayServer.window_set_size(fitted)
+			DisplayServer.window_set_position(usable.position + (usable.size - fitted) / 2)
+		1:
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_MAXIMIZED)
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, true)
+		2:
+			DisplayServer.window_set_flag(DisplayServer.WINDOW_FLAG_BORDERLESS, false)
+			DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_FULLSCREEN)
 
 func handle_battle_input() -> void:
 	var battle_options := 4 if magic_unlocked else 3
@@ -620,6 +845,9 @@ func try_interact() -> void:
 	if zone == "agora":
 		interact_agora()
 		return
+	if zone == "nereu":
+		interact_nereu()
+		return
 	if player.distance_to(inn_door_position) < 58.0:
 		zone = "inn"
 		player = inn_exit_position
@@ -682,8 +910,39 @@ func interact_agora() -> void:
 	if player.distance_to(agora_notice_board_position) < 70.0:
 		show_dialogue("Edital da cidade", ["O bronze lista dívidas de marinheiros, preços de azeite e uma recompensa por 'objetos que cantam sob a água'.", "A última linha foi riscada tantas vezes que o metal parece ferido."], [], "")
 		return
+	if player.distance_to(agora_route_position) < 72.0:
+		if quest_stage < 9:
+			show_dialogue("Portão de Nereu", ["O arco oriental permanece fechado. Guardas azuis conferem selos de travessia.", "Ainda existe algo sob Kallípolis que você precisa terminar."], [], "")
+		else:
+			zone = "nereu"
+			player = nereu_exit_position
+			player_facing = Vector2.UP
+			sync_world_visibility()
+			show_dialogue("Nereu", ["A travessia termina entre velas azuis e muralhas que parecem nascer da água.", "Kallípolis cheirava a sobrevivência. Nereu cheira a poder bem administrado — o que talvez seja mais perigoso."], [], "")
+		return
 	notice = "Mercadores negociam, crianças correm entre as colunas e ninguém parece ter tempo a perder."
 	notice_time = 1.8
+
+func interact_nereu() -> void:
+	if player.distance_to(nereu_exit_position) < 64.0:
+		zone = "agora"
+		player = agora_route_position - Vector2(48, 0)
+		player_facing = Vector2.LEFT
+		sync_world_visibility()
+		notice = "O ferry retorna à Ágora de Kallípolis."
+		notice_time = 1.8
+		return
+	if player.distance_to(nereu_nerissa_position) < 72.0:
+		start_nerissa_intro()
+		return
+	if player.distance_to(nereu_palace_position) < 72.0:
+		show_dialogue("Palácio da Maré", ["Guardas cruzam lanças diante do salão da capitã.", "O símbolo na sua marca responde às fontes do pátio com uma pulsação quase imperceptível."], [], "")
+		return
+	notice = "Canais luminosos dividem a praça. Cada ponte parece levar a uma versão diferente da cidade."
+	notice_time = 1.8
+
+func start_nerissa_intro() -> void:
+	show_dialogue("Nerissa", ["Então você é o estrangeiro que fez Kallípolis lembrar do que enterrou.", "Em Nereu, memórias são catalogadas, armadas e lançadas ao mar.", "Se veio por respostas, aprenda a reconhecer uma pergunta perigosa."], ["Perguntar sobre Atlântida.", "Dizer que procura Ariane.", "Admitir que ainda não sabe o que procura."], "nerissa_intro", "neutral")
 
 func interact_cistern() -> void:
 	if player.distance_to(cistern_exit_position) < 58.0:
@@ -798,6 +1057,13 @@ func choose_dialogue() -> void:
 				show_dialogue("Ariane", ["Então não me deixe decidir o caminho sozinha.", "Há uma cidade além do mar. E seis nomes presos ao mesmo juramento."], [], "", "embarrassed")
 			else:
 				show_dialogue("Ariane", ["Tempo não é fuga, se você souber para que está voltando.", "Quando estiver pronto, Nereu estará esperando."], [], "")
+		"nerissa_intro":
+			if choice_index == 0:
+				show_dialogue("Nerissa", ["Atlântida não afundou de uma vez. Primeiro afundou dentro das pessoas.", "Se quer o resto da resposta, prove que sabe carregar uma verdade sem transformá-la em arma."], [], "")
+			elif choice_index == 1:
+				show_dialogue("Nerissa", ["Ariane sempre chega antes das consequências e depois finge surpresa quando elas a alcançam.", "Ela está segura. Por enquanto."], [], "", "embarrassed")
+			else:
+				show_dialogue("Nerissa", ["Ótimo. Pessoas muito certas são fáceis de governar e ainda mais fáceis de destruir.", "Quando descobrir o que procura, volte sem ensaiar a resposta."], [], "")
 
 func start_battle(name := "Coletor de Relíquias", max_enemy_health := 18, reward_action := "collector") -> void:
 	battle_open = true
@@ -885,8 +1151,16 @@ func quest_text() -> String:
 		4: return "Enfrente o Coletor no cais"
 		5: return "Entre na Cisterna esquecida"
 		6, 7, 8: return "Colete os Ecos de Atlântida (%d/3)" % relics
-		9: return "Prólogo concluído: siga Ariane"
+		9: return "Atravesse a Ágora e siga para Nereu"
 		_: return "Descubra o Juramento das Moiras"
+
+func location_name() -> String:
+	match zone:
+		"inn": return "Pensão dos Degraus"
+		"agora": return "Ágora das Colunas"
+		"nereu": return "Nereu"
+		"cistern": return "Cisterna Esquecida"
+		_: return "Kallípolis"
 
 func weapon_bonus() -> int:
 	return 4 if equipped_weapon.begins_with("Daga") else 2
@@ -905,12 +1179,12 @@ func _draw() -> void:
 	if zone == "agora" and not title_open:
 		draw_agora(font)
 		return
-	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
-	# Named landmarks are complete sprites, which avoids the "wallpaper house" effect of repeated tiles.
-	draw_kallipolis_environment()
-	draw_texture_rect(PENSION_EXTERIOR, Rect2(display_position(Vector2(132, 89)), Vector2(228, 228)), false, Color.WHITE)
-	draw_texture_rect(MARKET_EXTERIOR, Rect2(display_position(Vector2(350, 78)), Vector2(218, 218)), false, Color.WHITE)
-	draw_texture_rect(ARCHIVE_EXTERIOR, Rect2(display_position(Vector2(641, 71)), Vector2(202, 258)), false, Color.WHITE)
+	if zone == "nereu" and not title_open:
+		draw_nereu(font)
+		return
+	# A single authored environment replaces the former mixed tiles and façade collage.
+	draw_texture_rect(KALLIPOLIS_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
+	draw_water_shimmer(405.0, 540.0)
 	# Crate objective.
 	if quest_stage == 2:
 		var crate_display := display_position(crate_position)
@@ -918,8 +1192,8 @@ func _draw() -> void:
 		draw_circle(crate_display + Vector2(0, -25), 7, Color("61d7e5"))
 	if quest_stage >= 5:
 		var gate_display := display_position(cistern_gate_position)
-		draw_rect(Rect2(gate_display - Vector2(20, 45), Vector2(40, 70)), Color("25364d"))
-		draw_arc(gate_display - Vector2(0, 15), 20, PI, TAU, 18, Color("72d7e5"), 3.0)
+		draw_circle(gate_display, 13.0 + sin(water_phase * 2.0) * 2.0, Color(0.32, 0.88, 0.93, 0.16))
+		draw_arc(gate_display, 10.0, 0.0, TAU, 20, Color("7ce8ef"), 2.0)
 	# NPCs.
 	for npc in npcs:
 		var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
@@ -928,6 +1202,7 @@ func _draw() -> void:
 			draw_character(npc_position, npc["sprite"])
 	# Player sprite.
 	draw_player_character(display_position(player))
+	draw_scene_color_grade()
 	if title_open:
 		draw_title(font)
 	elif battle_open:
@@ -948,6 +1223,7 @@ func draw_inn(font: Font) -> void:
 	draw_texture_rect(PENSION_INTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_character(display_position(inn_lysandra_position), Vector2i(2, 0))
 	draw_player_character(display_position(player))
+	draw_scene_color_grade()
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -962,10 +1238,32 @@ func draw_inn(font: Font) -> void:
 		draw_dialogue(font)
 
 func draw_agora(font: Font) -> void:
-	# The plaza is built from TileMaps; actors are the only overlaid exploration elements.
+	# The second district follows the same authored-map pipeline as the harbor city.
+	draw_texture_rect(AGORA_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
+	draw_water_shimmer(466.0, 540.0)
 	draw_character(display_position(agora_polemon_position), Vector2i(3, 0))
-	draw_circle(display_position(agora_notice_board_position) + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24))
+	draw_circle(display_position(agora_notice_board_position) + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24 + sin(water_phase * 2.0) * 0.06))
 	draw_player_character(display_position(player))
+	draw_scene_color_grade()
+	if battle_open:
+		draw_battle(font)
+	elif gallery_open:
+		draw_gallery(font)
+	elif inventory_open:
+		draw_inventory(font)
+	elif map_open:
+		draw_map(font)
+	elif pause_open:
+		draw_pause_menu(font)
+	elif dialogue_open:
+		draw_dialogue(font)
+
+func draw_nereu(font: Font) -> void:
+	draw_texture_rect(NEREU_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
+	draw_water_shimmer(468.0, 540.0)
+	draw_character(display_position(nereu_nerissa_position), Vector2i(1, 0))
+	draw_player_character(display_position(player))
+	draw_scene_color_grade()
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1038,6 +1336,7 @@ func draw_cistern(font: Font) -> void:
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("7a4e2e"))
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
 	draw_player_character(display_position(player))
+	draw_scene_color_grade()
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1134,11 +1433,35 @@ func draw_nameplate(font: Font, position: Vector2, character_name: String) -> vo
 	draw_string(font, position + Vector2(-33, -59), character_name, HORIZONTAL_ALIGNMENT_CENTER, 66, 12, Color.WHITE)
 
 func draw_sprite_shadow(center: Vector2, radii: Vector2, color: Color) -> void:
+	if not shadows_enabled:
+		return
 	var points := PackedVector2Array()
 	for index in range(13):
 		var angle := TAU * float(index) / 12.0
 		points.append(center + Vector2(cos(angle) * radii.x, sin(angle) * radii.y))
 	draw_colored_polygon(points, color)
+
+func draw_water_shimmer(surface_y: float, bottom_y: float) -> void:
+	if not water_effects_enabled:
+		return
+	for row in range(4):
+		var y := lerpf(surface_y + 13.0, bottom_y - 18.0, float(row) / 3.0)
+		var points := PackedVector2Array()
+		for column in range(33):
+			var x := float(column) * 30.0
+			var wave := sin(column * 0.82 + water_phase * (1.1 + row * 0.12)) * (1.3 + row * 0.35)
+			points.append(Vector2(x, y + wave))
+		draw_polyline(points, Color(0.62, 0.94, 0.94, 0.055 + row * 0.012), 1.0, true)
+
+func draw_scene_color_grade() -> void:
+	if warm_lighting_enabled:
+		draw_rect(Rect2(0, 0, 960, 540), Color(1.0, 0.72, 0.38, 0.025))
+	if brightness_percent < 100:
+		var darkness := float(100 - brightness_percent) / 100.0 * 0.72
+		draw_rect(Rect2(0, 0, 960, 540), Color(0.01, 0.02, 0.05, darkness))
+	elif brightness_percent > 100:
+		var lift := float(brightness_percent - 100) / 100.0 * 0.32
+		draw_rect(Rect2(0, 0, 960, 540), Color(1.0, 0.93, 0.78, lift))
 
 func draw_pixel_person(position: Vector2, hair: Color, clothes: Color) -> void:
 	# Sprite procedural em grade de pixels: fácil de substituir por spritesheets finais sem mudar o gameplay.
@@ -1169,7 +1492,7 @@ func draw_title(font: Font) -> void:
 func draw_map(font: Font) -> void:
 	draw_rect(Rect2(42, 30, 876, 480), Color(0.02, 0.035, 0.075, 0.97))
 	draw_rect(Rect2(42, 30, 876, 480), Color("83c8d6"), false, 2.0)
-	draw_string(font, Vector2(78, 76), "MAPA DE KALLÍPOLIS", HORIZONTAL_ALIGNMENT_LEFT, -1, 27, Color("f6e7bf"))
+	draw_string(font, Vector2(78, 76), "MAPA: " + location_name().to_upper(), HORIZONTAL_ALIGNMENT_LEFT, -1, 27, Color("f6e7bf"))
 	draw_string(font, Vector2(78, 106), "Objetivo atual: " + quest_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("e4edf3"))
 	# A clean schematic is more readable than labels floating over the play space.
 	draw_rect(Rect2(88, 142, 488, 290), Color("152942"))
@@ -1190,14 +1513,50 @@ func draw_map(font: Font) -> void:
 	draw_string(font, Vector2(78, 476), "M ou Esc para voltar", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("f4d890"))
 
 func draw_pause_menu(font: Font) -> void:
-	draw_rect(Rect2(220, 104, 520, 332), Color(0.02, 0.035, 0.075, 0.98))
-	draw_rect(Rect2(220, 104, 520, 332), Color("83c8d6"), false, 2.0)
-	draw_string(font, Vector2(258, 154), "PAUSA", HORIZONTAL_ALIGNMENT_LEFT, -1, 29, Color("f6e7bf"))
-	draw_string(font, Vector2(258, 200), "Tela: Pixel perfeito", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("eff5fa"))
-	draw_string(font, Vector2(258, 230), "Base 960x540 • escala inteira • 16:9", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("cbd8e6"))
-	draw_string(font, Vector2(258, 275), "M abre o mapa e o objetivo.", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eff5fa"))
-	draw_string(font, Vector2(258, 305), "I abre a bolsa. J abre os vínculos.", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eff5fa"))
-	draw_string(font, Vector2(258, 385), "Esc ou E para continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("f4d890"))
+	if settings_open:
+		draw_graphics_menu(font)
+		return
+	draw_rect(Rect2(0, 0, 960, 540), Color(0.01, 0.02, 0.05, 0.54))
+	draw_rect(Rect2(244, 76, 472, 388), Color(0.025, 0.045, 0.09, 0.985))
+	draw_rect(Rect2(244, 76, 472, 388), Color("7fc8d8"), false, 2.0)
+	draw_string(font, Vector2(286, 124), "JORNADA PAUSADA", HORIZONTAL_ALIGNMENT_LEFT, -1, 27, Color("f6e7bf"))
+	draw_string(font, Vector2(286, 151), location_name() + " continua respirando ao seu redor.", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("bcd3df"))
+	var options := ["Continuar", "Configurações gráficas", "Salvar jornada", "Voltar ao título"]
+	for index in options.size():
+		var row := Rect2(278, 182 + index * 52, 404, 42)
+		var selected := index == pause_selection
+		draw_rect(row, Color("173653") if selected else Color("0c1c32"))
+		if selected:
+			draw_rect(Rect2(row.position, Vector2(5, row.size.y)), Color("edc66e"))
+		draw_string(font, row.position + Vector2(20, 28), (">  " if selected else "   ") + options[index], HORIZONTAL_ALIGNMENT_LEFT, 360, 17, Color("fff1cc") if selected else Color("dbe8ef"))
+	draw_string(font, Vector2(286, 430), "W/S escolher  •  E confirmar  •  Esc continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("9fb9c8"))
+
+func draw_graphics_menu(font: Font) -> void:
+	draw_rect(Rect2(0, 0, 960, 540), Color(0.005, 0.012, 0.03, 0.68))
+	draw_rect(Rect2(132, 22, 696, 496), Color(0.022, 0.04, 0.082, 0.995))
+	draw_rect(Rect2(132, 22, 696, 496), Color("79c8d8"), false, 2.0)
+	draw_string(font, Vector2(170, 66), "CONFIGURAÇÕES GRÁFICAS", HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color("f7e5b8"))
+	draw_string(font, Vector2(170, 91), "A imagem permanece em 16:9 e se adapta sem deformar.", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("bcd2df"))
+	var labels := ["Modo de exibição", "Resolução", "Escala da arte", "Sincronização vertical", "Sombras dos personagens", "Reflexos da água", "Luz mediterrânea", "Brilho"]
+	var values := [
+		DISPLAY_MODE_LABELS[display_mode_index],
+		RESOLUTION_LABELS[resolution_index],
+		SCALE_MODE_LABELS[scale_mode_index],
+		"Ligada" if vsync_enabled else "Desligada",
+		"Ligadas" if shadows_enabled else "Desligadas",
+		"Ligados" if water_effects_enabled else "Desligados",
+		"Ligada" if warm_lighting_enabled else "Desligada",
+		"%d%%" % brightness_percent,
+	]
+	for index in labels.size():
+		var row := Rect2(164, 112 + index * 43, 632, 35)
+		var selected := index == settings_selection
+		draw_rect(row, Color("173b59") if selected else Color("0b1b31"))
+		if selected:
+			draw_rect(Rect2(row.position, Vector2(4, row.size.y)), Color("edc66e"))
+		draw_string(font, row.position + Vector2(17, 24), labels[index], HORIZONTAL_ALIGNMENT_LEFT, 330, 15, Color("f5efd9") if selected else Color("d5e2ea"))
+		draw_string(font, row.position + Vector2(360, 24), "<  %s  >" % values[index], HORIZONTAL_ALIGNMENT_CENTER, 245, 15, Color("ffdc87") if selected else Color("a9c8d4"))
+	draw_string(font, Vector2(170, 489), "W/S selecionar  •  A/D ou E alterar  •  Esc voltar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("a5bdca"))
 
 func draw_gallery(font: Font) -> void:
 	var heroine: Dictionary = heroines[gallery_index]
@@ -1238,22 +1597,46 @@ func draw_inventory(font: Font) -> void:
 	draw_string(font, Vector2(559, 442), "[I/E] fechar", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("ffd888"))
 
 func draw_dialogue(font: Font) -> void:
-	draw_rect(Rect2(28, 348, 904, 164), Color(0.02, 0.03, 0.07, 0.97))
-	draw_rect(Rect2(28, 348, 904, 164), Color("d5b46d"), false, 2.0)
-	draw_string(font, Vector2(58, 381), dialogue_speaker.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, 580, 18, Color("f2cd7e"))
-	for i in dialogue_lines.size():
-		draw_string(font, Vector2(58, 411 + i * 23), dialogue_lines[i], HORIZONTAL_ALIGNMENT_LEFT, 625, 16, Color("f8f2e7"))
+	var rendered_lines := wrap_dialogue_lines(76)
+	var choice_height := dialogue_choices.size() * 21 + 28 if not dialogue_choices.is_empty() else 28
+	var panel_height := maxf(164.0, 78.0 + rendered_lines.size() * 23.0 + choice_height)
+	var panel_y := 512.0 - panel_height
+	draw_rect(Rect2(28, panel_y, 904, panel_height), Color(0.02, 0.03, 0.07, 0.97))
+	draw_rect(Rect2(28, panel_y, 904, panel_height), Color("d5b46d"), false, 2.0)
+	draw_string(font, Vector2(58, panel_y + 33), dialogue_speaker.to_upper(), HORIZONTAL_ALIGNMENT_LEFT, 650, 18, Color("f2cd7e"))
+	for i in rendered_lines.size():
+		draw_string(font, Vector2(58, panel_y + 63 + i * 23), rendered_lines[i], HORIZONTAL_ALIGNMENT_LEFT, 650, 16, Color("f8f2e7"))
+	var portrait_y := maxf(20.0, panel_y - 240.0)
 	if dialogue_speaker == "Ariane":
 		var ariane_expression: Texture2D = ARIANE_EMBARRASSED_PORTRAIT if dialogue_expression == "embarrassed" else ARIANE_PORTRAIT
-		draw_texture_rect(ariane_expression, Rect2(748, 92, 150, 240), false, Color.WHITE)
+		draw_texture_rect(ariane_expression, Rect2(748, portrait_y, 150, 240), false, Color.WHITE)
+	elif dialogue_speaker == "Nerissa":
+		var nerissa_expression: Texture2D = NERISSA_EMBARRASSED_PORTRAIT if dialogue_expression == "embarrassed" else NERISSA_PORTRAIT
+		draw_texture_rect(nerissa_expression, Rect2(748, portrait_y, 150, 240), false, Color.WHITE)
 	if dialogue_choices.is_empty():
-		draw_string(font, Vector2(800, 490), "[E] continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("d5b46d"))
+		draw_string(font, Vector2(800, panel_y + panel_height - 22), "[E] continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("d5b46d"))
 	else:
-		var start_y := 435
+		var start_y := panel_y + 73 + rendered_lines.size() * 23
 		for i in dialogue_choices.size():
 			var color := Color("ffdf92") if i == choice_index else Color("e5e8f1")
 			var marker := "▶ " if i == choice_index else "  "
 			draw_string(font, Vector2(58, start_y + i * 21), marker + dialogue_choices[i], HORIZONTAL_ALIGNMENT_LEFT, 610, 14, color)
+
+func wrap_dialogue_lines(max_characters: int) -> Array[String]:
+	var result: Array[String] = []
+	for original in dialogue_lines:
+		var current := ""
+		for raw_word in original.split(" "):
+			var word: String = raw_word
+			var candidate := word if current.is_empty() else current + " " + word
+			if candidate.length() > max_characters and not current.is_empty():
+				result.append(current)
+				current = word
+			else:
+				current = candidate
+		if not current.is_empty():
+			result.append(current)
+	return result
 
 func draw_battle(font: Font) -> void:
 	draw_rect(Rect2(90, 110, 780, 340), Color(0.03, 0.04, 0.08, 0.97))

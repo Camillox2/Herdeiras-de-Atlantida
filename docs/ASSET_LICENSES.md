@@ -33,6 +33,13 @@ Os assets do jogo final devem ter uma lista de origem e licença neste mesmo doc
 - Origem: cenário original gerado para este projeto com a ferramenta de geração de imagens da OpenAI.
 - Uso: exploração jogável do prólogo. Arte original; sem reprodução de ambiente, mapa ou composição de outros jogos.
 
+## Mapas ilustrados jogáveis
+
+- Arquivos: `assets/custom/kallipolis-exterior-v4.png`, `assets/custom/agora-exterior-v2.png`, `assets/custom/pension-interior-v2.png` e `assets/custom/nereu-exterior-v1.png`.
+- Origem: cenários originais gerados especificamente para Herdeiras de Atlântida com a ferramenta de geração de imagens da OpenAI.
+- Uso: mapas exploráveis de Kallípolis, Ágora das Colunas, Pensão dos Degraus e Nereu.
+- Direção: fantasia mediterrânea e pixel art original; não reutiliza mapas, personagens, sprites, interfaces ou composições de jogos comerciais.
+
 ## Cenário do Porto de Nereu
 
 - Arquivo: `assets/backgrounds/nereu-harbor.png`

@@ -23,7 +23,7 @@ window/size/window_height_override=540
 window/size/resizable=true
 window/stretch/mode="viewport"
 window/stretch/aspect="keep"
-window/stretch/scale_mode="integer"
+window/stretch/scale_mode="fractional"
 window/size/min_width=960
 window/size/min_height=540
 
