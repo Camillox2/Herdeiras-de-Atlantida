@@ -776,6 +776,7 @@ func reset_game() -> void:
 	inventory_items = ["Pão seco", "Capa molhada"]
 	ConfigFile.new().save(SAVE_PATH)
 	title_open = false
+	sync_world_visibility()
 	show_dialogue("Ivo", ["O mar devolve você a Kallípolis.", "Desta vez, a história começa antes da primeira escolha."], [], "")
 
 func quest_text() -> String:
