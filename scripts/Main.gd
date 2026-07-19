@@ -40,6 +40,7 @@ const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v1.p
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
 const KALLIPOLIS_INN_SHEET := preload("res://assets/custom/kallipolis-inn-v1.png")
+const KALLIPOLIS_AGORA_SHEET := preload("res://assets/custom/kallipolis-agora-v1.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
@@ -96,6 +97,10 @@ var cistern_chest_position := Vector2(456, 420)
 var inn_door_position := Vector2(224, 248)
 var inn_exit_position := Vector2(96, 456)
 var inn_lysandra_position := Vector2(264, 282)
+var agora_gate_position := Vector2(910, 240)
+var agora_exit_position := Vector2(82, 446)
+var agora_polemon_position := Vector2(515, 296)
+var agora_notice_board_position := Vector2(304, 312)
 
 var heroines := [
 	{"name": "Ariane", "age": 18, "role": "Mensageira e ladra", "color": Color("4f87c8"), "portrait": ARIANE_PORTRAIT, "embarrassed": ARIANE_EMBARRASSED_PORTRAIT},
@@ -119,6 +124,7 @@ func _ready() -> void:
 	load_game()
 	configure_kallipolis_layers()
 	configure_inn_layers()
+	configure_agora_layers()
 	sync_world_visibility()
 	queue_redraw()
 
@@ -167,12 +173,55 @@ func build_inn_tilemaps() -> void:
 	]:
 		decor.set_cell(position_and_tile[0], 0, position_and_tile[1])
 
+func configure_agora_layers() -> void:
+	var city_tile_set := create_art_tile_set(KALLIPOLIS_TILESET)
+	var agora_tile_set := create_art_tile_set(KALLIPOLIS_AGORA_SHEET)
+	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraRoofs]:
+		layer.tile_set = city_tile_set
+		layer.position = TOWN_ORIGIN
+		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	$World/AgoraProps.tile_set = agora_tile_set
+	$World/AgoraProps.position = TOWN_ORIGIN
+	$World/AgoraProps.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	build_agora_tilemaps()
+
+func build_agora_tilemaps() -> void:
+	var ground: TileMapLayer = $World/AgoraGround
+	var structures: TileMapLayer = $World/AgoraStructures
+	var props: TileMapLayer = $World/AgoraProps
+	var roofs: TileMapLayer = $World/AgoraRoofs
+	ground.clear()
+	structures.clear()
+	props.clear()
+	roofs.clear()
+	for row in TOWN_ROWS:
+		for column in TOWN_COLUMNS:
+			var floor_tile := Vector2i(2, 0) if row in range(2, 12) and column in range(2, 28) else Vector2i(0, 0)
+			ground.set_cell(Vector2i(column, row), 0, floor_tile)
+	for column in TOWN_COLUMNS:
+		if column not in range(13, 17):
+			structures.set_cell(Vector2i(column, 1), 0, Vector2i(1, 1))
+			roofs.set_cell(Vector2i(column, 0), 0, Vector2i(0, 1))
+	for position_and_tile in [
+		[Vector2i(4, 4), Vector2i(0, 0)], [Vector2i(9, 3), Vector2i(1, 0)],
+		[Vector2i(14, 5), Vector2i(2, 0)], [Vector2i(21, 4), Vector2i(3, 0)],
+		[Vector2i(9, 7), Vector2i(0, 1)], [Vector2i(17, 8), Vector2i(1, 1)],
+		[Vector2i(22, 8), Vector2i(2, 1)], [Vector2i(26, 10), Vector2i(3, 1)],
+		[Vector2i(4, 9), Vector2i(0, 2)], [Vector2i(12, 10), Vector2i(1, 2)],
+		[Vector2i(15, 10), Vector2i(2, 2)], [Vector2i(24, 3), Vector2i(3, 2)],
+		[Vector2i(6, 11), Vector2i(0, 3)], [Vector2i(19, 10), Vector2i(1, 3)],
+		[Vector2i(28, 5), Vector2i(2, 3)], [Vector2i(26, 6), Vector2i(3, 3)]
+	]:
+		props.set_cell(position_and_tile[0], 0, position_and_tile[1])
+
 func sync_world_visibility() -> void:
 	var in_city := zone == "kallipolis"
 	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Props, $World/Roofs, $World/LightLayer]:
 		layer.visible = in_city
 	for layer in [$World/InnGround, $World/InnDecor]:
 		layer.visible = zone == "inn"
+	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraProps, $World/AgoraRoofs]:
+		layer.visible = zone == "agora"
 
 func create_art_tile_set(texture: Texture2D) -> TileSet:
 	var tile_set := TileSet.new()
@@ -299,7 +348,7 @@ func _process(delta: float) -> void:
 
 func try_move_player(motion: Vector2) -> void:
 	var candidate := player + motion
-	if zone == "kallipolis" or zone == "inn":
+	if zone == "kallipolis" or zone == "inn" or zone == "agora":
 		candidate.x = clampf(candidate.x, 16.0, 944.0)
 		candidate.y = clampf(candidate.y, TOWN_ORIGIN.y + 16.0, TOWN_ORIGIN.y + TOWN_ROWS * TILE_SIZE - 16.0)
 	else:
@@ -325,6 +374,9 @@ func can_walk_to(candidate: Vector2) -> bool:
 		for obstacle in furniture:
 			if obstacle.grow(9.0).has_point(candidate):
 				return false
+	if zone == "agora":
+		var tile := town_tile_from_position(candidate)
+		return agora_tile_kind(tile.x, tile.y) != "building"
 	return true
 
 func town_tile_from_position(position: Vector2) -> Vector2i:
@@ -361,6 +413,14 @@ func cistern_tile_kind(column: int, row: int) -> String:
 		Vector2i(23, 8), Vector2i(23, 9), Vector2i(23, 10), Vector2i(23, 11), Vector2i(23, 12)
 	]
 	return "wall" if Vector2i(column, row) in wall_cells else "floor"
+
+func agora_tile_kind(column: int, row: int) -> String:
+	if column < 0 or column >= TOWN_COLUMNS or row < 0 or row >= TOWN_ROWS:
+		return "building"
+	if row == 1 and column not in range(13, 17):
+		return "building"
+	var blocked_props := [Vector2i(4, 4), Vector2i(9, 3), Vector2i(14, 5), Vector2i(21, 4), Vector2i(9, 7), Vector2i(17, 8), Vector2i(22, 8), Vector2i(26, 10), Vector2i(4, 9), Vector2i(12, 10), Vector2i(15, 10), Vector2i(24, 3), Vector2i(6, 11), Vector2i(19, 10), Vector2i(28, 5), Vector2i(26, 6)]
+	return "building" if Vector2i(column, row) in blocked_props else "floor"
 
 func handle_gallery_input() -> void:
 	if Input.is_action_just_pressed("move_left"):
@@ -459,11 +519,20 @@ func try_interact() -> void:
 	if zone == "inn":
 		interact_inn()
 		return
+	if zone == "agora":
+		interact_agora()
+		return
 	if player.distance_to(inn_door_position) < 58.0:
 		zone = "inn"
 		player = inn_exit_position
 		sync_world_visibility()
 		show_dialogue("Pensão dos Degraus", ["O cheiro de pão, azeite e madeira antiga tira um pouco do sal da sua garganta.", "Atrás do balcão, uma mulher observa sua entrada como se já soubesse que você viria."], [], "")
+		return
+	if player.distance_to(agora_gate_position) < 62.0:
+		zone = "agora"
+		player = agora_exit_position
+		sync_world_visibility()
+		show_dialogue("Ágora das Colunas", ["O mercado se abre atrás do arco de pedra: vozes, címbalos e o atrito de sandálias no mosaico.", "Aqui, toda pessoa parece vender alguma coisa — até o silêncio."], [], "")
 		return
 	if quest_stage >= 5 and player.distance_to(cistern_gate_position) < 58.0:
 		zone = "cistern"
@@ -499,6 +568,23 @@ func interact_inn() -> void:
 		talk_to("pension")
 		return
 	notice = "A pensão está quieta. Lysandra parece esperar que você diga alguma coisa."
+	notice_time = 1.8
+
+func interact_agora() -> void:
+	if player.distance_to(agora_exit_position) < 66.0:
+		zone = "kallipolis"
+		player = agora_gate_position - Vector2(42, 0)
+		sync_world_visibility()
+		notice = "O cais continua atrás de você."
+		notice_time = 1.8
+		return
+	if player.distance_to(agora_polemon_position) < 70.0:
+		talk_to("smuggler")
+		return
+	if player.distance_to(agora_notice_board_position) < 70.0:
+		show_dialogue("Edital da cidade", ["O bronze lista dívidas de marinheiros, preços de azeite e uma recompensa por 'objetos que cantam sob a água'.", "A última linha foi riscada tantas vezes que o metal parece ferido."], [], "")
+		return
+	notice = "Mercadores negociam, crianças correm entre as colunas e ninguém parece ter tempo a perder."
 	notice_time = 1.8
 
 func interact_cistern() -> void:
@@ -717,6 +803,9 @@ func _draw() -> void:
 	if zone == "inn" and not title_open:
 		draw_inn(font)
 		return
+	if zone == "agora" and not title_open:
+		draw_agora(font)
+		return
 	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
 	# Crate objective.
 	if quest_stage == 2:
@@ -729,9 +818,11 @@ func _draw() -> void:
 	# A stable landmark that makes the first interior discoverable without a minimap.
 	draw_rect(Rect2(inn_door_position + Vector2(-39, -38), Vector2(78, 17)), Color(0.11, 0.05, 0.025, 0.88))
 	draw_string(font, inn_door_position + Vector2(-35, -26), "PENSÃO", HORIZONTAL_ALIGNMENT_CENTER, 70, 12, Color("ffe0a0"))
+	draw_rect(Rect2(agora_gate_position + Vector2(-51, -38), Vector2(102, 17)), Color(0.06, 0.07, 0.12, 0.88))
+	draw_string(font, agora_gate_position + Vector2(-47, -26), "ÁGORA", HORIZONTAL_ALIGNMENT_CENTER, 94, 12, Color("aee5f2"))
 	# NPCs.
 	for npc in npcs:
-		var visible: bool = npc["role"] != "pension" and (npc["role"] != "ariane" or quest_stage >= 3)
+		var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
 		if visible:
 			var npc_position: Vector2 = npc["position"]
 			draw_character(npc_position, npc["sprite"])
@@ -766,6 +857,31 @@ func draw_inn(font: Font) -> void:
 	draw_string(font, inn_lysandra_position + Vector2(-35, -88), "Lysandra", HORIZONTAL_ALIGNMENT_CENTER, 70, 13, Color.WHITE)
 	draw_character(player, Vector2i(0, 0))
 	draw_hud(font, "PENSÃO DOS DEGRAUS")
+	if notice_time > 0.0:
+		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
+	if battle_open:
+		draw_battle(font)
+	elif gallery_open:
+		draw_gallery(font)
+	elif inventory_open:
+		draw_inventory(font)
+	elif dialogue_open:
+		draw_dialogue(font)
+	else:
+		draw_controls(font)
+
+func draw_agora(font: Font) -> void:
+	# The plaza is built from its own TileMap layers; only dynamic actors and clues are drawn here.
+	draw_rect(Rect2(0, TOWN_ORIGIN.y, 960, 448), Color(0.12, 0.07, 0.02, 0.06))
+	draw_rect(Rect2(agora_exit_position - Vector2(34, 22), Vector2(68, 36)), Color(0.05, 0.035, 0.025, 0.74))
+	draw_string(font, agora_exit_position + Vector2(-31, 36), "CAIS", HORIZONTAL_ALIGNMENT_CENTER, 62, 12, Color("f4d6a0"))
+	draw_character(agora_polemon_position, Vector2i(3, 0))
+	draw_rect(Rect2(agora_polemon_position + Vector2(-38, -101), Vector2(76, 17)), Color(0.02, 0.04, 0.09, 0.84))
+	draw_string(font, agora_polemon_position + Vector2(-34, -88), "Pólemon", HORIZONTAL_ALIGNMENT_CENTER, 68, 13, Color.WHITE)
+	draw_circle(agora_notice_board_position + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24))
+	draw_string(font, agora_notice_board_position + Vector2(-44, 40), "EDITAIS", HORIZONTAL_ALIGNMENT_CENTER, 88, 12, Color("f8dda1"))
+	draw_character(player, Vector2i(0, 0))
+	draw_hud(font, "ÁGORA DAS COLUNAS")
 	if notice_time > 0.0:
 		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
 	if battle_open:

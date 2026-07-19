@@ -25,3 +25,9 @@ Os assets foram concebidos para uma fantasia mediterranea original. Eles nao dev
 - Arquivo: `assets/custom/kallipolis-inn-v1.png`.
 - Uso: piso de madeira e mosaico, cama, mesa, estante, lareira, balcao, janela, tapete, mapa, bau e escada da primeira casa jogavel.
 - Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI. A folha foi desenhada para uso em um TileMap de interior, com a mesma grade visual do mundo exterior.
+
+## Agora das Colunas v1
+
+- Arquivo: `assets/custom/kallipolis-agora-v1.png`.
+- Uso: barracas de tecido, coluna, fonte, ervas, editais, anforas, frutas, pedestal, mosaico, flores, altar, poco, portao e placa de estaleiro.
+- Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI. Os props ampliam Kallipolis com uma area de mercado autoral e exploravel.
