@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="AudioStream" path="res://assets/audio/kenney-rpg/Audio/bookOpen.ogg" id="2_open"]
+[ext_resource type="AudioStream" path="res://assets/audio/kenney-rpg/Audio/metalClick.ogg" id="3_click"]
+[ext_resource type="AudioStream" path="res://assets/audio/kenney-rpg/Audio/knifeSlice.ogg" id="4_attack"]
+
+[node name="Main" type="Node2D"]
+script = ExtResource("1_main")
+
+[node name="AudioConfirm" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("2_open")
+volume_db = -9.0
+
+[node name="AudioClick" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("3_click")
+volume_db = -11.0
+
+[node name="AudioAttack" type="AudioStreamPlayer" parent="."]
+stream = ExtResource("4_attack")
+volume_db = -8.0
