@@ -13,3 +13,9 @@
 - Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI; a versao de uso tem fundo magenta removido localmente para alpha.
 
 Os assets foram concebidos para uma fantasia mediterranea original. Eles nao devem imitar personagens, mapas ou assets de outros jogos.
+
+## Props de Kallipolis v1
+
+- Arquivos: `assets/custom/kallipolis-props-v1.png` e `kallipolis-props-v1-source.png`.
+- Uso: mercado, cais, barcos, caixas, peixe, escadas, placas, flores, cordas e lanternas.
+- Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI; a versao de uso tem fundo tecnico removido localmente para alpha.

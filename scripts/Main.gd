@@ -38,6 +38,7 @@ const DUNGEON_WALL := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0014.
 const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028.png")
 const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v1.png")
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
+const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
@@ -116,10 +117,23 @@ func _ready() -> void:
 
 func configure_kallipolis_layers() -> void:
 	# The exploration world is now composed in Godot TileMap layers instead of a single backdrop.
+	var tile_set := create_art_tile_set(KALLIPOLIS_TILESET)
+	var props_tile_set := create_art_tile_set(KALLIPOLIS_PROPS_SHEET)
+	for layer in [$World/Ground, $World/Structures, $World/Roofs]:
+		layer.tile_set = tile_set
+		layer.position = TOWN_ORIGIN
+		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	$World/Props.tile_set = props_tile_set
+	$World/Props.position = TOWN_ORIGIN
+	$World/Props.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	build_kallipolis_tilemaps()
+	build_kallipolis_lights()
+
+func create_art_tile_set(texture: Texture2D) -> TileSet:
 	var tile_set := TileSet.new()
 	tile_set.tile_size = Vector2i(289, 289)
 	var atlas := TileSetAtlasSource.new()
-	atlas.texture = KALLIPOLIS_TILESET
+	atlas.texture = texture
 	atlas.texture_region_size = Vector2i(289, 289)
 	atlas.margins = Vector2i(17, 17)
 	atlas.separation = Vector2i(21, 21)
@@ -127,12 +141,7 @@ func configure_kallipolis_layers() -> void:
 		for column in 4:
 			atlas.create_tile(Vector2i(column, row))
 	tile_set.add_source(atlas, 0)
-	for layer in [$World/Ground, $World/Structures, $World/Roofs]:
-		layer.tile_set = tile_set
-		layer.position = TOWN_ORIGIN
-		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
-	build_kallipolis_tilemaps()
-	build_kallipolis_lights()
+	return tile_set
 
 func build_kallipolis_lights() -> void:
 	var light_layer: Node2D = $World/LightLayer
@@ -168,9 +177,11 @@ func build_kallipolis_lights() -> void:
 func build_kallipolis_tilemaps() -> void:
 	var ground: TileMapLayer = $World/Ground
 	var structures: TileMapLayer = $World/Structures
+	var props: TileMapLayer = $World/Props
 	var roofs: TileMapLayer = $World/Roofs
 	ground.clear()
 	structures.clear()
+	props.clear()
 	roofs.clear()
 	for row in TOWN_ROWS:
 		for column in TOWN_COLUMNS:
@@ -195,6 +206,17 @@ func build_kallipolis_tilemaps() -> void:
 	structures.set_cell(Vector2i(14, 7), 0, Vector2i(2, 2))
 	for pier_x in range(3, 8):
 		structures.set_cell(Vector2i(pier_x, 11), 0, Vector2i(1, 2))
+	# A prop layer makes the city readable: each cluster implies a purpose and a story.
+	for prop_data in [
+		[Vector2i(9, 7), Vector2i(0, 1)], [Vector2i(11, 7), Vector2i(1, 1)],
+		[Vector2i(3, 10), Vector2i(0, 0)], [Vector2i(4, 10), Vector2i(3, 0)],
+		[Vector2i(1, 8), Vector2i(2, 1)], [Vector2i(2, 9), Vector2i(3, 1)],
+		[Vector2i(8, 8), Vector2i(0, 2)], [Vector2i(17, 8), Vector2i(2, 2)],
+		[Vector2i(19, 8), Vector2i(3, 2)], [Vector2i(7, 10), Vector2i(0, 3)],
+		[Vector2i(22, 7), Vector2i(1, 3)], [Vector2i(25, 9), Vector2i(2, 3)],
+		[Vector2i(6, 12), Vector2i(3, 3)]
+	]:
+		props.set_cell(prop_data[0], 0, prop_data[1])
 
 func _process(delta: float) -> void:
 	if notice_time > 0.0:
