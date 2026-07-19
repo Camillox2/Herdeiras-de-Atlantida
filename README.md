@@ -6,6 +6,12 @@ RPG 2D em Godot 4, com exploração top-down pixelada, escolhas narrativas, comb
 
 Ivo chega a Kallípolis sem recursos nem respostas. O prólogo leva o jogador pela Pensão dos Degraus, o cais, o encontro com Ariane e a Cisterna Esquecida, onde a Marca das Moiras desperta.
 
+## Estado visual
+
+![Kallipolis exploravel](docs/screenshots/kallipolis-v3.jpg)
+
+![Interior da Pensao dos Degraus](docs/screenshots/pension-interior-v2.jpg)
+
 Inclui:
 
 - exploração em duas áreas jogáveis, colisão e objetivos;

@@ -37,21 +37,30 @@ const SPRITE_COLLECTOR := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0
 const DUNGEON_FLOOR := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0048.png")
 const DUNGEON_WALL := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0014.png")
 const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028.png")
-const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v1.png")
+const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v2.png")
+const KALLIPOLIS_TERRAIN_ATLAS := preload("res://assets/custom/kallipolis-terrain-native-v1.png")
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
+const IVO_WALK_SHEET := preload("res://assets/custom/ivo-walk-sheet-v1.png")
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
-const KALLIPOLIS_INN_SHEET := preload("res://assets/custom/kallipolis-inn-v1.png")
+const KALLIPOLIS_ENVIRONMENT_SHEET := preload("res://assets/custom/kallipolis-environment-v1.png")
 const KALLIPOLIS_AGORA_SHEET := preload("res://assets/custom/kallipolis-agora-v1.png")
 const PENSION_EXTERIOR := preload("res://assets/custom/pension-exterior-v1.png")
 const MARKET_EXTERIOR := preload("res://assets/custom/market-exterior-v1.png")
 const ARCHIVE_EXTERIOR := preload("res://assets/custom/archive-exterior-v1.png")
+const PENSION_INTERIOR := preload("res://assets/custom/pension-interior-v2.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
+const IVO_WALK_CELL_SIZE := Vector2(313.5, 313.5)
+const IVO_WALK_ROW_ORIGINS := [0.0, 313.0, 627.0, 893.0]
+const IVO_WALK_ROW_HEIGHTS := [313.0, 303.0, 266.0, 361.0]
+const IVO_WALK_FOOT_OFFSETS := [86.0, 74.0, 75.0, 66.0]
+const ENVIRONMENT_CELL_SIZE := Vector2(313.5, 313.5)
 const ART_TILE_SCALE := 32.0 / 289.0
 const CHARACTER_DRAW_SIZE := Vector2(72, 72)
 const CHARACTER_DRAW_OFFSET := Vector2(36, 63)
+const IVO_WALK_DRAW_SIZE := Vector2(96, 96)
 
 var player := Vector2(496, 456)
 var gold := 7
@@ -95,6 +104,9 @@ var inventory_open := false
 var map_open := false
 var pause_open := false
 var title_open := true
+var player_moving := false
+var player_facing := Vector2.DOWN
+var walk_phase := 0.0
 var inventory_items: Array[String] = ["Pão seco", "Capa molhada"]
 
 var cistern_shard_positions := [Vector2(265, 370), Vector2(505, 300), Vector2(748, 245)]
@@ -102,9 +114,10 @@ var cistern_door_position := Vector2(840, 150)
 var cistern_exit_position := Vector2(104, 452)
 var cistern_gate_position := Vector2(895, 420)
 var cistern_chest_position := Vector2(456, 420)
-var inn_door_position := Vector2(224, 248)
-var inn_exit_position := Vector2(112, 552)
-var inn_lysandra_position := Vector2(302, 246)
+var inn_door_position := Vector2(270, 248)
+var inn_exit_position := Vector2(480, 552)
+var inn_lysandra_position := Vector2(690, 335)
+var inn_counter_interaction_position := Vector2(548, 350)
 var agora_gate_position := Vector2(910, 240)
 var agora_exit_position := Vector2(82, 500)
 var agora_polemon_position := Vector2(515, 296)
@@ -130,73 +143,53 @@ var crate_position := Vector2(656, 442)
 
 func _ready() -> void:
 	load_game()
+	var launch_arguments := OS.get_cmdline_user_args()
+	if "--skip-title" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "kallipolis"
+		player = Vector2(496, 456)
+	if "--qa-inn" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "inn"
+		player = Vector2(548, 360)
+		player_facing = Vector2.RIGHT
 	configure_kallipolis_layers()
-	configure_inn_layers()
 	configure_agora_layers()
 	sync_world_visibility()
 	queue_redraw()
 
 func configure_kallipolis_layers() -> void:
 	# The exploration world is now composed in Godot TileMap layers instead of a single backdrop.
-	var tile_set := create_art_tile_set(KALLIPOLIS_TILESET)
-	var props_tile_set := create_art_tile_set(KALLIPOLIS_PROPS_SHEET)
-	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Roofs]:
-		layer.tile_set = tile_set
-		layer.position = GAMEPLAY_RENDER_OFFSET
-		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	var terrain_set := create_native_art_tile_set(KALLIPOLIS_TERRAIN_ATLAS)
+	var large_structure_set := create_scaled_art_tile_set(KALLIPOLIS_TILESET, 145)
+	for layer in [$World/Ground, $World/Water, $World/Roofs]:
+		layer.tile_set = terrain_set
+		layer.position = Vector2.ZERO
+		layer.scale = Vector2.ONE
+	$World/Structures.tile_set = large_structure_set
+	$World/Structures.position = Vector2.ZERO
+	$World/Structures.scale = Vector2(32.0 / 145.0, 32.0 / 145.0)
 	var water_material := ShaderMaterial.new()
 	water_material.shader = HARBOR_WATER_SHADER
 	$World/Water.material = water_material
-	$World/Props.tile_set = props_tile_set
-	$World/Props.position = GAMEPLAY_RENDER_OFFSET
-	$World/Props.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	$World/Props.tile_set = create_scaled_art_tile_set(KALLIPOLIS_PROPS_SHEET, 193)
+	$World/Props.position = Vector2.ZERO
+	$World/Props.scale = Vector2(32.0 / 193.0, 32.0 / 193.0)
 	$World/LightLayer.position = GAMEPLAY_RENDER_OFFSET
 	build_kallipolis_tilemaps()
 	build_kallipolis_lights()
-
-func configure_inn_layers() -> void:
-	var inn_tile_set := create_art_tile_set(KALLIPOLIS_INN_SHEET)
-	for layer in [$World/InnGround, $World/InnDecor]:
-		layer.tile_set = inn_tile_set
-		layer.position = GAMEPLAY_RENDER_OFFSET
-		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
-	build_inn_tilemaps()
-
-func build_inn_tilemaps() -> void:
-	var ground: TileMapLayer = $World/InnGround
-	var decor: TileMapLayer = $World/InnDecor
-	ground.clear()
-	decor.clear()
-	# A compact inn reads as a lived-in place; unused space is kept outside the room rather than as empty floor.
-	for row in range(2, 16):
-		for column in range(2, 28):
-			ground.set_cell(Vector2i(column, row), 0, Vector2i(1, 0) if row in [7, 8] and column in range(10, 18) else Vector2i(0, 0))
-	for column in range(1, 29):
-		decor.set_cell(Vector2i(column, 0), 0, Vector2i(2, 0))
-		decor.set_cell(Vector2i(column, 1), 0, Vector2i(2, 0))
-		decor.set_cell(Vector2i(column, 16), 0, Vector2i(2, 0))
-	for row in range(2, 16):
-		decor.set_cell(Vector2i(1, row), 0, Vector2i(2, 0))
-		decor.set_cell(Vector2i(28, row), 0, Vector2i(2, 0))
-	for position_and_tile in [
-		[Vector2i(5, 5), Vector2i(0, 1)], [Vector2i(12, 7), Vector2i(1, 1)],
-		[Vector2i(21, 3), Vector2i(2, 1)], [Vector2i(24, 3), Vector2i(3, 1)],
-		[Vector2i(8, 3), Vector2i(0, 2)], [Vector2i(12, 8), Vector2i(1, 2)],
-		[Vector2i(18, 2), Vector2i(2, 2)], [Vector2i(25, 6), Vector2i(3, 2)],
-		[Vector2i(7, 10), Vector2i(0, 3)], [Vector2i(18, 10), Vector2i(1, 3)],
-		[Vector2i(15, 10), Vector2i(2, 3)], [Vector2i(25, 10), Vector2i(3, 3)]
-	]:
-		decor.set_cell(position_and_tile[0], 0, position_and_tile[1])
 
 func configure_agora_layers() -> void:
 	var city_tile_set := create_art_tile_set(KALLIPOLIS_TILESET)
 	var agora_tile_set := create_art_tile_set(KALLIPOLIS_AGORA_SHEET)
 	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraRoofs]:
 		layer.tile_set = city_tile_set
-		layer.position = GAMEPLAY_RENDER_OFFSET
+		layer.position = Vector2.ZERO
 		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	$World/AgoraProps.tile_set = agora_tile_set
-	$World/AgoraProps.position = GAMEPLAY_RENDER_OFFSET
+	$World/AgoraProps.position = Vector2.ZERO
 	$World/AgoraProps.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	build_agora_tilemaps()
 
@@ -233,14 +226,38 @@ func sync_world_visibility() -> void:
 	var in_city := zone == "kallipolis"
 	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Props, $World/Roofs, $World/LightLayer]:
 		layer.visible = in_city
-	for layer in [$World/InnGround, $World/InnDecor]:
-		layer.visible = zone == "inn"
 	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraProps, $World/AgoraRoofs]:
 		layer.visible = zone == "agora"
 
 func create_art_tile_set(texture: Texture2D) -> TileSet:
 	var tile_set := TileSet.new()
 	tile_set.tile_size = Vector2i(289, 289)
+	var atlas := TileSetAtlasSource.new()
+	atlas.texture = texture
+	atlas.texture_region_size = Vector2i(289, 289)
+	atlas.margins = Vector2i(17, 17)
+	atlas.separation = Vector2i(21, 21)
+	for row in 4:
+		for column in 4:
+			atlas.create_tile(Vector2i(column, row))
+	tile_set.add_source(atlas, 0)
+	return tile_set
+
+func create_native_art_tile_set(texture: Texture2D) -> TileSet:
+	var tile_set := TileSet.new()
+	tile_set.tile_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	var atlas := TileSetAtlasSource.new()
+	atlas.texture = texture
+	atlas.texture_region_size = Vector2i(TILE_SIZE, TILE_SIZE)
+	for row in 4:
+		for column in 4:
+			atlas.create_tile(Vector2i(column, row))
+	tile_set.add_source(atlas, 0)
+	return tile_set
+
+func create_scaled_art_tile_set(texture: Texture2D, logical_tile_size: int) -> TileSet:
+	var tile_set := TileSet.new()
+	tile_set.tile_size = Vector2i(logical_tile_size, logical_tile_size)
 	var atlas := TileSetAtlasSource.new()
 	atlas.texture = texture
 	atlas.texture_region_size = Vector2i(289, 289)
@@ -298,20 +315,30 @@ func build_kallipolis_tilemaps() -> void:
 		for column in TOWN_COLUMNS:
 			var cell := Vector2i(column, row)
 			var kind := town_tile_kind(column, row)
-			var ground_slot := Vector2i(0, 0)
+			var variation := posmod(column * 7 + row * 11, 4)
+			var ground_slot := Vector2i(variation, 0)
 			if kind == "water":
-				ground_slot = Vector2i(3, 0)
-				water.set_cell(cell, 0, Vector2i(3, 0))
+				ground_slot = Vector2i(posmod(column + row * 2, 4), 2)
+				water.set_cell(cell, 0, ground_slot)
 			elif kind == "path":
-				ground_slot = Vector2i(2, 0)
+				ground_slot = Vector2i(variation, 1)
 			elif kind == "building":
-				ground_slot = Vector2i(1, 1)
+				# Collision is still solid, but complete landmark sprites provide the visible building.
+				ground_slot = Vector2i(variation, 0)
 			elif kind == "tree":
-				ground_slot = Vector2i(0, 0)
-				structures.set_cell(cell, 0, Vector2i(2, 1) if (column + row) % 2 == 0 else Vector2i(3, 1))
-			elif (column + row * 3) % 9 == 0:
-				ground_slot = Vector2i(1, 0)
+				ground_slot = Vector2i(variation, 0)
 			ground.set_cell(cell, 0, ground_slot)
+	# Extra water rows cover the full 16:9 viewport below the playable map.
+	for row in range(TOWN_ROWS, TOWN_ROWS + 3):
+		for column in TOWN_COLUMNS:
+			var water_slot := Vector2i(posmod(column + row * 2, 4), 2)
+			ground.set_cell(Vector2i(column, row), 0, water_slot)
+			water.set_cell(Vector2i(column, row), 0, water_slot)
+	# Purpose-built coastal transitions replace the repeated generic wall strip.
+	for column in range(4, 30):
+		roofs.set_cell(Vector2i(column, 13), 0, Vector2i(0, 3))
+	for row in range(8, 14):
+		roofs.set_cell(Vector2i(2, row), 0, Vector2i(1, 3))
 	# The three former building blocks are now complete landmark sprites: pension, market and archive.
 	# Keeping this layer empty there prevents repeated roof strips from peeking through their silhouettes.
 	structures.set_cell(Vector2i(14, 7), 0, Vector2i(2, 2))
@@ -330,6 +357,7 @@ func build_kallipolis_tilemaps() -> void:
 		props.set_cell(prop_data[0], 0, prop_data[1])
 
 func _process(delta: float) -> void:
+	player_moving = false
 	if notice_time > 0.0:
 		notice_time -= delta
 	if title_open:
@@ -352,6 +380,12 @@ func _process(delta: float) -> void:
 		handle_dialogue_input()
 	else:
 		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		player_moving = direction.length_squared() > 0.01
+		if player_moving:
+			player_facing = direction.normalized()
+			walk_phase += delta * 10.0
+		else:
+			walk_phase = 0.0
 		try_move_player(direction * SPEED * delta)
 		if Input.is_action_just_pressed("interact"):
 			try_interact()
@@ -369,6 +403,33 @@ func _process(delta: float) -> void:
 			pause_open = true
 			$AudioConfirm.play()
 	queue_redraw()
+
+func _unhandled_input(event: InputEvent) -> void:
+	# A short key tap still advances one readable step; holding the key remains smooth in _process.
+	if title_open or dialogue_open or battle_open or gallery_open or inventory_open or map_open or pause_open:
+		return
+	var tapped_direction := Vector2.ZERO
+	if event is InputEventKey and event.pressed and not event.echo:
+		match event.keycode:
+			KEY_A, KEY_LEFT: tapped_direction = Vector2.LEFT
+			KEY_D, KEY_RIGHT: tapped_direction = Vector2.RIGHT
+			KEY_W, KEY_UP: tapped_direction = Vector2.UP
+			KEY_S, KEY_DOWN: tapped_direction = Vector2.DOWN
+	if tapped_direction == Vector2.ZERO:
+		if event.is_action_pressed("move_left"):
+			tapped_direction = Vector2.LEFT
+		elif event.is_action_pressed("move_right"):
+			tapped_direction = Vector2.RIGHT
+		elif event.is_action_pressed("move_up"):
+			tapped_direction = Vector2.UP
+		elif event.is_action_pressed("move_down"):
+			tapped_direction = Vector2.DOWN
+	if tapped_direction != Vector2.ZERO:
+		player_facing = tapped_direction
+		player_moving = true
+		walk_phase += 1.0
+		try_move_player(tapped_direction * 8.0)
+		queue_redraw()
 
 func try_move_player(motion: Vector2) -> void:
 	var candidate := player + motion
@@ -389,11 +450,12 @@ func can_walk_to(candidate: Vector2) -> bool:
 		var tile := town_tile_from_position(candidate)
 		return cistern_tile_kind(tile.x, tile.y) != "wall"
 	if zone == "inn":
+		if candidate.x < 34.0 or candidate.x > 926.0 or candidate.y < 154.0 or candidate.y > 552.0:
+			return false
 		var furniture := [
-			Rect2(178, 194, 38, 42), Rect2(368, 226, 38, 38), Rect2(624, 162, 34, 38),
-			Rect2(782, 162, 38, 38), Rect2(462, 130, 38, 38), Rect2(302, 322, 38, 38),
-			Rect2(750, 258, 38, 38), Rect2(814, 354, 38, 38), Rect2(238, 386, 38, 38),
-			Rect2(590, 386, 38, 38), Rect2(462, 386, 38, 38), Rect2(878, 322, 38, 38)
+			Rect2(58, 178, 220, 176), Rect2(318, 268, 208, 142),
+			Rect2(326, 374, 206, 140), Rect2(566, 226, 310, 284),
+			Rect2(870, 158, 58, 310), Rect2(34, 404, 270, 96)
 		]
 		for obstacle in furniture:
 			if obstacle.grow(9.0).has_point(candidate):
@@ -600,7 +662,7 @@ func interact_inn() -> void:
 		notice = "Você volta à praça de Kallípolis."
 		notice_time = 1.8
 		return
-	if player.distance_to(inn_lysandra_position) < 70.0:
+	if player.distance_to(inn_counter_interaction_position) < 76.0:
 		talk_to("pension")
 		return
 	notice = "A pensão está quieta. Lysandra parece esperar que você diga alguma coisa."
@@ -845,6 +907,7 @@ func _draw() -> void:
 		return
 	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
 	# Named landmarks are complete sprites, which avoids the "wallpaper house" effect of repeated tiles.
+	draw_kallipolis_environment()
 	draw_texture_rect(PENSION_EXTERIOR, Rect2(display_position(Vector2(132, 89)), Vector2(228, 228)), false, Color.WHITE)
 	draw_texture_rect(MARKET_EXTERIOR, Rect2(display_position(Vector2(350, 78)), Vector2(218, 218)), false, Color.WHITE)
 	draw_texture_rect(ARCHIVE_EXTERIOR, Rect2(display_position(Vector2(641, 71)), Vector2(202, 258)), false, Color.WHITE)
@@ -864,7 +927,7 @@ func _draw() -> void:
 			var npc_position: Vector2 = display_position(npc["position"])
 			draw_character(npc_position, npc["sprite"])
 	# Player sprite.
-	draw_character(display_position(player), Vector2i(0, 0))
+	draw_player_character(display_position(player))
 	if title_open:
 		draw_title(font)
 	elif battle_open:
@@ -881,9 +944,10 @@ func _draw() -> void:
 		draw_dialogue(font)
 
 func draw_inn(font: Font) -> void:
-	# Exploration stays unobstructed; the menu and dialogue own contextual text.
+	# A bespoke room illustration provides a coherent floor plan while actors and collisions stay live.
+	draw_texture_rect(PENSION_INTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_character(display_position(inn_lysandra_position), Vector2i(2, 0))
-	draw_character(display_position(player), Vector2i(0, 0))
+	draw_player_character(display_position(player))
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -901,7 +965,7 @@ func draw_agora(font: Font) -> void:
 	# The plaza is built from TileMaps; actors are the only overlaid exploration elements.
 	draw_character(display_position(agora_polemon_position), Vector2i(3, 0))
 	draw_circle(display_position(agora_notice_board_position) + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24))
-	draw_character(display_position(player), Vector2i(0, 0))
+	draw_player_character(display_position(player))
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -973,7 +1037,7 @@ func draw_cistern(font: Font) -> void:
 		var chest_display := display_position(cistern_chest_position)
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("7a4e2e"))
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
-	draw_character(display_position(player), Vector2i(0, 0))
+	draw_player_character(display_position(player))
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1019,6 +1083,51 @@ func draw_character(position: Vector2, slot: Vector2i) -> void:
 	var source := Rect2(slot.x * CHARACTER_CELL_SIZE.x, slot.y * CHARACTER_CELL_SIZE.y, CHARACTER_CELL_SIZE.x, CHARACTER_CELL_SIZE.y)
 	draw_sprite_shadow(position + Vector2(0, 6), Vector2(14, 4), Color(0.01, 0.02, 0.04, 0.35))
 	draw_texture_rect_region(KALLIPOLIS_CHARACTER_SHEET, Rect2(position - CHARACTER_DRAW_OFFSET, CHARACTER_DRAW_SIZE), source, Color.WHITE)
+
+func draw_kallipolis_environment() -> void:
+	var tree_cells := [
+		Vector2i(3, 2), Vector2i(4, 2), Vector2i(3, 3), Vector2i(9, 2),
+		Vector2i(18, 2), Vector2i(19, 2), Vector2i(25, 2), Vector2i(26, 3),
+		Vector2i(4, 12), Vector2i(5, 12), Vector2i(24, 11), Vector2i(25, 11), Vector2i(27, 10)
+	]
+	for index in tree_cells.size():
+		var cell: Vector2i = tree_cells[index]
+		var foot := display_position(Vector2(cell.x * TILE_SIZE + 16, TOWN_ORIGIN.y + cell.y * TILE_SIZE + 29))
+		if index % 3 == 0:
+			draw_environment_sprite(foot, Vector2i(index % 4, 0), Vector2(100, 100), Vector2(50, 91))
+		else:
+			draw_environment_sprite(foot, Vector2i(index % 4, 1), Vector2(72, 108), Vector2(36, 100))
+	for shrub_data in [
+		[Vector2i(3, 6), Vector2i(0, 2)], [Vector2i(9, 9), Vector2i(1, 2)],
+		[Vector2i(18, 10), Vector2i(2, 2)], [Vector2i(26, 7), Vector2i(3, 2)],
+		[Vector2i(10, 12), Vector2i(1, 2)]
+	]:
+		var shrub_cell: Vector2i = shrub_data[0]
+		var shrub_foot := display_position(Vector2(shrub_cell.x * TILE_SIZE + 16, TOWN_ORIGIN.y + shrub_cell.y * TILE_SIZE + 28))
+		draw_environment_sprite(shrub_foot, shrub_data[1], Vector2(56, 56), Vector2(28, 51))
+
+func draw_environment_sprite(foot_position: Vector2, slot: Vector2i, draw_size: Vector2, offset: Vector2) -> void:
+	var source := Rect2(slot.x * ENVIRONMENT_CELL_SIZE.x, slot.y * ENVIRONMENT_CELL_SIZE.y, ENVIRONMENT_CELL_SIZE.x, ENVIRONMENT_CELL_SIZE.y)
+	draw_sprite_shadow(foot_position + Vector2(0, 2), Vector2(draw_size.x * 0.22, 4), Color(0.01, 0.02, 0.03, 0.28))
+	draw_texture_rect_region(KALLIPOLIS_ENVIRONMENT_SHEET, Rect2(foot_position - offset, draw_size), source, Color.WHITE)
+
+func draw_player_character(position: Vector2) -> void:
+	var direction_row := 0
+	if absf(player_facing.x) > absf(player_facing.y):
+		direction_row = 1 if player_facing.x < 0.0 else 2
+	elif player_facing.y < 0.0:
+		direction_row = 3
+	var frame := posmod(int(floor(walk_phase)), 4) if player_moving else 0
+	var source := Rect2(frame * IVO_WALK_CELL_SIZE.x, IVO_WALK_ROW_ORIGINS[direction_row], IVO_WALK_CELL_SIZE.x, IVO_WALK_ROW_HEIGHTS[direction_row])
+	var step := absf(sin(walk_phase * PI * 0.5)) if player_moving else 0.0
+	var bob := -roundf(step * 1.5)
+	var shadow_width := lerpf(14.0, 17.0, step)
+	draw_sprite_shadow(position + Vector2(0, 1), Vector2(shadow_width, 3), Color(0.01, 0.02, 0.04, 0.34))
+	var destination := Rect2(position - Vector2(48, IVO_WALK_FOOT_OFFSETS[direction_row]) + Vector2(0, bob), IVO_WALK_DRAW_SIZE)
+	draw_texture_rect_region(IVO_WALK_SHEET, destination, source, Color.WHITE)
+	if player_moving and step > 0.86:
+		var dust_direction := Vector2(-signf(player_facing.x), 0.4).normalized()
+		draw_circle(position + dust_direction * Vector2(11, 5) + Vector2(0, 3), 2.0, Color(0.78, 0.68, 0.48, 0.32))
 
 func draw_nameplate(font: Font, position: Vector2, character_name: String) -> void:
 	draw_rect(Rect2(position + Vector2(-37, -71), Vector2(74, 16)), Color(0.02, 0.04, 0.09, 0.82))

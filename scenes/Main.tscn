@@ -28,12 +28,6 @@ z_index = -6
 [node name="LightLayer" type="Node2D" parent="World"]
 z_index = -5
 
-[node name="InnGround" type="TileMapLayer" parent="World"]
-z_index = -10
-
-[node name="InnDecor" type="TileMapLayer" parent="World"]
-z_index = -8
-
 [node name="AgoraGround" type="TileMapLayer" parent="World"]
 z_index = -10
 
