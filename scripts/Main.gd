@@ -41,6 +41,7 @@ const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-char
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
+const ART_TILE_SCALE := 32.0 / 289.0
 
 var player := Vector2(496, 456)
 var gold := 7
@@ -110,7 +111,58 @@ var crate_position := Vector2(656, 442)
 
 func _ready() -> void:
 	load_game()
+	configure_kallipolis_layers()
 	queue_redraw()
+
+func configure_kallipolis_layers() -> void:
+	# The exploration world is now composed in Godot TileMap layers instead of a single backdrop.
+	var tile_set := TileSet.new()
+	tile_set.tile_size = Vector2i(289, 289)
+	var atlas := TileSetAtlasSource.new()
+	atlas.texture = KALLIPOLIS_TILESET
+	atlas.texture_region_size = Vector2i(289, 289)
+	atlas.margins = Vector2i(17, 17)
+	atlas.separation = Vector2i(21, 21)
+	for row in 4:
+		for column in 4:
+			atlas.create_tile(Vector2i(column, row))
+	tile_set.add_source(atlas, 0)
+	for layer in [$World/Ground, $World/Structures, $World/Roofs]:
+		layer.tile_set = tile_set
+		layer.position = TOWN_ORIGIN
+		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	build_kallipolis_tilemaps()
+
+func build_kallipolis_tilemaps() -> void:
+	var ground: TileMapLayer = $World/Ground
+	var structures: TileMapLayer = $World/Structures
+	var roofs: TileMapLayer = $World/Roofs
+	ground.clear()
+	structures.clear()
+	roofs.clear()
+	for row in TOWN_ROWS:
+		for column in TOWN_COLUMNS:
+			var cell := Vector2i(column, row)
+			var kind := town_tile_kind(column, row)
+			var ground_slot := Vector2i(0, 0)
+			if kind == "water":
+				ground_slot = Vector2i(3, 0)
+			elif kind == "path":
+				ground_slot = Vector2i(2, 0)
+			elif kind == "building":
+				ground_slot = Vector2i(1, 1)
+			elif kind == "tree":
+				ground_slot = Vector2i(0, 0)
+				structures.set_cell(cell, 0, Vector2i(2, 1) if (column + row) % 2 == 0 else Vector2i(3, 1))
+			elif (column + row * 3) % 9 == 0:
+				ground_slot = Vector2i(1, 0)
+			ground.set_cell(cell, 0, ground_slot)
+	for building in [Rect2i(5, 2, 4, 3), Rect2i(11, 2, 5, 3), Rect2i(20, 3, 5, 3)]:
+		for column in range(building.position.x, building.end.x):
+			roofs.set_cell(Vector2i(column, building.position.y), 0, Vector2i(0, 1))
+	structures.set_cell(Vector2i(14, 7), 0, Vector2i(2, 2))
+	for pier_x in range(3, 8):
+		structures.set_cell(Vector2i(pier_x, 11), 0, Vector2i(1, 2))
 
 func _process(delta: float) -> void:
 	if notice_time > 0.0:
@@ -525,7 +577,7 @@ func _draw() -> void:
 	if zone == "cistern" and not title_open:
 		draw_cistern(font)
 		return
-	draw_kallipolis_map(font)
+	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
 	# Crate objective.
 	if quest_stage == 2:
 		draw_art_tile(Vector2i(3, 2), Rect2(crate_position - Vector2(16, 16), Vector2(32, 32)))
