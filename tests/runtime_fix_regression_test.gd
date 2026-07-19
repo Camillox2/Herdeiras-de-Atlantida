@@ -34,6 +34,20 @@ func run_suite() -> void:
 	main.settings_open = false
 	main.zone = "kallipolis"
 
+	# Graphics application keeps one stable logical canvas and closes the pause
+	# stack after Apply, so the user immediately sees the selected display mode.
+	main.display_mode_index = 2
+	main.resolution_index = 3
+	main.pause_open = true
+	main.settings_open = true
+	main.graphics_dirty = true
+	main.confirm_graphics_changes()
+	expect(root.content_scale_size == main.BASE_VIEWPORT_SIZE, "graphics apply changed the logical 960x540 canvas")
+	expect(not main.settings_open and not main.pause_open, "Apply left the graphics or pause menu open")
+	expect(not main.graphics_dirty, "Apply left graphics marked as pending")
+	expect("resolução atual do monitor" in main.notice, "fullscreen feedback still claimed the selected window resolution")
+	main.notice_time = 0.0
+
 	# Hidden legacy TileMaps must no longer be constructed during startup.
 	expect(main.get_node("World/Ground").tile_set == null, "hidden Kallipolis TileMap was still rebuilt")
 	expect(main.get_node("World/AgoraGround").tile_set == null, "hidden Agora TileMap was still rebuilt")
