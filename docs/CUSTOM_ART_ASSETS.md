@@ -62,6 +62,18 @@ Os assets foram concebidos para uma fantasia mediterranea original. Eles nao dev
 - Uso: dezesseis quadros em quatro direcoes, com baixo, esquerda, direita e cima, quatro fases de passada e leitura visual do movimento.
 - Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI; a versao de uso teve o fundo tecnico removido para alpha.
 
+## Ciclo de caminhada de Ivo v2
+
+- Arquivos: `assets/custom/ivo-walk-sheet-v2.png` e `ivo-walk-sheet-v2-source.png`.
+- Uso: substitui o recorte irregular anterior por uma grade tecnica 4x4, mantendo escala e linha dos pes estaveis nas quatro direcoes.
+- Origem: releitura original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI; o fundo chroma foi removido para alpha.
+
+## Efeitos ambientais animados v1
+
+- Arquivos: `assets/custom/ambient-fx-sheet-v1.png` e `ambient-fx-sheet-v1-source.png`.
+- Uso: gaivotas, folhas, petalas e espuma da agua em ciclos de quatro quadros.
+- Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI; o fundo chroma foi removido para alpha.
+
 ## Vegetacao e objetos ambientais v1
 
 - Arquivos: `assets/custom/kallipolis-environment-v1.png` e `kallipolis-environment-v1-source.png`.

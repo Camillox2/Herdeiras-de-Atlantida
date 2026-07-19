@@ -8,23 +8,25 @@ Ivo chega a Kallípolis sem recursos nem respostas. O prólogo leva o jogador pe
 
 ## Estado visual
 
-![Kallipolis exploravel](docs/screenshots/kallipolis-v4.jpg)
+![Kallipolis viva e explorável](docs/screenshots/kallipolis-alive.png)
 
-![Interior da Pensao dos Degraus](docs/screenshots/pension-interior-v2.jpg)
+![Interior da Pensão dos Degraus](docs/screenshots/inn-stable.png)
 
-![Agora das Colunas](docs/screenshots/agora-v2.jpg)
+![Ágora das Colunas](docs/screenshots/agora-alive.png)
 
-![Chegada a Nereu](docs/screenshots/nereu-v1.jpg)
+![Chegada a Nereu](docs/screenshots/nereu-alive.png)
 
 Inclui:
 
 - quatro áreas ilustradas e jogáveis: Kallípolis, Pensão dos Degraus, Ágora e Nereu, além da Cisterna;
-- movimento animado em quatro direções, colisões por ambiente e transições narrativas;
+- movimento estável em quatro direções, colisões por ambiente/NPC/água e transições seguras;
+- moradores com rotas e falas próprias, gaivotas, folhas, espuma e água animada;
+- prompts contextuais de interação sem placas permanentes sobre o cenário;
 - diálogos com escolhas e afinidade com Ariane;
 - primeiro encontro com Nerissa em Nereu, com escolhas, retrato e expressão;
 - combate por turnos: atacar, defender, focar e Ressonância;
 - baú de exploração que melhora arma e armadura;
-- bolsa, relíquias, salvamento local e efeitos sonoros CC0;
+- bolsa, relíquias, salvamento local, efeitos sonoros CC0 e quatro temas musicais originais;
 - galeria de Vínculos com retratos neutros e envergonhados das seis heroínas.
 - menu gráfico persistente com janela, sem bordas, tela cheia, cinco resoluções, VSync, filtro nítido/suave, sombras, reflexos, luz e brilho.
 
@@ -52,9 +54,9 @@ A composição usa uma base lógica 16:9 e se adapta sem deformação a `960×54
 
 - `assets/backgrounds/` e `assets/custom/`: cenários, mapas e sprites originais.
 - `assets/portraits/`: retratos e expressões.
-- `assets/audio/`: sons CC0 da Kenney.
+- `assets/audio/`: sons CC0 da Kenney e trilha original gerada no projeto.
 - `assets/kenney/`: pack CC0 de tiles para prototipagem.
 - `docs/`: roteiro, estado da build e licenças.
 - `scenes/` e `scripts/`: implementação no Godot.
 
-Consulte [docs/CURRENT_BUILD.md](docs/CURRENT_BUILD.md) para o estado detalhado e [docs/ASSET_LICENSES.md](docs/ASSET_LICENSES.md) para as origens dos assets.
+Consulte [docs/CURRENT_BUILD.md](docs/CURRENT_BUILD.md) para o estado detalhado, [docs/RPG_SYSTEMS_MAP.md](docs/RPG_SYSTEMS_MAP.md) para o plano completo de sistemas e [docs/ASSET_LICENSES.md](docs/ASSET_LICENSES.md) para as origens dos assets.

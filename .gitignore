@@ -3,3 +3,6 @@
 *.log
 *.import
 assets/kenney/*.zip
+docs/audit/
+docs/screenshots/*000000??.png
+docs/screenshots/*.wav

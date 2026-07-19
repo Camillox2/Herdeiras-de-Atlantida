@@ -58,3 +58,16 @@ Os assets do jogo final devem ter uma lista de origem e licença neste mesmo doc
 - Arquivos: `assets/audio/kenney-rpg/`
 - Licença: CC0 1.0.
 - Uso: confirmação, interação e combate na build jogável.
+
+## Trilha original de Herdeiras de Atlântida
+
+- Arquivos: `assets/audio/original/kallipolis_harbor.wav`, `agora_of_columns.wav`, `nereu_blue_sails.wav` e `cistern_forgotten_echoes.wav`.
+- Origem: composições e síntese originais criadas para este projeto, sem samples ou melodias de terceiros.
+- Fonte reproduzível: `tools/generate_original_score.py`.
+- Uso: temas em loop do porto, Ágora, Nereu e Cisterna.
+
+## Sprites de movimento e efeitos ambientais v2
+
+- Arquivos: `assets/custom/ivo-walk-sheet-v2.png`, `ambient-fx-sheet-v1.png` e respectivos arquivos `-source`.
+- Origem: arte original gerada especificamente para Herdeiras de Atlântida com a ferramenta de geração de imagens da OpenAI e finalizada para fundo transparente.
+- Uso: caminhada em quatro direções, gaivotas, folhas, pétalas, espuma e brilhos da água.

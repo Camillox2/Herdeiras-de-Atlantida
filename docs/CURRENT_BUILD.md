@@ -4,9 +4,12 @@
 
 - Tela de abertura e início de jornada.
 - Exploração top-down em Kallípolis, Pensão dos Degraus, Ágora das Colunas, Cisterna e Nereu.
-- Mapas exteriores ilustrados de forma coesa, com rotas caminháveis, colisões próprias e água com reflexos opcionais.
-- Personagem animado em quatro direções, inclusive em toques curtos de teclado.
-- NPCs, diálogos ramificados e afinidade com Ariane.
+- Mapas exteriores ilustrados de forma coesa, com rotas caminháveis, colisões próprias e água animada com reflexos opcionais.
+- Personagem estável e animado em quatro direções, sem passo duplicado e na mesma escala visual dos NPCs.
+- Moradores com rotas, falas, colisão e prioridade correta para personagens de missão.
+- Gaivotas, folhas, pétalas, espuma, ondas em camadas e movimento ambiental contínuo.
+- Prompts contextuais `[E]` para portas, NPCs, itens e saídas.
+- Diálogos paginados, escolhas ramificadas e afinidade com Ariane.
 - Caixa selada, moeda de Atlântida e combate contra o Coletor.
 - Transição para a Cisterna Esquecida.
 - Coleta de três Ecos, porta de bronze e confronto com a Sombra da Cisterna.
@@ -14,9 +17,10 @@
 - Equipamentos ativos: arma, armadura e relíquia.
 - Magia de Ressonância desbloqueada pela Moeda de Atlântida; consome Essência, que é recuperada com Focar.
 - Baú opcional na Cisterna Esquecida melhora arma e armadura; seus bônus entram no cálculo de dano e guarda.
-- Efeitos sonoros CC0 para confirmação, interação e ataque.
+- Efeitos sonoros CC0 para confirmação, interação e ataque e quatro temas musicais originais por região.
 - Bolsa de itens, galeria de Vínculos e salvamento local.
-- Menu de pausa navegável e configurações gráficas persistentes.
+- Menu de pausa navegável e configurações gráficas persistentes com Aplicar/Cancelar explícitos.
+- Migração automática de posição para saves antigos que carreguem dentro de água, parede ou mobiliário.
 - Modos janela, janela sem bordas e tela cheia; resoluções de 960×540 a 2560×1440.
 - VSync, pixels nítidos/suavização HD, sombras, reflexos da água, luz mediterrânea e brilho.
 - Chegada jogável a Nereu e primeiro diálogo ramificado com Nerissa.

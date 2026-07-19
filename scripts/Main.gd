@@ -41,7 +41,8 @@ const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028
 const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v2.png")
 const KALLIPOLIS_TERRAIN_ATLAS := preload("res://assets/custom/kallipolis-terrain-native-v1.png")
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
-const IVO_WALK_SHEET := preload("res://assets/custom/ivo-walk-sheet-v1.png")
+const IVO_WALK_SHEET := preload("res://assets/custom/ivo-walk-sheet-v2.png")
+const AMBIENT_FX_SHEET := preload("res://assets/custom/ambient-fx-sheet-v1.png")
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
 const KALLIPOLIS_ENVIRONMENT_SHEET := preload("res://assets/custom/kallipolis-environment-v1.png")
 const KALLIPOLIS_AGORA_SHEET := preload("res://assets/custom/kallipolis-agora-v1.png")
@@ -53,24 +54,29 @@ const KALLIPOLIS_EXTERIOR := preload("res://assets/custom/kallipolis-exterior-v4
 const AGORA_EXTERIOR := preload("res://assets/custom/agora-exterior-v2.png")
 const NEREU_EXTERIOR := preload("res://assets/custom/nereu-exterior-v1.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
+const MUSIC_KALLIPOLIS := preload("res://assets/audio/original/kallipolis_harbor.wav")
+const MUSIC_AGORA := preload("res://assets/audio/original/agora_of_columns.wav")
+const MUSIC_NEREU := preload("res://assets/audio/original/nereu_blue_sails.wav")
+const MUSIC_CISTERN := preload("res://assets/audio/original/cistern_forgotten_echoes.wav")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
 const IVO_WALK_CELL_SIZE := Vector2(313.5, 313.5)
-const IVO_WALK_ROW_ORIGINS := [0.0, 313.0, 627.0, 893.0]
-const IVO_WALK_ROW_HEIGHTS := [313.0, 303.0, 266.0, 361.0]
-const IVO_WALK_FOOT_OFFSETS := [86.0, 74.0, 75.0, 66.0]
+const IVO_WALK_FOOT_OFFSETS := [68.5, 59.5, 57.0, 54.5]
 const ENVIRONMENT_CELL_SIZE := Vector2(313.5, 313.5)
+const AMBIENT_FX_CELL_SIZE := Vector2(362.0, 360.6667)
 const ART_TILE_SCALE := 32.0 / 289.0
 const CHARACTER_DRAW_SIZE := Vector2(72, 72)
 const CHARACTER_DRAW_OFFSET := Vector2(36, 63)
-const IVO_WALK_DRAW_SIZE := Vector2(96, 96)
+const IVO_WALK_DRAW_SIZE := Vector2(72, 72)
+const PLAYER_COLLISION_RADIUS := 10.0
+const INTERACTION_DISTANCE := 64.0
 const RESOLUTION_OPTIONS := [Vector2i(960, 540), Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
 const RESOLUTION_LABELS := ["960 x 540", "1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440"]
 const DISPLAY_MODE_LABELS := ["Janela", "Janela sem bordas", "Tela cheia"]
 const SCALE_MODE_LABELS := ["Pixels nítidos", "Suavização HD"]
 
-var player := Vector2(496, 456)
+var player := Vector2(496, 440)
 var gold := 7
 var health := 24
 var max_health := 24
@@ -92,6 +98,7 @@ var dialogue_open := false
 var dialogue_speaker := ""
 var dialogue_lines: Array[String] = []
 var dialogue_choices: Array[String] = []
+var dialogue_page := 0
 var choice_index := 0
 var dialogue_action := ""
 var dialogue_expression := "neutral"
@@ -114,6 +121,8 @@ var pause_open := false
 var pause_selection := 0
 var settings_open := false
 var settings_selection := 0
+var graphics_snapshot: Dictionary = {}
+var graphics_dirty := false
 var resolution_index := 0
 var display_mode_index := 0
 var scale_mode_index := 0
@@ -123,10 +132,15 @@ var water_effects_enabled := true
 var warm_lighting_enabled := true
 var brightness_percent := 100
 var water_phase := 0.0
+var ambient_time := 0.0
+var transition_cooldown := 0.0
+var current_music_zone := ""
+var persistence_enabled := true
 var title_open := true
 var player_moving := false
 var player_facing := Vector2.DOWN
 var walk_phase := 0.0
+var qa_autowalk := false
 var inventory_items: Array[String] = ["Pão seco", "Capa molhada"]
 
 var cistern_shard_positions := [Vector2(265, 370), Vector2(505, 300), Vector2(748, 245)]
@@ -136,14 +150,17 @@ var cistern_gate_position := Vector2(895, 420)
 var cistern_chest_position := Vector2(456, 420)
 var inn_door_position := Vector2(242, 325)
 var inn_exit_position := Vector2(480, 552)
+var inn_entry_spawn := Vector2(400, 530)
 var inn_lysandra_position := Vector2(690, 335)
 var inn_counter_interaction_position := Vector2(548, 350)
 var agora_gate_position := Vector2(726, 346)
 var agora_exit_position := Vector2(480, 500)
+var agora_entry_spawn := Vector2(480, 412)
 var agora_polemon_position := Vector2(348, 408)
 var agora_notice_board_position := Vector2(282, 379)
 var agora_route_position := Vector2(898, 327)
 var nereu_exit_position := Vector2(480, 500)
+var nereu_entry_spawn := Vector2(586, 470)
 var nereu_nerissa_position := Vector2(704, 366)
 var nereu_palace_position := Vector2(480, 292)
 
@@ -163,6 +180,16 @@ var npcs := [
 	{"name": "Coletor", "position": Vector2(816, 442), "color": Color("9d4d58"), "role": "collector", "sprite": Vector2i(0, 1)},
 ]
 
+var ambient_actors := [
+	{"zone": "kallipolis", "name": "Doros", "role": "Pescador", "start": Vector2(135, 430), "end": Vector2(220, 430), "slot": Vector2i(2, 1), "phase": 0.1, "speed": 0.34, "line": "O mar muda de humor antes das pessoas. Hoje ele está inquieto."},
+	{"zone": "kallipolis", "name": "Eleni", "role": "Vendedora", "start": Vector2(376, 390), "end": Vector2(438, 390), "slot": Vector2i(2, 0), "phase": 1.4, "speed": 0.27, "line": "Se procura trabalho, comece ouvindo. Kallípolis cobra caro de quem chega falando."},
+	{"zone": "kallipolis", "name": "Mikon", "role": "Estivador", "start": Vector2(605, 432), "end": Vector2(686, 432), "slot": Vector2i(3, 1), "phase": 2.8, "speed": 0.31, "line": "As caixas de Pólemon pesam mais quando ninguém sabe o que existe dentro."},
+	{"zone": "agora", "name": "Phoebe", "role": "Mercadora", "start": Vector2(245, 420), "end": Vector2(365, 420), "slot": Vector2i(2, 0), "phase": 0.8, "speed": 0.24, "line": "A Ágora vende azeite, rumores e certezas falsas. Só o azeite vem em jarra."},
+	{"zone": "agora", "name": "Timon", "role": "Mensageiro", "start": Vector2(600, 390), "end": Vector2(720, 390), "slot": Vector2i(3, 1), "phase": 2.0, "speed": 0.38, "line": "Nereu abriu a travessia ao amanhecer. Fechou de novo antes que alguém perguntasse por quê."},
+	{"zone": "nereu", "name": "Kleon", "role": "Marinheiro", "start": Vector2(180, 420), "end": Vector2(325, 420), "slot": Vector2i(3, 1), "phase": 1.1, "speed": 0.28, "line": "Aqui até a água tem dono. Não repita isso perto dos guardas."},
+	{"zone": "nereu", "name": "Damaris", "role": "Arquivista", "start": Vector2(610, 430), "end": Vector2(760, 430), "slot": Vector2i(1, 0), "phase": 2.4, "speed": 0.22, "line": "Nerissa arquiva memórias porque sabe o estrago que uma lembrança solta pode fazer."},
+]
+
 var crate_position := Vector2(656, 442)
 
 func _ready() -> void:
@@ -173,7 +200,7 @@ func _ready() -> void:
 		title_open = false
 		dialogue_open = false
 		zone = "kallipolis"
-		player = Vector2(496, 456)
+		player = Vector2(496, 440)
 	if "--qa-inn" in launch_arguments:
 		title_open = false
 		dialogue_open = false
@@ -184,14 +211,14 @@ func _ready() -> void:
 		title_open = false
 		dialogue_open = false
 		zone = "agora"
-		player = Vector2(480, 500)
+		player = agora_entry_spawn
 		player_facing = Vector2.UP
 	if "--qa-nereu" in launch_arguments:
 		title_open = false
 		dialogue_open = false
 		zone = "nereu"
 		quest_stage = max(quest_stage, 9)
-		player = Vector2(480, 500)
+		player = nereu_entry_spawn
 		player_facing = Vector2.UP
 	if "--qa-settings" in launch_arguments:
 		title_open = false
@@ -199,7 +226,7 @@ func _ready() -> void:
 		zone = "kallipolis"
 		player = Vector2(480, 440)
 		pause_open = true
-		settings_open = true
+		begin_graphics_settings()
 	if "--qa-nerissa-dialogue" in launch_arguments:
 		title_open = false
 		pause_open = false
@@ -207,6 +234,27 @@ func _ready() -> void:
 		zone = "nereu"
 		player = Vector2(650, 400)
 		start_nerissa_intro()
+	if "--qa-ariane-dialogue" in launch_arguments:
+		title_open = false
+		pause_open = false
+		settings_open = false
+		zone = "kallipolis"
+		quest_stage = 3
+		player = Vector2(690, 360)
+		talk_to("ariane")
+	if "--qa-interaction-prompt" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "kallipolis"
+		player = inn_door_position + Vector2(0, 48)
+		player_facing = Vector2.UP
+	if "--qa-autowalk" in launch_arguments:
+		title_open = false
+		dialogue_open = false
+		zone = "kallipolis"
+		player = Vector2(560, 400)
+		qa_autowalk = true
+	ensure_valid_player_position()
 	apply_graphics_settings()
 	configure_kallipolis_layers()
 	configure_agora_layers()
@@ -282,6 +330,35 @@ func sync_world_visibility() -> void:
 		layer.visible = false
 	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraProps, $World/AgoraRoofs]:
 		layer.visible = false
+	update_music_for_zone()
+
+func ensure_valid_player_position() -> void:
+	if can_walk_to(player) and not is_character_blocking(player):
+		return
+	match zone:
+		"inn": player = inn_entry_spawn
+		"agora": player = agora_entry_spawn
+		"nereu": player = nereu_entry_spawn
+		"cistern": player = Vector2(110, 420)
+		_: player = Vector2(496, 440)
+
+func update_music_for_zone() -> void:
+	var music_zone := zone
+	if zone == "inn":
+		music_zone = "kallipolis"
+	if music_zone == current_music_zone:
+		return
+	current_music_zone = music_zone
+	var track: AudioStream = MUSIC_KALLIPOLIS
+	match music_zone:
+		"agora": track = MUSIC_AGORA
+		"nereu": track = MUSIC_NEREU
+		"cistern": track = MUSIC_CISTERN
+	if track is AudioStreamWAV:
+		track.loop_mode = AudioStreamWAV.LOOP_FORWARD
+	$Music.stop()
+	$Music.stream = track
+	$Music.play()
 
 func create_art_tile_set(texture: Texture2D) -> TileSet:
 	var tile_set := TileSet.new()
@@ -412,6 +489,8 @@ func build_kallipolis_tilemaps() -> void:
 
 func _process(delta: float) -> void:
 	player_moving = false
+	ambient_time = fmod(ambient_time + delta, 10000.0)
+	transition_cooldown = maxf(0.0, transition_cooldown - delta)
 	if water_effects_enabled:
 		water_phase = fmod(water_phase + delta * 1.4, TAU)
 	if notice_time > 0.0:
@@ -436,6 +515,8 @@ func _process(delta: float) -> void:
 		pass # Dialogue choices are also event-driven for reliable short key taps.
 	else:
 		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if qa_autowalk:
+			direction = Vector2.RIGHT if fmod(ambient_time, 4.0) < 2.0 else Vector2.LEFT
 		player_moving = direction.length_squared() > 0.01
 		if player_moving:
 			player_facing = direction.normalized()
@@ -443,25 +524,11 @@ func _process(delta: float) -> void:
 		else:
 			walk_phase = 0.0
 		try_move_player(direction * SPEED * delta)
-		if Input.is_action_just_pressed("interact"):
-			try_interact()
-		if Input.is_action_just_pressed("save_game"):
-			save_game()
-		if Input.is_action_just_pressed("journal"):
-			gallery_open = true
-		if Input.is_action_just_pressed("inventory"):
-			inventory_open = true
-			$AudioConfirm.play()
-		if Input.is_action_just_pressed("map"):
-			map_open = true
-			$AudioConfirm.play()
-		if Input.is_action_just_pressed("pause_menu"):
-			pause_open = true
-			$AudioConfirm.play()
 	queue_redraw()
 
 func _unhandled_input(event: InputEvent) -> void:
-	# A short key tap still advances one readable step; holding the key remains smooth in _process.
+	# Continuous movement belongs exclusively to _process. Discrete actions are
+	# consumed here once, preventing the same E press from closing and reopening a dialogue.
 	if pause_open:
 		handle_pause_event(event)
 		return
@@ -470,28 +537,25 @@ func _unhandled_input(event: InputEvent) -> void:
 		return
 	if title_open or battle_open or gallery_open or inventory_open or map_open:
 		return
-	var tapped_direction := Vector2.ZERO
-	if event is InputEventKey and event.pressed and not event.echo:
-		match event.keycode:
-			KEY_A, KEY_LEFT: tapped_direction = Vector2.LEFT
-			KEY_D, KEY_RIGHT: tapped_direction = Vector2.RIGHT
-			KEY_W, KEY_UP: tapped_direction = Vector2.UP
-			KEY_S, KEY_DOWN: tapped_direction = Vector2.DOWN
-	if tapped_direction == Vector2.ZERO:
-		if event.is_action_pressed("move_left"):
-			tapped_direction = Vector2.LEFT
-		elif event.is_action_pressed("move_right"):
-			tapped_direction = Vector2.RIGHT
-		elif event.is_action_pressed("move_up"):
-			tapped_direction = Vector2.UP
-		elif event.is_action_pressed("move_down"):
-			tapped_direction = Vector2.DOWN
-	if tapped_direction != Vector2.ZERO:
-		player_facing = tapped_direction
-		player_moving = true
-		walk_phase += 1.0
-		try_move_player(tapped_direction * 8.0)
-		queue_redraw()
+	if not (event is InputEventKey) or not event.pressed or event.echo:
+		return
+	if event.is_action_pressed("interact"):
+		try_interact()
+	elif event.is_action_pressed("save_game"):
+		save_game()
+	elif event.is_action_pressed("journal"):
+		gallery_open = true
+		$AudioConfirm.play()
+	elif event.is_action_pressed("inventory"):
+		inventory_open = true
+		$AudioConfirm.play()
+	elif event.is_action_pressed("map"):
+		map_open = true
+		$AudioConfirm.play()
+	elif event.is_action_pressed("pause_menu"):
+		pause_open = true
+		$AudioConfirm.play()
+	queue_redraw()
 
 func handle_pause_event(event: InputEvent) -> void:
 	if not (event is InputEventKey) or not event.pressed or event.echo:
@@ -505,19 +569,24 @@ func handle_pause_event(event: InputEvent) -> void:
 	var cancel: bool = code == KEY_ESCAPE or event.is_action_pressed("pause_menu")
 	if settings_open:
 		if cancel:
-			settings_open = false
-			save_graphics_settings()
+			cancel_graphics_changes()
 			$AudioClick.play()
 		elif go_up:
-			settings_selection = posmod(settings_selection - 1, 8)
+			settings_selection = posmod(settings_selection - 1, 10)
 			$AudioClick.play()
 		elif go_down:
-			settings_selection = posmod(settings_selection + 1, 8)
+			settings_selection = posmod(settings_selection + 1, 10)
 			$AudioClick.play()
-		elif go_left:
+		elif go_left and settings_selection < 8:
 			change_graphics_setting(-1)
-		elif go_right or confirm:
+		elif go_right and settings_selection < 8:
 			change_graphics_setting(1)
+		elif confirm and settings_selection < 8:
+			change_graphics_setting(1)
+		elif confirm and settings_selection == 8:
+			confirm_graphics_changes()
+		elif confirm and settings_selection == 9:
+			cancel_graphics_changes()
 		queue_redraw()
 		return
 	if cancel:
@@ -540,7 +609,11 @@ func handle_dialogue_event(event: InputEvent) -> void:
 	var go_up: bool = code in [KEY_W, KEY_UP] or event.is_action_pressed("move_up")
 	var go_down: bool = code in [KEY_S, KEY_DOWN] or event.is_action_pressed("move_down")
 	var confirm: bool = code in [KEY_E, KEY_SPACE, KEY_ENTER] or event.is_action_pressed("interact")
-	if not dialogue_choices.is_empty():
+	var at_last_page := dialogue_page >= dialogue_lines.size() - 1
+	if not at_last_page and confirm:
+		dialogue_page += 1
+		$AudioClick.play()
+	elif at_last_page and not dialogue_choices.is_empty():
 		if go_up:
 			choice_index = posmod(choice_index - 1, dialogue_choices.size())
 			$AudioClick.play()
@@ -556,6 +629,8 @@ func handle_dialogue_event(event: InputEvent) -> void:
 	queue_redraw()
 
 func try_move_player(motion: Vector2) -> void:
+	if motion.length_squared() <= 0.0001:
+		return
 	var candidate := player + motion
 	if zone in ["kallipolis", "inn", "agora", "nereu"]:
 		candidate.x = clampf(candidate.x, 16.0, 944.0)
@@ -563,8 +638,40 @@ func try_move_player(motion: Vector2) -> void:
 	else:
 		candidate.x = clampf(candidate.x, WORLD.position.x + 12.0, WORLD.end.x - 12.0)
 		candidate.y = clampf(candidate.y, WORLD.position.y + 12.0, WORLD.end.y - 12.0)
-	if can_walk_to(candidate):
+	if can_walk_to(candidate) and not is_character_blocking(candidate):
 		player = candidate
+		return
+	# Sliding on one axis keeps movement fluid along walls and water edges.
+	var candidate_x := Vector2(candidate.x, player.y)
+	var candidate_y := Vector2(player.x, candidate.y)
+	if absf(motion.x) >= absf(motion.y):
+		if can_walk_to(candidate_x) and not is_character_blocking(candidate_x):
+			player = candidate_x
+		elif can_walk_to(candidate_y) and not is_character_blocking(candidate_y):
+			player = candidate_y
+	else:
+		if can_walk_to(candidate_y) and not is_character_blocking(candidate_y):
+			player = candidate_y
+		elif can_walk_to(candidate_x) and not is_character_blocking(candidate_x):
+			player = candidate_x
+
+func is_character_blocking(candidate: Vector2) -> bool:
+	for npc in npcs:
+		if zone != "kallipolis":
+			break
+		var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
+		if visible and candidate.distance_to(npc["position"]) < PLAYER_COLLISION_RADIUS + 11.0:
+			return true
+	if zone == "inn" and candidate.distance_to(inn_lysandra_position) < PLAYER_COLLISION_RADIUS + 12.0:
+		return true
+	if zone == "agora" and candidate.distance_to(agora_polemon_position) < PLAYER_COLLISION_RADIUS + 12.0:
+		return true
+	if zone == "nereu" and candidate.distance_to(nereu_nerissa_position) < PLAYER_COLLISION_RADIUS + 12.0:
+		return true
+	for actor in ambient_actors:
+		if actor["zone"] == zone and candidate.distance_to(ambient_actor_position(actor)) < PLAYER_COLLISION_RADIUS + 9.0:
+			return true
+	return false
 
 func can_walk_to(candidate: Vector2) -> bool:
 	if zone == "kallipolis":
@@ -592,10 +699,9 @@ func can_walk_to(candidate: Vector2) -> bool:
 func can_walk_kallipolis(candidate: Vector2) -> bool:
 	# World coordinates are 72 px below the painted viewport. Broad regions keep
 	# movement readable while landmark silhouettes, fountain and sea stay solid.
-	var on_promenade := Rect2(64, 310, 832, 154).has_point(candidate)
-	var on_west_pier := Rect2(58, 418, 190, 118).has_point(candidate)
-	var on_sea_gate_landing := Rect2(430, 418, 100, 76).has_point(candidate)
-	if not (on_promenade or on_west_pier or on_sea_gate_landing):
+	var on_promenade := Rect2(74, 316, 812, 139).has_point(candidate)
+	var on_west_pier := Rect2(70, 420, 168, 102).has_point(candidate)
+	if not (on_promenade or on_west_pier):
 		return false
 	var fountain_center := Vector2(480, 374)
 	if candidate.distance_to(fountain_center) < 56.0:
@@ -695,8 +801,7 @@ func activate_pause_selection() -> void:
 		0:
 			pause_open = false
 		1:
-			settings_open = true
-			settings_selection = 0
+			begin_graphics_settings()
 		2:
 			save_game()
 		3:
@@ -714,9 +819,45 @@ func change_graphics_setting(change: int) -> void:
 		5: water_effects_enabled = not water_effects_enabled
 		6: warm_lighting_enabled = not warm_lighting_enabled
 		7: brightness_percent = clampi(brightness_percent + change * 5, 70, 120)
+	graphics_dirty = true
+	$AudioConfirm.play()
+
+func begin_graphics_settings() -> void:
+	graphics_snapshot = {
+		"display_mode": display_mode_index,
+		"resolution": resolution_index,
+		"scale_mode": scale_mode_index,
+		"vsync": vsync_enabled,
+		"shadows": shadows_enabled,
+		"water_effects": water_effects_enabled,
+		"warm_lighting": warm_lighting_enabled,
+		"brightness": brightness_percent,
+	}
+	graphics_dirty = false
+	settings_open = true
+	settings_selection = 0
+
+func confirm_graphics_changes() -> void:
 	apply_graphics_settings()
 	save_graphics_settings()
+	graphics_dirty = false
+	settings_open = false
+	notice = "Configurações gráficas aplicadas."
+	notice_time = 2.0
 	$AudioConfirm.play()
+
+func cancel_graphics_changes() -> void:
+	if not graphics_snapshot.is_empty():
+		display_mode_index = graphics_snapshot.get("display_mode", display_mode_index)
+		resolution_index = graphics_snapshot.get("resolution", resolution_index)
+		scale_mode_index = graphics_snapshot.get("scale_mode", scale_mode_index)
+		vsync_enabled = graphics_snapshot.get("vsync", vsync_enabled)
+		shadows_enabled = graphics_snapshot.get("shadows", shadows_enabled)
+		water_effects_enabled = graphics_snapshot.get("water_effects", water_effects_enabled)
+		warm_lighting_enabled = graphics_snapshot.get("warm_lighting", warm_lighting_enabled)
+		brightness_percent = graphics_snapshot.get("brightness", brightness_percent)
+	graphics_dirty = false
+	settings_open = false
 
 func load_graphics_settings() -> void:
 	var config := ConfigFile.new()
@@ -732,6 +873,8 @@ func load_graphics_settings() -> void:
 	brightness_percent = clampi(config.get_value("graphics", "brightness", brightness_percent), 70, 120)
 
 func save_graphics_settings() -> void:
+	if not persistence_enabled:
+		return
 	var config := ConfigFile.new()
 	config.set_value("graphics", "display_mode", display_mode_index)
 	config.set_value("graphics", "resolution", resolution_index)
@@ -835,6 +978,8 @@ func finish_battle() -> void:
 		show_dialogue("Ariane", ["A sombra não estava protegendo o labirinto.", "Estava protegendo alguém de lembrar quem a criou.", "A segunda relíquia canta. Continue."], [], "")
 
 func try_interact() -> void:
+	if transition_cooldown > 0.0:
+		return
 	$AudioClick.play()
 	if zone == "cistern":
 		interact_cistern()
@@ -850,13 +995,17 @@ func try_interact() -> void:
 		return
 	if player.distance_to(inn_door_position) < 58.0:
 		zone = "inn"
-		player = inn_exit_position
+		player = inn_entry_spawn
+		player_facing = Vector2.UP
+		transition_cooldown = 0.45
 		sync_world_visibility()
 		show_dialogue("Pensão dos Degraus", ["O cheiro de pão, azeite e madeira antiga tira um pouco do sal da sua garganta.", "Atrás do balcão, uma mulher observa sua entrada como se já soubesse que você viria."], [], "")
 		return
 	if player.distance_to(agora_gate_position) < 62.0:
 		zone = "agora"
-		player = agora_exit_position
+		player = agora_entry_spawn
+		player_facing = Vector2.UP
+		transition_cooldown = 0.45
 		sync_world_visibility()
 		show_dialogue("Ágora das Colunas", ["O mercado se abre atrás do arco de pedra: vozes, címbalos e o atrito de sandálias no mosaico.", "Aqui, toda pessoa parece vender alguma coisa — até o silêncio."], [], "")
 		return
@@ -879,13 +1028,17 @@ func try_interact() -> void:
 		if player.distance_to(npc.position) < 60.0:
 			talk_to(npc.role)
 			return
+	if try_talk_to_nearby_resident():
+		return
 	notice = "Nada para interagir aqui."
 	notice_time = 1.7
 
 func interact_inn() -> void:
 	if player.distance_to(inn_exit_position) < 64.0:
 		zone = "kallipolis"
-		player = inn_door_position + Vector2(0, 48)
+		player = inn_door_position + Vector2(0, 72)
+		player_facing = Vector2.DOWN
+		transition_cooldown = 0.45
 		sync_world_visibility()
 		notice = "Você volta à praça de Kallípolis."
 		notice_time = 1.8
@@ -899,7 +1052,9 @@ func interact_inn() -> void:
 func interact_agora() -> void:
 	if player.distance_to(agora_exit_position) < 66.0:
 		zone = "kallipolis"
-		player = agora_gate_position - Vector2(42, 0)
+		player = agora_gate_position - Vector2(76, 0)
+		player_facing = Vector2.LEFT
+		transition_cooldown = 0.45
 		sync_world_visibility()
 		notice = "O cais continua atrás de você."
 		notice_time = 1.8
@@ -915,10 +1070,13 @@ func interact_agora() -> void:
 			show_dialogue("Portão de Nereu", ["O arco oriental permanece fechado. Guardas azuis conferem selos de travessia.", "Ainda existe algo sob Kallípolis que você precisa terminar."], [], "")
 		else:
 			zone = "nereu"
-			player = nereu_exit_position
+			player = nereu_entry_spawn
 			player_facing = Vector2.UP
+			transition_cooldown = 0.45
 			sync_world_visibility()
 			show_dialogue("Nereu", ["A travessia termina entre velas azuis e muralhas que parecem nascer da água.", "Kallípolis cheirava a sobrevivência. Nereu cheira a poder bem administrado — o que talvez seja mais perigoso."], [], "")
+		return
+	if try_talk_to_nearby_resident():
 		return
 	notice = "Mercadores negociam, crianças correm entre as colunas e ninguém parece ter tempo a perder."
 	notice_time = 1.8
@@ -928,6 +1086,7 @@ func interact_nereu() -> void:
 		zone = "agora"
 		player = agora_route_position - Vector2(48, 0)
 		player_facing = Vector2.LEFT
+		transition_cooldown = 0.45
 		sync_world_visibility()
 		notice = "O ferry retorna à Ágora de Kallípolis."
 		notice_time = 1.8
@@ -937,6 +1096,8 @@ func interact_nereu() -> void:
 		return
 	if player.distance_to(nereu_palace_position) < 72.0:
 		show_dialogue("Palácio da Maré", ["Guardas cruzam lanças diante do salão da capitã.", "O símbolo na sua marca responde às fontes do pátio com uma pulsação quase imperceptível."], [], "")
+		return
+	if try_talk_to_nearby_resident():
 		return
 	notice = "Canais luminosos dividem a praça. Cada ponte parece levar a uma versão diferente da cidade."
 	notice_time = 1.8
@@ -1013,6 +1174,7 @@ func show_dialogue(speaker: String, lines: Array, choices: Array = [], action :=
 	dialogue_choices.assign(choices)
 	dialogue_action = action
 	dialogue_expression = expression
+	dialogue_page = 0
 	choice_index = 0
 	dialogue_open = true
 
@@ -1021,6 +1183,30 @@ func close_dialogue() -> void:
 	dialogue_lines.clear()
 	dialogue_choices.clear()
 	dialogue_action = ""
+	dialogue_page = 0
+
+func ambient_actor_position(actor: Dictionary) -> Vector2:
+	var travel := (sin(ambient_time * float(actor["speed"]) * TAU + float(actor["phase"])) + 1.0) * 0.5
+	return Vector2(actor["start"]).lerp(Vector2(actor["end"]), travel)
+
+func find_nearby_ambient_actor() -> Dictionary:
+	var nearest: Dictionary = {}
+	var nearest_distance := INTERACTION_DISTANCE
+	for actor in ambient_actors:
+		if actor["zone"] != zone:
+			continue
+		var distance := player.distance_to(ambient_actor_position(actor))
+		if distance < nearest_distance:
+			nearest = actor
+			nearest_distance = distance
+	return nearest
+
+func try_talk_to_nearby_resident() -> bool:
+	var resident := find_nearby_ambient_actor()
+	if resident.is_empty():
+		return false
+	show_dialogue(resident["name"], [resident["line"], "%s observa a cidade por um instante antes de seguir seu caminho." % resident["role"]], [], "")
+	return true
 
 func choose_dialogue() -> void:
 	var chosen := dialogue_choices[choice_index]
@@ -1077,6 +1263,8 @@ func start_battle(name := "Coletor de Relíquias", max_enemy_health := 18, rewar
 	combat_message = "%s bloqueia seu caminho. A marca pulsa entre vocês." % enemy_name
 
 func save_game() -> void:
+	if not persistence_enabled:
+		return
 	var save := ConfigFile.new()
 	save.set_value("player", "x", player.x)
 	save.set_value("player", "y", player.y)
@@ -1121,7 +1309,7 @@ func load_game() -> void:
 		inventory_items = save.get_value("state", "inventory_items", inventory_items)
 
 func reset_game() -> void:
-	player = Vector2(496, 456)
+	player = Vector2(496, 440)
 	gold = 7
 	health = max_health
 	essence = 0
@@ -1185,6 +1373,7 @@ func _draw() -> void:
 	# A single authored environment replaces the former mixed tiles and façade collage.
 	draw_texture_rect(KALLIPOLIS_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_water_shimmer(405.0, 540.0)
+	draw_ambient_fx("kallipolis", 405.0, 540.0)
 	# Crate objective.
 	if quest_stage == 2:
 		var crate_display := display_position(crate_position)
@@ -1200,9 +1389,12 @@ func _draw() -> void:
 		if visible:
 			var npc_position: Vector2 = display_position(npc["position"])
 			draw_character(npc_position, npc["sprite"])
+	draw_ambient_actors()
 	# Player sprite.
 	draw_player_character(display_position(player))
 	draw_scene_color_grade()
+	if not title_open and not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
+		draw_interaction_prompt(font)
 	if title_open:
 		draw_title(font)
 	elif battle_open:
@@ -1224,6 +1416,8 @@ func draw_inn(font: Font) -> void:
 	draw_character(display_position(inn_lysandra_position), Vector2i(2, 0))
 	draw_player_character(display_position(player))
 	draw_scene_color_grade()
+	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
+		draw_interaction_prompt(font)
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1241,10 +1435,14 @@ func draw_agora(font: Font) -> void:
 	# The second district follows the same authored-map pipeline as the harbor city.
 	draw_texture_rect(AGORA_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_water_shimmer(466.0, 540.0)
+	draw_ambient_fx("agora", 466.0, 540.0)
 	draw_character(display_position(agora_polemon_position), Vector2i(3, 0))
+	draw_ambient_actors()
 	draw_circle(display_position(agora_notice_board_position) + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24 + sin(water_phase * 2.0) * 0.06))
 	draw_player_character(display_position(player))
 	draw_scene_color_grade()
+	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
+		draw_interaction_prompt(font)
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1261,9 +1459,13 @@ func draw_agora(font: Font) -> void:
 func draw_nereu(font: Font) -> void:
 	draw_texture_rect(NEREU_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_water_shimmer(468.0, 540.0)
+	draw_ambient_fx("nereu", 468.0, 540.0)
 	draw_character(display_position(nereu_nerissa_position), Vector2i(1, 0))
+	draw_ambient_actors()
 	draw_player_character(display_position(player))
 	draw_scene_color_grade()
+	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
+		draw_interaction_prompt(font)
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1337,6 +1539,8 @@ func draw_cistern(font: Font) -> void:
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
 	draw_player_character(display_position(player))
 	draw_scene_color_grade()
+	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
+		draw_interaction_prompt(font)
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
@@ -1383,6 +1587,113 @@ func draw_character(position: Vector2, slot: Vector2i) -> void:
 	draw_sprite_shadow(position + Vector2(0, 6), Vector2(14, 4), Color(0.01, 0.02, 0.04, 0.35))
 	draw_texture_rect_region(KALLIPOLIS_CHARACTER_SHEET, Rect2(position - CHARACTER_DRAW_OFFSET, CHARACTER_DRAW_SIZE), source, Color.WHITE)
 
+func draw_ambient_actors() -> void:
+	for actor in ambient_actors:
+		if actor["zone"] != zone:
+			continue
+		var world_position := ambient_actor_position(actor)
+		var display := display_position(world_position)
+		var walking_bob := -roundf(absf(sin(ambient_time * float(actor["speed"]) * TAU * 2.0)) * 1.0)
+		draw_character_scaled(display + Vector2(0, walking_bob), actor["slot"], Vector2(54, 54))
+
+func draw_character_scaled(position: Vector2, slot: Vector2i, size: Vector2) -> void:
+	var source := Rect2(slot.x * CHARACTER_CELL_SIZE.x, slot.y * CHARACTER_CELL_SIZE.y, CHARACTER_CELL_SIZE.x, CHARACTER_CELL_SIZE.y)
+	draw_sprite_shadow(position + Vector2(0, 3), Vector2(size.x * 0.17, 3), Color(0.01, 0.02, 0.04, 0.28))
+	draw_texture_rect_region(KALLIPOLIS_CHARACTER_SHEET, Rect2(position - Vector2(size.x * 0.5, size.y * 0.87), size), source, Color.WHITE)
+
+func draw_ambient_fx(scene_zone: String, water_top: float, water_bottom: float) -> void:
+	if not water_effects_enabled:
+		return
+	var frame := posmod(int(floor(ambient_time * 7.0)), 4)
+	# Seagulls cross at different heights and speeds instead of looping in place.
+	for index in range(2):
+		var x := fmod(ambient_time * (31.0 + index * 8.0) + index * 470.0, 1080.0) - 60.0
+		var y := 92.0 + index * 54.0 + sin(ambient_time * 1.7 + index) * 7.0
+		draw_ambient_fx_cell(Vector2(x, y), Vector2i(frame, 0), Vector2(34, 34))
+	# Leaves and petals drift through the populated streets.
+	for index in range(5):
+		var drift_x := fmod(index * 217.0 + ambient_time * (11.0 + index), 1000.0) - 20.0
+		var drift_y := 155.0 + fmod(index * 83.0 + ambient_time * (18.0 + index * 2.0), maxf(80.0, water_top - 150.0))
+		draw_ambient_fx_cell(Vector2(drift_x, drift_y), Vector2i(posmod(frame + index, 4), 1), Vector2(18, 18), Color(1, 1, 1, 0.78))
+	# Foam accents follow the animated water and make the shoreline visibly alive.
+	for index in range(8):
+		var ripple_x := 54.0 + fmod(index * 137.0 + ambient_time * (5.0 + index), 870.0)
+		var ripple_y := lerpf(water_top + 17.0, water_bottom - 24.0, float(posmod(index * 3, 8)) / 7.0)
+		draw_ambient_fx_cell(Vector2(ripple_x, ripple_y), Vector2i(posmod(frame + index, 4), 2), Vector2(27, 22), Color(1, 1, 1, 0.62))
+
+func draw_ambient_fx_cell(center: Vector2, slot: Vector2i, size: Vector2, modulate := Color.WHITE) -> void:
+	var source := Rect2(slot.x * AMBIENT_FX_CELL_SIZE.x, slot.y * AMBIENT_FX_CELL_SIZE.y, AMBIENT_FX_CELL_SIZE.x, AMBIENT_FX_CELL_SIZE.y)
+	draw_texture_rect_region(AMBIENT_FX_SHEET, Rect2(center - size * 0.5, size), source, modulate)
+
+func interaction_prompt_data() -> Dictionary:
+	var candidates: Array[Dictionary] = []
+	if zone == "kallipolis":
+		candidates.append({"position": inn_door_position, "label": "Entrar na Pensão"})
+		candidates.append({"position": agora_gate_position, "label": "Entrar na Ágora"})
+		if quest_stage >= 5:
+			candidates.append({"position": cistern_gate_position, "label": "Descer à Cisterna"})
+		if quest_stage == 2:
+			candidates.append({"position": crate_position, "label": "Abrir a caixa"})
+		for npc in npcs:
+			var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
+			if visible:
+				candidates.append({"position": npc["position"], "label": "Falar com %s" % npc["name"]})
+	elif zone == "inn":
+		candidates.append({"position": inn_exit_position, "label": "Sair da Pensão"})
+		candidates.append({"position": inn_counter_interaction_position, "anchor": inn_lysandra_position, "label": "Falar com Lysandra"})
+	elif zone == "agora":
+		candidates.append({"position": agora_exit_position, "label": "Voltar ao cais"})
+		candidates.append({"position": agora_polemon_position, "label": "Falar com Pólemon"})
+		candidates.append({"position": agora_notice_board_position, "label": "Ler o edital"})
+		candidates.append({"position": agora_route_position, "label": "Tomar o ferry para Nereu"})
+	elif zone == "nereu":
+		candidates.append({"position": nereu_exit_position, "label": "Retornar à Ágora"})
+		candidates.append({"position": nereu_nerissa_position, "label": "Falar com Nerissa"})
+		candidates.append({"position": nereu_palace_position, "label": "Examinar o palácio"})
+	elif zone == "cistern":
+		candidates.append({"position": cistern_exit_position, "label": "Voltar à superfície"})
+		candidates.append({"position": cistern_door_position, "label": "Examinar a porta"})
+		if not cistern_chest_open:
+			candidates.append({"position": cistern_chest_position, "label": "Abrir o baú"})
+		for index in cistern_shard_positions.size():
+			if not cistern_shards[index]:
+				candidates.append({"position": cistern_shard_positions[index], "label": "Tocar o Eco"})
+	var nearest: Dictionary = {}
+	var nearest_distance := 82.0
+	for candidate in candidates:
+		var distance := player.distance_to(candidate["position"])
+		if distance < nearest_distance:
+			nearest = candidate
+			nearest_distance = distance
+	if not nearest.is_empty():
+		return nearest
+	for actor in ambient_actors:
+		if actor["zone"] != zone:
+			continue
+		var actor_position := ambient_actor_position(actor)
+		var actor_distance := player.distance_to(actor_position)
+		if actor_distance < nearest_distance:
+			nearest = {"position": actor_position, "label": "Falar com %s" % actor["name"]}
+			nearest_distance = actor_distance
+	return nearest
+
+func draw_interaction_prompt(font: Font) -> void:
+	if transition_cooldown > 0.0:
+		return
+	var prompt := interaction_prompt_data()
+	if prompt.is_empty():
+		return
+	var prompt_anchor: Vector2 = prompt.get("anchor", prompt["position"])
+	var anchor := display_position(prompt_anchor) + Vector2(0, -52 + sin(ambient_time * 4.0) * 2.0)
+	var label: String = prompt["label"]
+	var width := clampf(54.0 + label.length() * 7.0, 150.0, 270.0)
+	var panel := Rect2(anchor - Vector2(width * 0.5, 22), Vector2(width, 29))
+	draw_rect(panel, Color(0.015, 0.03, 0.07, 0.94))
+	draw_rect(panel, Color("e9c46a"), false, 1.5)
+	draw_circle(panel.position + Vector2(18, 14.5), 10.0, Color("e9c46a"))
+	draw_string(font, panel.position + Vector2(13, 19), "E", HORIZONTAL_ALIGNMENT_CENTER, 10, 13, Color("172238"))
+	draw_string(font, panel.position + Vector2(34, 20), label, HORIZONTAL_ALIGNMENT_LEFT, width - 42.0, 13, Color("fff5da"))
+
 func draw_kallipolis_environment() -> void:
 	var tree_cells := [
 		Vector2i(3, 2), Vector2i(4, 2), Vector2i(3, 3), Vector2i(9, 2),
@@ -1417,12 +1728,12 @@ func draw_player_character(position: Vector2) -> void:
 	elif player_facing.y < 0.0:
 		direction_row = 3
 	var frame := posmod(int(floor(walk_phase)), 4) if player_moving else 0
-	var source := Rect2(frame * IVO_WALK_CELL_SIZE.x, IVO_WALK_ROW_ORIGINS[direction_row], IVO_WALK_CELL_SIZE.x, IVO_WALK_ROW_HEIGHTS[direction_row])
+	var source := Rect2(frame * IVO_WALK_CELL_SIZE.x, direction_row * IVO_WALK_CELL_SIZE.y, IVO_WALK_CELL_SIZE.x, IVO_WALK_CELL_SIZE.y)
 	var step := absf(sin(walk_phase * PI * 0.5)) if player_moving else 0.0
-	var bob := -roundf(step * 1.5)
-	var shadow_width := lerpf(14.0, 17.0, step)
+	var bob := -roundf(step * 0.5)
+	var shadow_width := lerpf(11.0, 13.0, step)
 	draw_sprite_shadow(position + Vector2(0, 1), Vector2(shadow_width, 3), Color(0.01, 0.02, 0.04, 0.34))
-	var destination := Rect2(position - Vector2(48, IVO_WALK_FOOT_OFFSETS[direction_row]) + Vector2(0, bob), IVO_WALK_DRAW_SIZE)
+	var destination := Rect2(position - Vector2(IVO_WALK_DRAW_SIZE.x * 0.5, IVO_WALK_FOOT_OFFSETS[direction_row]) + Vector2(0, bob), IVO_WALK_DRAW_SIZE)
 	draw_texture_rect_region(IVO_WALK_SHEET, destination, source, Color.WHITE)
 	if player_moving and step > 0.86:
 		var dust_direction := Vector2(-signf(player_facing.x), 0.4).normalized()
@@ -1444,14 +1755,22 @@ func draw_sprite_shadow(center: Vector2, radii: Vector2, color: Color) -> void:
 func draw_water_shimmer(surface_y: float, bottom_y: float) -> void:
 	if not water_effects_enabled:
 		return
-	for row in range(4):
-		var y := lerpf(surface_y + 13.0, bottom_y - 18.0, float(row) / 3.0)
+	# Layered waves travel at different speeds; the stronger shoreline band makes
+	# motion readable even at 960x540 while preserving the painted water beneath.
+	for row in range(7):
+		var y := lerpf(surface_y + 8.0, bottom_y - 14.0, float(row) / 6.0)
 		var points := PackedVector2Array()
-		for column in range(33):
-			var x := float(column) * 30.0
-			var wave := sin(column * 0.82 + water_phase * (1.1 + row * 0.12)) * (1.3 + row * 0.35)
+		for column in range(49):
+			var x := float(column) * 20.0
+			var wave := sin(column * 0.58 + water_phase * (1.25 + row * 0.09)) * (1.7 + row * 0.28)
+			wave += sin(column * 0.21 - water_phase * 0.72) * 0.8
 			points.append(Vector2(x, y + wave))
-		draw_polyline(points, Color(0.62, 0.94, 0.94, 0.055 + row * 0.012), 1.0, true)
+		draw_polyline(points, Color(0.69, 0.97, 0.96, 0.13 + row * 0.012), 1.2, true)
+	var shore := PackedVector2Array()
+	for column in range(65):
+		var shore_x := float(column) * 15.0
+		shore.append(Vector2(shore_x, surface_y + 3.0 + sin(column * 0.5 + water_phase * 2.1) * 2.0))
+	draw_polyline(shore, Color(0.78, 1.0, 0.94, 0.28), 2.0, true)
 
 func draw_scene_color_grade() -> void:
 	if warm_lighting_enabled:
@@ -1533,10 +1852,10 @@ func draw_pause_menu(font: Font) -> void:
 
 func draw_graphics_menu(font: Font) -> void:
 	draw_rect(Rect2(0, 0, 960, 540), Color(0.005, 0.012, 0.03, 0.68))
-	draw_rect(Rect2(132, 22, 696, 496), Color(0.022, 0.04, 0.082, 0.995))
-	draw_rect(Rect2(132, 22, 696, 496), Color("79c8d8"), false, 2.0)
-	draw_string(font, Vector2(170, 66), "CONFIGURAÇÕES GRÁFICAS", HORIZONTAL_ALIGNMENT_LEFT, -1, 26, Color("f7e5b8"))
-	draw_string(font, Vector2(170, 91), "A imagem permanece em 16:9 e se adapta sem deformar.", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("bcd2df"))
+	draw_rect(Rect2(132, 14, 696, 512), Color(0.022, 0.04, 0.082, 0.995))
+	draw_rect(Rect2(132, 14, 696, 512), Color("79c8d8"), false, 2.0)
+	draw_string(font, Vector2(170, 52), "CONFIGURAÇÕES GRÁFICAS", HORIZONTAL_ALIGNMENT_LEFT, -1, 25, Color("f7e5b8"))
+	draw_string(font, Vector2(170, 76), "Escolha os valores e confirme em Aplicar alterações.", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("bcd2df"))
 	var labels := ["Modo de exibição", "Resolução", "Escala da arte", "Sincronização vertical", "Sombras dos personagens", "Reflexos da água", "Luz mediterrânea", "Brilho"]
 	var values := [
 		DISPLAY_MODE_LABELS[display_mode_index],
@@ -1549,14 +1868,26 @@ func draw_graphics_menu(font: Font) -> void:
 		"%d%%" % brightness_percent,
 	]
 	for index in labels.size():
-		var row := Rect2(164, 112 + index * 43, 632, 35)
+		var row := Rect2(164, 92 + index * 37, 632, 31)
 		var selected := index == settings_selection
 		draw_rect(row, Color("173b59") if selected else Color("0b1b31"))
 		if selected:
 			draw_rect(Rect2(row.position, Vector2(4, row.size.y)), Color("edc66e"))
-		draw_string(font, row.position + Vector2(17, 24), labels[index], HORIZONTAL_ALIGNMENT_LEFT, 330, 15, Color("f5efd9") if selected else Color("d5e2ea"))
-		draw_string(font, row.position + Vector2(360, 24), "<  %s  >" % values[index], HORIZONTAL_ALIGNMENT_CENTER, 245, 15, Color("ffdc87") if selected else Color("a9c8d4"))
-	draw_string(font, Vector2(170, 489), "W/S selecionar  •  A/D ou E alterar  •  Esc voltar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("a5bdca"))
+		draw_string(font, row.position + Vector2(17, 21), labels[index], HORIZONTAL_ALIGNMENT_LEFT, 330, 14, Color("f5efd9") if selected else Color("d5e2ea"))
+		draw_string(font, row.position + Vector2(360, 21), "<  %s  >" % values[index], HORIZONTAL_ALIGNMENT_CENTER, 245, 14, Color("ffdc87") if selected else Color("a9c8d4"))
+	var apply_row := Rect2(164, 397, 308, 39)
+	var cancel_row := Rect2(488, 397, 308, 39)
+	draw_rect(apply_row, Color("356b58") if settings_selection == 8 else Color("12342f"))
+	draw_rect(cancel_row, Color("6b3b47") if settings_selection == 9 else Color("351e2a"))
+	draw_rect(apply_row, Color("f0cc78") if settings_selection == 8 else Color("5e8c7a"), false, 1.5)
+	draw_rect(cancel_row, Color("f0cc78") if settings_selection == 9 else Color("815566"), false, 1.5)
+	draw_string(font, apply_row.position + Vector2(0, 26), (">  " if settings_selection == 8 else "") + "APLICAR ALTERAÇÕES", HORIZONTAL_ALIGNMENT_CENTER, apply_row.size.x, 15, Color("fff3cf"))
+	draw_string(font, cancel_row.position + Vector2(0, 26), (">  " if settings_selection == 9 else "") + "CANCELAR", HORIZONTAL_ALIGNMENT_CENTER, cancel_row.size.x, 15, Color("fff3cf"))
+	if graphics_dirty:
+		draw_string(font, Vector2(170, 462), "Alterações pendentes — nada muda até você aplicar.", HORIZONTAL_ALIGNMENT_LEFT, 620, 14, Color("ffd884"))
+	else:
+		draw_string(font, Vector2(170, 462), "Configuração atual carregada.", HORIZONTAL_ALIGNMENT_LEFT, 620, 14, Color("9fc9bd"))
+	draw_string(font, Vector2(170, 500), "W/S selecionar  •  A/D alterar  •  E confirmar  •  Esc cancelar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("a5bdca"))
 
 func draw_gallery(font: Font) -> void:
 	var heroine: Dictionary = heroines[gallery_index]
@@ -1598,7 +1929,8 @@ func draw_inventory(font: Font) -> void:
 
 func draw_dialogue(font: Font) -> void:
 	var rendered_lines := wrap_dialogue_lines(76)
-	var choice_height := dialogue_choices.size() * 21 + 28 if not dialogue_choices.is_empty() else 28
+	var choices_visible := dialogue_page >= dialogue_lines.size() - 1 and not dialogue_choices.is_empty()
+	var choice_height := dialogue_choices.size() * 21 + 28 if choices_visible else 28
 	var panel_height := maxf(164.0, 78.0 + rendered_lines.size() * 23.0 + choice_height)
 	var panel_y := 512.0 - panel_height
 	draw_rect(Rect2(28, panel_y, 904, panel_height), Color(0.02, 0.03, 0.07, 0.97))
@@ -1613,8 +1945,9 @@ func draw_dialogue(font: Font) -> void:
 	elif dialogue_speaker == "Nerissa":
 		var nerissa_expression: Texture2D = NERISSA_EMBARRASSED_PORTRAIT if dialogue_expression == "embarrassed" else NERISSA_PORTRAIT
 		draw_texture_rect(nerissa_expression, Rect2(748, portrait_y, 150, 240), false, Color.WHITE)
-	if dialogue_choices.is_empty():
-		draw_string(font, Vector2(800, panel_y + panel_height - 22), "[E] continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("d5b46d"))
+	if not choices_visible:
+		var prompt := "[E] fechar" if dialogue_page >= dialogue_lines.size() - 1 else "[E] continuar  %d/%d" % [dialogue_page + 1, dialogue_lines.size()]
+		draw_string(font, Vector2(735, panel_y + panel_height - 22), prompt, HORIZONTAL_ALIGNMENT_RIGHT, 165, 14, Color("d5b46d"))
 	else:
 		var start_y := panel_y + 73 + rendered_lines.size() * 23
 		for i in dialogue_choices.size():
@@ -1624,18 +1957,20 @@ func draw_dialogue(font: Font) -> void:
 
 func wrap_dialogue_lines(max_characters: int) -> Array[String]:
 	var result: Array[String] = []
-	for original in dialogue_lines:
-		var current := ""
-		for raw_word in original.split(" "):
-			var word: String = raw_word
-			var candidate := word if current.is_empty() else current + " " + word
-			if candidate.length() > max_characters and not current.is_empty():
-				result.append(current)
-				current = word
-			else:
-				current = candidate
-		if not current.is_empty():
+	if dialogue_lines.is_empty():
+		return result
+	var original: String = dialogue_lines[clampi(dialogue_page, 0, dialogue_lines.size() - 1)]
+	var current := ""
+	for raw_word in original.split(" "):
+		var word: String = raw_word
+		var candidate := word if current.is_empty() else current + " " + word
+		if candidate.length() > max_characters and not current.is_empty():
 			result.append(current)
+			current = word
+		else:
+			current = candidate
+	if not current.is_empty():
+		result.append(current)
 	return result
 
 func draw_battle(font: Font) -> void:
