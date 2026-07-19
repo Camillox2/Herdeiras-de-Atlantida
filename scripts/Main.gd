@@ -132,6 +132,28 @@ func configure_kallipolis_layers() -> void:
 		layer.position = TOWN_ORIGIN
 		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	build_kallipolis_tilemaps()
+	build_kallipolis_lights()
+
+func build_kallipolis_lights() -> void:
+	var light_layer: Node2D = $World/LightLayer
+	for child in light_layer.get_children():
+		child.queue_free()
+	var gradient := Gradient.new()
+	gradient.offsets = PackedFloat32Array([0.0, 0.22, 1.0])
+	gradient.colors = PackedColorArray([Color(1.0, 0.76, 0.36, 0.86), Color(1.0, 0.45, 0.12, 0.3), Color(1.0, 0.22, 0.04, 0.0)])
+	var light_texture := GradientTexture2D.new()
+	light_texture.gradient = gradient
+	light_texture.width = 256
+	light_texture.height = 256
+	light_texture.fill = GradientTexture2D.FILL_RADIAL
+	for light_position in [Vector2(280, 254), Vector2(472, 254), Vector2(727, 350), Vector2(210, 435)]:
+		var lantern := PointLight2D.new()
+		lantern.texture = light_texture
+		lantern.position = light_position
+		lantern.energy = 0.38
+		lantern.texture_scale = 0.38
+		lantern.color = Color("ffce83")
+		light_layer.add_child(lantern)
 
 func build_kallipolis_tilemaps() -> void:
 	var ground: TileMapLayer = $World/Ground
