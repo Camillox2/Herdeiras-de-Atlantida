@@ -14,11 +14,11 @@ func expect(condition: bool, message: String) -> void:
 		failures.append(message)
 
 
-func key_event(code: Key) -> InputEventKey:
+func key_event(code: Key, pressed := true) -> InputEventKey:
 	var event := InputEventKey.new()
 	event.keycode = code
 	event.physical_keycode = code
-	event.pressed = true
+	event.pressed = pressed
 	return event
 
 
@@ -38,6 +38,37 @@ func run_suite() -> void:
 	expect(main.get_node("World/Ground").tile_set == null, "hidden Kallipolis TileMap was still rebuilt")
 	expect(main.get_node("World/AgoraGround").tile_set == null, "hidden Agora TileMap was still rebuilt")
 	expect(main.get_node("World/LightLayer").get_child_count() == 0, "hidden light occluders were still created")
+
+	# The 1254px walk sheet must be split on integer boundaries. Fractional source
+	# rectangles caused consecutive poses to sample half pixels and visibly jump.
+	expect(main.ivo_frame_sources.size() == 16, "walk sheet did not create sixteen frame regions")
+	expect(main.ivo_frame_foot_anchors.size() == 16, "walk sheet did not create sixteen foot anchors")
+	for source in main.ivo_frame_sources:
+		expect(is_equal_approx(source.position.x, roundf(source.position.x)), "walk frame starts on a fractional X coordinate")
+		expect(is_equal_approx(source.position.y, roundf(source.position.y)), "walk frame starts on a fractional Y coordinate")
+		expect(is_equal_approx(source.size.x, roundf(source.size.x)), "walk frame has a fractional width")
+		expect(is_equal_approx(source.size.y, roundf(source.size.y)), "walk frame has a fractional height")
+	for foot_anchor in main.ivo_frame_foot_anchors:
+		expect(foot_anchor >= main.IVO_WALK_DRAW_SIZE.y * 0.72 and foot_anchor <= main.IVO_WALK_DRAW_SIZE.y, "walk frame foot anchor escaped the sprite bounds")
+
+	# A one-second render hitch must not move the player as if a full second of
+	# input had been rendered in one frame.
+	main.player = Vector2(600, 400)
+	main.player_velocity = Vector2.ZERO
+	main.tap_move_time = 0.0
+	var before_hitch: Vector2 = main.player
+	Input.action_press("move_right")
+	main._process(1.0)
+	Input.action_release("move_right")
+	expect(main.player.x > before_hitch.x, "clamped hitch frame discarded movement completely")
+	expect(main.player.distance_to(before_hitch) < 6.0, "render hitch still teleported the player")
+
+	# A short tap remains responsive, but releasing it removes the airborne glide.
+	main.player_velocity = Vector2.ZERO
+	main._unhandled_input(key_event(KEY_D))
+	expect(main.tap_move_time > 0.0 and main.tap_move_time <= main.SHORT_TAP_BUFFER + 0.001, "movement tap retained the old long buffer")
+	main._unhandled_input(key_event(KEY_D, false))
+	expect(main.tap_move_time == 0.0, "movement release did not clear the short-tap buffer")
 
 	# Opening a screen must survive the same process frame that received the key.
 	main._unhandled_input(key_event(KEY_I))
