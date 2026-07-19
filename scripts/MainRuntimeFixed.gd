@@ -100,8 +100,8 @@ func confirm_graphics_changes() -> void:
 	graphics_dirty = false
 	settings_open = false
 	pause_open = false
-	var requested := RESOLUTION_OPTIONS[resolution_index]
-	var mode_label := DISPLAY_MODE_LABELS[display_mode_index]
+	var requested: Vector2i = Vector2i(RESOLUTION_OPTIONS[resolution_index])
+	var mode_label: String = str(DISPLAY_MODE_LABELS[display_mode_index])
 	if display_mode_index == 2:
 		notice = "%s aplicado. A tela cheia usa a resolução atual do monitor." % mode_label
 	elif display_mode_index == 1:
