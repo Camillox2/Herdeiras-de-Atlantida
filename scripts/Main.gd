@@ -39,6 +39,7 @@ const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028
 const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v1.png")
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
+const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
@@ -119,10 +120,13 @@ func configure_kallipolis_layers() -> void:
 	# The exploration world is now composed in Godot TileMap layers instead of a single backdrop.
 	var tile_set := create_art_tile_set(KALLIPOLIS_TILESET)
 	var props_tile_set := create_art_tile_set(KALLIPOLIS_PROPS_SHEET)
-	for layer in [$World/Ground, $World/Structures, $World/Roofs]:
+	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Roofs]:
 		layer.tile_set = tile_set
 		layer.position = TOWN_ORIGIN
 		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	var water_material := ShaderMaterial.new()
+	water_material.shader = HARBOR_WATER_SHADER
+	$World/Water.material = water_material
 	$World/Props.tile_set = props_tile_set
 	$World/Props.position = TOWN_ORIGIN
 	$World/Props.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
@@ -176,10 +180,12 @@ func build_kallipolis_lights() -> void:
 
 func build_kallipolis_tilemaps() -> void:
 	var ground: TileMapLayer = $World/Ground
+	var water: TileMapLayer = $World/Water
 	var structures: TileMapLayer = $World/Structures
 	var props: TileMapLayer = $World/Props
 	var roofs: TileMapLayer = $World/Roofs
 	ground.clear()
+	water.clear()
 	structures.clear()
 	props.clear()
 	roofs.clear()
@@ -190,6 +196,7 @@ func build_kallipolis_tilemaps() -> void:
 			var ground_slot := Vector2i(0, 0)
 			if kind == "water":
 				ground_slot = Vector2i(3, 0)
+				water.set_cell(cell, 0, Vector2i(3, 0))
 			elif kind == "path":
 				ground_slot = Vector2i(2, 0)
 			elif kind == "building":
