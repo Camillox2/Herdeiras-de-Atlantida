@@ -153,7 +153,17 @@ func build_kallipolis_lights() -> void:
 		lantern.energy = 0.38
 		lantern.texture_scale = 0.38
 		lantern.color = Color("ffce83")
+		lantern.shadow_enabled = true
 		light_layer.add_child(lantern)
+	# Only large structures cast dynamic shadows. This keeps the scene readable and inexpensive.
+	for building in [Rect2i(5, 2, 4, 3), Rect2i(11, 2, 5, 3), Rect2i(20, 3, 5, 3)]:
+		var occluder := LightOccluder2D.new()
+		var polygon := OccluderPolygon2D.new()
+		var size := Vector2(building.size.x * TILE_SIZE, building.size.y * TILE_SIZE)
+		polygon.polygon = PackedVector2Array([Vector2.ZERO, Vector2(size.x, 0), size, Vector2(0, size.y)])
+		occluder.occluder = polygon
+		occluder.position = TOWN_ORIGIN + Vector2(building.position.x * TILE_SIZE, building.position.y * TILE_SIZE)
+		light_layer.add_child(occluder)
 
 func build_kallipolis_tilemaps() -> void:
 	var ground: TileMapLayer = $World/Ground
