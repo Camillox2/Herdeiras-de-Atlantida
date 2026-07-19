@@ -14,5 +14,12 @@
 - Licenca: CC0 1.0 (dominio publico).
 - Uso: sprites de exploracao e futura renovacao da Cisterna Esquecida.
 
+## Outdoor 32x32 - Buch / Liberated Pixel Cup
+
+- Fonte: https://lpc.opengameart.org/content/outdoor-32x32-tileset
+- Diretorio: `assets/third_party/lpc-outdoor/`
+- Licenca: CC0 1.0 (dominio publico).
+- Uso: biblioteca de referencia e prototipagem para terrenos; nao substitui a direcao de arte mediterranea autoral ativa.
+
 Os dois kits sao usados como materiais de um mundo original. Eles nao sao
 assets, mapas ou personagens extraidos de nenhum jogo comercial.

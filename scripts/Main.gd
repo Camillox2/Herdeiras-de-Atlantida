@@ -1,12 +1,13 @@
 extends Node2D
 
 const SPEED := 190.0
-const WORLD := Rect2(28, 70, 904, 410)
+const WORLD := Rect2(28, 70, 904, 530)
 const SAVE_PATH := "user://otherworld_save.cfg"
 const TILE_SIZE := 32
 const TOWN_ORIGIN := Vector2(0, 72)
 const TOWN_COLUMNS := 30
-const TOWN_ROWS := 14
+const TOWN_ROWS := 17
+const GAMEPLAY_RENDER_OFFSET := Vector2(0, -72)
 const ARIANE_PORTRAIT := preload("res://assets/portraits/ariane.png")
 const ARIANE_EMBARRASSED_PORTRAIT := preload("res://assets/portraits/ariane-embarrassed-v2.png")
 const KALLIPOLIS_OPENING := preload("res://assets/backgrounds/kallipolis-opening.png")
@@ -41,11 +42,14 @@ const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-char
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
 const KALLIPOLIS_INN_SHEET := preload("res://assets/custom/kallipolis-inn-v1.png")
 const KALLIPOLIS_AGORA_SHEET := preload("res://assets/custom/kallipolis-agora-v1.png")
+const PENSION_EXTERIOR := preload("res://assets/custom/pension-exterior-v1.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
 const ART_TILE_SCALE := 32.0 / 289.0
+const CHARACTER_DRAW_SIZE := Vector2(72, 72)
+const CHARACTER_DRAW_OFFSET := Vector2(36, 63)
 
 var player := Vector2(496, 456)
 var gold := 7
@@ -86,6 +90,8 @@ var gallery_open := false
 var gallery_index := 0
 var gallery_expression := 0
 var inventory_open := false
+var map_open := false
+var pause_open := false
 var title_open := true
 var inventory_items: Array[String] = ["Pão seco", "Capa molhada"]
 
@@ -95,10 +101,10 @@ var cistern_exit_position := Vector2(104, 452)
 var cistern_gate_position := Vector2(895, 420)
 var cistern_chest_position := Vector2(456, 420)
 var inn_door_position := Vector2(224, 248)
-var inn_exit_position := Vector2(96, 456)
-var inn_lysandra_position := Vector2(264, 282)
+var inn_exit_position := Vector2(112, 552)
+var inn_lysandra_position := Vector2(302, 246)
 var agora_gate_position := Vector2(910, 240)
-var agora_exit_position := Vector2(82, 446)
+var agora_exit_position := Vector2(82, 500)
 var agora_polemon_position := Vector2(515, 296)
 var agora_notice_board_position := Vector2(304, 312)
 
@@ -134,14 +140,15 @@ func configure_kallipolis_layers() -> void:
 	var props_tile_set := create_art_tile_set(KALLIPOLIS_PROPS_SHEET)
 	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Roofs]:
 		layer.tile_set = tile_set
-		layer.position = TOWN_ORIGIN
+		layer.position = GAMEPLAY_RENDER_OFFSET
 		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	var water_material := ShaderMaterial.new()
 	water_material.shader = HARBOR_WATER_SHADER
 	$World/Water.material = water_material
 	$World/Props.tile_set = props_tile_set
-	$World/Props.position = TOWN_ORIGIN
+	$World/Props.position = GAMEPLAY_RENDER_OFFSET
 	$World/Props.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	$World/LightLayer.position = GAMEPLAY_RENDER_OFFSET
 	build_kallipolis_tilemaps()
 	build_kallipolis_lights()
 
@@ -149,7 +156,7 @@ func configure_inn_layers() -> void:
 	var inn_tile_set := create_art_tile_set(KALLIPOLIS_INN_SHEET)
 	for layer in [$World/InnGround, $World/InnDecor]:
 		layer.tile_set = inn_tile_set
-		layer.position = TOWN_ORIGIN
+		layer.position = GAMEPLAY_RENDER_OFFSET
 		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	build_inn_tilemaps()
 
@@ -158,18 +165,24 @@ func build_inn_tilemaps() -> void:
 	var decor: TileMapLayer = $World/InnDecor
 	ground.clear()
 	decor.clear()
-	for row in TOWN_ROWS:
-		for column in TOWN_COLUMNS:
-			ground.set_cell(Vector2i(column, row), 0, Vector2i(1, 0) if row in [6, 7] and column in range(9, 18) else Vector2i(0, 0))
-	for column in TOWN_COLUMNS:
+	# A compact inn reads as a lived-in place; unused space is kept outside the room rather than as empty floor.
+	for row in range(2, 16):
+		for column in range(2, 28):
+			ground.set_cell(Vector2i(column, row), 0, Vector2i(1, 0) if row in [7, 8] and column in range(10, 18) else Vector2i(0, 0))
+	for column in range(1, 29):
 		decor.set_cell(Vector2i(column, 0), 0, Vector2i(2, 0))
+		decor.set_cell(Vector2i(column, 1), 0, Vector2i(2, 0))
+		decor.set_cell(Vector2i(column, 16), 0, Vector2i(2, 0))
+	for row in range(2, 16):
+		decor.set_cell(Vector2i(1, row), 0, Vector2i(2, 0))
+		decor.set_cell(Vector2i(28, row), 0, Vector2i(2, 0))
 	for position_and_tile in [
-		[Vector2i(5, 4), Vector2i(0, 1)], [Vector2i(11, 5), Vector2i(1, 1)],
-		[Vector2i(19, 3), Vector2i(2, 1)], [Vector2i(24, 3), Vector2i(3, 1)],
-		[Vector2i(14, 2), Vector2i(0, 2)], [Vector2i(9, 8), Vector2i(1, 2)],
-		[Vector2i(23, 6), Vector2i(2, 2)], [Vector2i(25, 9), Vector2i(3, 2)],
+		[Vector2i(5, 5), Vector2i(0, 1)], [Vector2i(12, 7), Vector2i(1, 1)],
+		[Vector2i(21, 3), Vector2i(2, 1)], [Vector2i(24, 3), Vector2i(3, 1)],
+		[Vector2i(8, 3), Vector2i(0, 2)], [Vector2i(12, 8), Vector2i(1, 2)],
+		[Vector2i(18, 2), Vector2i(2, 2)], [Vector2i(25, 6), Vector2i(3, 2)],
 		[Vector2i(7, 10), Vector2i(0, 3)], [Vector2i(18, 10), Vector2i(1, 3)],
-		[Vector2i(14, 10), Vector2i(2, 3)], [Vector2i(27, 8), Vector2i(3, 3)]
+		[Vector2i(15, 10), Vector2i(2, 3)], [Vector2i(25, 10), Vector2i(3, 3)]
 	]:
 		decor.set_cell(position_and_tile[0], 0, position_and_tile[1])
 
@@ -178,10 +191,10 @@ func configure_agora_layers() -> void:
 	var agora_tile_set := create_art_tile_set(KALLIPOLIS_AGORA_SHEET)
 	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraRoofs]:
 		layer.tile_set = city_tile_set
-		layer.position = TOWN_ORIGIN
+		layer.position = GAMEPLAY_RENDER_OFFSET
 		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	$World/AgoraProps.tile_set = agora_tile_set
-	$World/AgoraProps.position = TOWN_ORIGIN
+	$World/AgoraProps.position = GAMEPLAY_RENDER_OFFSET
 	$World/AgoraProps.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	build_agora_tilemaps()
 
@@ -297,7 +310,11 @@ func build_kallipolis_tilemaps() -> void:
 			elif (column + row * 3) % 9 == 0:
 				ground_slot = Vector2i(1, 0)
 			ground.set_cell(cell, 0, ground_slot)
-	for building in [Rect2i(5, 2, 4, 3), Rect2i(11, 2, 5, 3), Rect2i(20, 3, 5, 3)]:
+	var building_blocks := [Rect2i(5, 2, 4, 3), Rect2i(11, 2, 5, 3), Rect2i(20, 3, 5, 3)]
+	for building_index in building_blocks.size():
+		if building_index == 0:
+			continue # The pension uses a unique exterior sprite instead of repeated wall fragments.
+		var building: Rect2i = building_blocks[building_index]
 		for column in range(building.position.x, building.end.x):
 			roofs.set_cell(Vector2i(column, building.position.y), 0, Vector2i(0, 1))
 	structures.set_cell(Vector2i(14, 7), 0, Vector2i(2, 2))
@@ -330,6 +347,10 @@ func _process(delta: float) -> void:
 		handle_gallery_input()
 	elif inventory_open:
 		handle_inventory_input()
+	elif map_open:
+		handle_map_input()
+	elif pause_open:
+		handle_pause_input()
 	elif dialogue_open:
 		handle_dialogue_input()
 	else:
@@ -343,6 +364,12 @@ func _process(delta: float) -> void:
 			gallery_open = true
 		if Input.is_action_just_pressed("inventory"):
 			inventory_open = true
+			$AudioConfirm.play()
+		if Input.is_action_just_pressed("map"):
+			map_open = true
+			$AudioConfirm.play()
+		if Input.is_action_just_pressed("pause_menu"):
+			pause_open = true
 			$AudioConfirm.play()
 	queue_redraw()
 
@@ -384,6 +411,8 @@ func town_tile_from_position(position: Vector2) -> Vector2i:
 
 func town_tile_kind(column: int, row: int) -> String:
 	if column < 0 or column >= TOWN_COLUMNS or row < 0 or row >= TOWN_ROWS:
+		return "water"
+	if row >= 14:
 		return "water"
 	# The western harbour and the northern canal create a recognisable shoreline.
 	if (column <= 2 and row >= 7) or (column >= 27 and row <= 2):
@@ -435,6 +464,16 @@ func handle_gallery_input() -> void:
 func handle_inventory_input() -> void:
 	if Input.is_action_just_pressed("inventory") or Input.is_action_just_pressed("interact"):
 		inventory_open = false
+		$AudioClick.play()
+
+func handle_map_input() -> void:
+	if Input.is_action_just_pressed("map") or Input.is_action_just_pressed("pause_menu") or Input.is_action_just_pressed("interact"):
+		map_open = false
+		$AudioClick.play()
+
+func handle_pause_input() -> void:
+	if Input.is_action_just_pressed("pause_menu") or Input.is_action_just_pressed("interact"):
+		pause_open = false
 		$AudioClick.play()
 
 func handle_dialogue_input() -> void:
@@ -808,32 +847,25 @@ func _draw() -> void:
 		draw_agora(font)
 		return
 	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
+	# A named landmark is a complete sprite, which avoids the "wallpaper house" effect of repeated tiles.
+	draw_texture_rect(PENSION_EXTERIOR, Rect2(display_position(Vector2(132, 89)), Vector2(228, 228)), false, Color.WHITE)
 	# Crate objective.
 	if quest_stage == 2:
-		draw_art_tile(Vector2i(3, 2), Rect2(crate_position - Vector2(16, 16), Vector2(32, 32)))
-		draw_circle(crate_position + Vector2(0, -25), 7, Color("61d7e5"))
+		var crate_display := display_position(crate_position)
+		draw_art_tile(Vector2i(3, 2), Rect2(crate_display - Vector2(16, 16), Vector2(32, 32)))
+		draw_circle(crate_display + Vector2(0, -25), 7, Color("61d7e5"))
 	if quest_stage >= 5:
-		draw_rect(Rect2(cistern_gate_position - Vector2(20, 45), Vector2(40, 70)), Color("25364d"))
-		draw_arc(cistern_gate_position - Vector2(0, 15), 20, PI, TAU, 18, Color("72d7e5"), 3.0)
-		draw_string(font, cistern_gate_position + Vector2(-48, 38), "CISTERNA", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("9ee7f1"))
-	# A stable landmark that makes the first interior discoverable without a minimap.
-	draw_rect(Rect2(inn_door_position + Vector2(-39, -38), Vector2(78, 17)), Color(0.11, 0.05, 0.025, 0.88))
-	draw_string(font, inn_door_position + Vector2(-35, -26), "PENSÃO", HORIZONTAL_ALIGNMENT_CENTER, 70, 12, Color("ffe0a0"))
-	draw_rect(Rect2(agora_gate_position + Vector2(-51, -38), Vector2(102, 17)), Color(0.06, 0.07, 0.12, 0.88))
-	draw_string(font, agora_gate_position + Vector2(-47, -26), "ÁGORA", HORIZONTAL_ALIGNMENT_CENTER, 94, 12, Color("aee5f2"))
+		var gate_display := display_position(cistern_gate_position)
+		draw_rect(Rect2(gate_display - Vector2(20, 45), Vector2(40, 70)), Color("25364d"))
+		draw_arc(gate_display - Vector2(0, 15), 20, PI, TAU, 18, Color("72d7e5"), 3.0)
 	# NPCs.
 	for npc in npcs:
 		var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
 		if visible:
-			var npc_position: Vector2 = npc["position"]
+			var npc_position: Vector2 = display_position(npc["position"])
 			draw_character(npc_position, npc["sprite"])
-			draw_rect(Rect2(npc_position + Vector2(-38, -101), Vector2(76, 17)), Color(0.02, 0.04, 0.09, 0.82))
-			draw_string(font, npc_position + Vector2(-34, -88), npc["name"], HORIZONTAL_ALIGNMENT_CENTER, 68, 13, Color.WHITE)
 	# Player sprite.
-	draw_character(player, Vector2i(0, 0))
-	draw_hud(font, "KALLÍPOLIS")
-	if notice_time > 0.0:
-		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
+	draw_character(display_position(player), Vector2i(0, 0))
 	if title_open:
 		draw_title(font)
 	elif battle_open:
@@ -842,59 +874,47 @@ func _draw() -> void:
 		draw_gallery(font)
 	elif inventory_open:
 		draw_inventory(font)
+	elif map_open:
+		draw_map(font)
+	elif pause_open:
+		draw_pause_menu(font)
 	elif dialogue_open:
 		draw_dialogue(font)
-	else:
-		draw_controls(font)
 
 func draw_inn(font: Font) -> void:
-	# The room itself is a TileMap; this layer adds characters and legible interaction cues.
-	draw_rect(Rect2(0, TOWN_ORIGIN.y, 960, 448), Color(0.13, 0.045, 0.018, 0.10))
-	draw_rect(Rect2(0, TOWN_ORIGIN.y, 960, 448), Color("d8a96a"), false, 2.0)
-	draw_rect(Rect2(inn_exit_position - Vector2(34, 24), Vector2(68, 40)), Color(0.04, 0.025, 0.02, 0.72))
-	draw_string(font, inn_exit_position + Vector2(-30, 37), "SAÍDA", HORIZONTAL_ALIGNMENT_CENTER, 60, 12, Color("f2d9a1"))
-	draw_character(inn_lysandra_position, Vector2i(2, 0))
-	draw_rect(Rect2(inn_lysandra_position + Vector2(-39, -101), Vector2(78, 17)), Color(0.02, 0.04, 0.09, 0.84))
-	draw_string(font, inn_lysandra_position + Vector2(-35, -88), "Lysandra", HORIZONTAL_ALIGNMENT_CENTER, 70, 13, Color.WHITE)
-	draw_character(player, Vector2i(0, 0))
-	draw_hud(font, "PENSÃO DOS DEGRAUS")
-	if notice_time > 0.0:
-		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
+	# Exploration stays unobstructed; the menu and dialogue own contextual text.
+	draw_character(display_position(inn_lysandra_position), Vector2i(2, 0))
+	draw_character(display_position(player), Vector2i(0, 0))
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
 		draw_gallery(font)
 	elif inventory_open:
 		draw_inventory(font)
+	elif map_open:
+		draw_map(font)
+	elif pause_open:
+		draw_pause_menu(font)
 	elif dialogue_open:
 		draw_dialogue(font)
-	else:
-		draw_controls(font)
 
 func draw_agora(font: Font) -> void:
-	# The plaza is built from its own TileMap layers; only dynamic actors and clues are drawn here.
-	draw_rect(Rect2(0, TOWN_ORIGIN.y, 960, 448), Color(0.12, 0.07, 0.02, 0.06))
-	draw_rect(Rect2(agora_exit_position - Vector2(34, 22), Vector2(68, 36)), Color(0.05, 0.035, 0.025, 0.74))
-	draw_string(font, agora_exit_position + Vector2(-31, 36), "CAIS", HORIZONTAL_ALIGNMENT_CENTER, 62, 12, Color("f4d6a0"))
-	draw_character(agora_polemon_position, Vector2i(3, 0))
-	draw_rect(Rect2(agora_polemon_position + Vector2(-38, -101), Vector2(76, 17)), Color(0.02, 0.04, 0.09, 0.84))
-	draw_string(font, agora_polemon_position + Vector2(-34, -88), "Pólemon", HORIZONTAL_ALIGNMENT_CENTER, 68, 13, Color.WHITE)
-	draw_circle(agora_notice_board_position + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24))
-	draw_string(font, agora_notice_board_position + Vector2(-44, 40), "EDITAIS", HORIZONTAL_ALIGNMENT_CENTER, 88, 12, Color("f8dda1"))
-	draw_character(player, Vector2i(0, 0))
-	draw_hud(font, "ÁGORA DAS COLUNAS")
-	if notice_time > 0.0:
-		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
+	# The plaza is built from TileMaps; actors are the only overlaid exploration elements.
+	draw_character(display_position(agora_polemon_position), Vector2i(3, 0))
+	draw_circle(display_position(agora_notice_board_position) + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24))
+	draw_character(display_position(player), Vector2i(0, 0))
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
 		draw_gallery(font)
 	elif inventory_open:
 		draw_inventory(font)
+	elif map_open:
+		draw_map(font)
+	elif pause_open:
+		draw_pause_menu(font)
 	elif dialogue_open:
 		draw_dialogue(font)
-	else:
-		draw_controls(font)
 
 func draw_kallipolis_map(font: Font) -> void:
 	# This is deliberately a real traversable tile grid, not a painted backdrop.
@@ -941,45 +961,44 @@ func draw_cistern(font: Font) -> void:
 	draw_cistern_map()
 	for i in cistern_shard_positions.size():
 		if not cistern_shards[i]:
-			var shard: Vector2 = cistern_shard_positions[i]
+			var shard: Vector2 = display_position(cistern_shard_positions[i])
 			draw_circle(shard, 13, Color(0.2, 0.95, 1.0, 0.25))
 			draw_circle(shard, 7, Color("9ef9ff"))
 			draw_line(shard + Vector2(0, -20), shard + Vector2(0, 20), Color("d9ffff"), 2.0)
-	draw_rect(Rect2(cistern_door_position - Vector2(26, 44), Vector2(52, 72)), Color(0.2, 0.12, 0.08, 0.8))
-	draw_arc(cistern_door_position - Vector2(0, 20), 26, PI, TAU, 20, Color("d7a75d"), 3.0)
-	draw_string(font, cistern_door_position + Vector2(-38, 42), "PORTA", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("ffe0a0"))
-	draw_rect(Rect2(cistern_exit_position - Vector2(25, 18), Vector2(50, 36)), Color(0.05, 0.08, 0.13, 0.9))
-	draw_string(font, cistern_exit_position + Vector2(-28, 42), "SAÍDA", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("d4dce7"))
+	var door_display := display_position(cistern_door_position)
+	var exit_display := display_position(cistern_exit_position)
+	draw_rect(Rect2(door_display - Vector2(26, 44), Vector2(52, 72)), Color(0.2, 0.12, 0.08, 0.8))
+	draw_arc(door_display - Vector2(0, 20), 26, PI, TAU, 20, Color("d7a75d"), 3.0)
+	draw_rect(Rect2(exit_display - Vector2(25, 18), Vector2(50, 36)), Color(0.05, 0.08, 0.13, 0.9))
 	if not cistern_chest_open:
-		draw_rect(Rect2(cistern_chest_position - Vector2(17, 12), Vector2(34, 24)), Color("7a4e2e"))
-		draw_rect(Rect2(cistern_chest_position - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
-		draw_string(font, cistern_chest_position + Vector2(-28, 36), "BAÚ", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("ffe09b"))
-	draw_character(player, Vector2i(0, 0))
-	draw_hud(font, "CISTERNA ESQUECIDA")
-	if notice_time > 0.0:
-		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
+		var chest_display := display_position(cistern_chest_position)
+		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("7a4e2e"))
+		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
+	draw_character(display_position(player), Vector2i(0, 0))
 	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
 		draw_gallery(font)
 	elif inventory_open:
 		draw_inventory(font)
+	elif map_open:
+		draw_map(font)
+	elif pause_open:
+		draw_pause_menu(font)
 	elif dialogue_open:
 		draw_dialogue(font)
-	else:
-		draw_controls(font)
 
 func draw_cistern_map() -> void:
 	for row in TOWN_ROWS:
 		for column in TOWN_COLUMNS:
-			var map_position := TOWN_ORIGIN + Vector2(column * TILE_SIZE, row * TILE_SIZE)
+			var map_position := display_position(TOWN_ORIGIN + Vector2(column * TILE_SIZE, row * TILE_SIZE))
 			var destination := Rect2(map_position, Vector2(TILE_SIZE, TILE_SIZE))
 			if cistern_tile_kind(column, row) == "wall":
 				draw_art_tile(Vector2i(1, 3), destination)
 			else:
 				draw_art_tile(Vector2i(3, 3), destination)
 	for torch_position in [Vector2(208, 214), Vector2(592, 246), Vector2(784, 374)]:
-		draw_art_tile(Vector2i(2, 3), Rect2(torch_position - Vector2(16, 16), Vector2(32, 32)))
+		draw_art_tile(Vector2i(2, 3), Rect2(display_position(torch_position) - Vector2(16, 16), Vector2(32, 32)))
 
 func draw_hud(font: Font, location: String) -> void:
 	draw_rect(Rect2(20, 16, 920, 56), Color(0.015, 0.03, 0.075, 0.92))
@@ -994,10 +1013,17 @@ func draw_controls(font: Font) -> void:
 	draw_rect(Rect2(246, 501, 468, 25), Color(0.01, 0.02, 0.05, 0.78))
 	draw_string(font, Vector2(260, 519), "WASD mover  •  E interagir  •  I bolsa  •  J vínculos  •  F5 salvar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("e3e8f3"))
 
+func display_position(world_position: Vector2) -> Vector2:
+	return world_position + GAMEPLAY_RENDER_OFFSET
+
 func draw_character(position: Vector2, slot: Vector2i) -> void:
 	var source := Rect2(slot.x * CHARACTER_CELL_SIZE.x, slot.y * CHARACTER_CELL_SIZE.y, CHARACTER_CELL_SIZE.x, CHARACTER_CELL_SIZE.y)
-	draw_sprite_shadow(position + Vector2(0, 8), Vector2(22, 6), Color(0.01, 0.02, 0.04, 0.35))
-	draw_texture_rect_region(KALLIPOLIS_CHARACTER_SHEET, Rect2(position - Vector2(60, 104), Vector2(120, 120)), source, Color.WHITE)
+	draw_sprite_shadow(position + Vector2(0, 6), Vector2(14, 4), Color(0.01, 0.02, 0.04, 0.35))
+	draw_texture_rect_region(KALLIPOLIS_CHARACTER_SHEET, Rect2(position - CHARACTER_DRAW_OFFSET, CHARACTER_DRAW_SIZE), source, Color.WHITE)
+
+func draw_nameplate(font: Font, position: Vector2, character_name: String) -> void:
+	draw_rect(Rect2(position + Vector2(-37, -71), Vector2(74, 16)), Color(0.02, 0.04, 0.09, 0.82))
+	draw_string(font, position + Vector2(-33, -59), character_name, HORIZONTAL_ALIGNMENT_CENTER, 66, 12, Color.WHITE)
 
 func draw_sprite_shadow(center: Vector2, radii: Vector2, color: Color) -> void:
 	var points := PackedVector2Array()
@@ -1031,6 +1057,39 @@ func draw_title(font: Font) -> void:
 	draw_string(font, Vector2(64, 438), "Em Kallípolis, cada promessa deixa uma cicatriz.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("d8e0ec"))
 	draw_string(font, Vector2(64, 485), "[E] continuar jornada", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color("ffdf92"))
 	draw_string(font, Vector2(64, 514), "[R] novo jogo", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("d7e7f4"))
+
+func draw_map(font: Font) -> void:
+	draw_rect(Rect2(42, 30, 876, 480), Color(0.02, 0.035, 0.075, 0.97))
+	draw_rect(Rect2(42, 30, 876, 480), Color("83c8d6"), false, 2.0)
+	draw_string(font, Vector2(78, 76), "MAPA DE KALLÍPOLIS", HORIZONTAL_ALIGNMENT_LEFT, -1, 27, Color("f6e7bf"))
+	draw_string(font, Vector2(78, 106), "Objetivo atual: " + quest_text(), HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("e4edf3"))
+	# A clean schematic is more readable than labels floating over the play space.
+	draw_rect(Rect2(88, 142, 488, 290), Color("152942"))
+	draw_rect(Rect2(106, 310, 434, 36), Color("b48a57"))
+	draw_rect(Rect2(304, 168, 38, 228), Color("b48a57"))
+	draw_rect(Rect2(106, 346, 82, 86), Color("1f6f91"))
+	draw_rect(Rect2(480, 142, 60, 76), Color("1f6f91"))
+	for landmark in [Vector2(228, 246), Vector2(322, 278), Vector2(433, 246), Vector2(507, 332)]:
+		draw_circle(landmark, 10, Color("f1c96a"))
+	draw_circle(Vector2(322, 343), 7, Color("7ee6f1"))
+	draw_string(font, Vector2(624, 166), "REGISTRO", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("e9c97e"))
+	draw_string(font, Vector2(624, 202), "Vida %d/%d" % [health, max_health], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eaf2f6"))
+	draw_string(font, Vector2(624, 229), "Essência %d/%d" % [essence, max_essence], HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eaf2f6"))
+	draw_string(font, Vector2(624, 256), "Ouro %d" % gold, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eaf2f6"))
+	draw_string(font, Vector2(624, 312), "M: fechar mapa", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("c9d7e5"))
+	draw_string(font, Vector2(624, 338), "I: bolsa   J: vínculos", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("c9d7e5"))
+	draw_string(font, Vector2(624, 364), "Esc: pausa e tela", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("c9d7e5"))
+	draw_string(font, Vector2(78, 476), "M ou Esc para voltar", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("f4d890"))
+
+func draw_pause_menu(font: Font) -> void:
+	draw_rect(Rect2(220, 104, 520, 332), Color(0.02, 0.035, 0.075, 0.98))
+	draw_rect(Rect2(220, 104, 520, 332), Color("83c8d6"), false, 2.0)
+	draw_string(font, Vector2(258, 154), "PAUSA", HORIZONTAL_ALIGNMENT_LEFT, -1, 29, Color("f6e7bf"))
+	draw_string(font, Vector2(258, 200), "Tela: Pixel perfeito", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("eff5fa"))
+	draw_string(font, Vector2(258, 230), "Base 960x540 • escala inteira • 16:9", HORIZONTAL_ALIGNMENT_LEFT, -1, 14, Color("cbd8e6"))
+	draw_string(font, Vector2(258, 275), "M abre o mapa e o objetivo.", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eff5fa"))
+	draw_string(font, Vector2(258, 305), "I abre a bolsa. J abre os vínculos.", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("eff5fa"))
+	draw_string(font, Vector2(258, 385), "Esc ou E para continuar", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("f4d890"))
 
 func draw_gallery(font: Font) -> void:
 	var heroine: Dictionary = heroines[gallery_index]
