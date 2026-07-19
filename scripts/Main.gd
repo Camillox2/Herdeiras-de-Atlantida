@@ -39,6 +39,7 @@ const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028
 const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v1.png")
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
+const KALLIPOLIS_INN_SHEET := preload("res://assets/custom/kallipolis-inn-v1.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
@@ -92,6 +93,9 @@ var cistern_door_position := Vector2(840, 150)
 var cistern_exit_position := Vector2(104, 452)
 var cistern_gate_position := Vector2(895, 420)
 var cistern_chest_position := Vector2(456, 420)
+var inn_door_position := Vector2(224, 248)
+var inn_exit_position := Vector2(96, 456)
+var inn_lysandra_position := Vector2(264, 282)
 
 var heroines := [
 	{"name": "Ariane", "age": 18, "role": "Mensageira e ladra", "color": Color("4f87c8"), "portrait": ARIANE_PORTRAIT, "embarrassed": ARIANE_EMBARRASSED_PORTRAIT},
@@ -114,6 +118,8 @@ var crate_position := Vector2(656, 442)
 func _ready() -> void:
 	load_game()
 	configure_kallipolis_layers()
+	configure_inn_layers()
+	sync_world_visibility()
 	queue_redraw()
 
 func configure_kallipolis_layers() -> void:
@@ -132,6 +138,41 @@ func configure_kallipolis_layers() -> void:
 	$World/Props.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
 	build_kallipolis_tilemaps()
 	build_kallipolis_lights()
+
+func configure_inn_layers() -> void:
+	var inn_tile_set := create_art_tile_set(KALLIPOLIS_INN_SHEET)
+	for layer in [$World/InnGround, $World/InnDecor]:
+		layer.tile_set = inn_tile_set
+		layer.position = TOWN_ORIGIN
+		layer.scale = Vector2(ART_TILE_SCALE, ART_TILE_SCALE)
+	build_inn_tilemaps()
+
+func build_inn_tilemaps() -> void:
+	var ground: TileMapLayer = $World/InnGround
+	var decor: TileMapLayer = $World/InnDecor
+	ground.clear()
+	decor.clear()
+	for row in TOWN_ROWS:
+		for column in TOWN_COLUMNS:
+			ground.set_cell(Vector2i(column, row), 0, Vector2i(1, 0) if row in [6, 7] and column in range(9, 18) else Vector2i(0, 0))
+	for column in TOWN_COLUMNS:
+		decor.set_cell(Vector2i(column, 0), 0, Vector2i(2, 0))
+	for position_and_tile in [
+		[Vector2i(5, 4), Vector2i(0, 1)], [Vector2i(11, 5), Vector2i(1, 1)],
+		[Vector2i(19, 3), Vector2i(2, 1)], [Vector2i(24, 3), Vector2i(3, 1)],
+		[Vector2i(14, 2), Vector2i(0, 2)], [Vector2i(9, 8), Vector2i(1, 2)],
+		[Vector2i(23, 6), Vector2i(2, 2)], [Vector2i(25, 9), Vector2i(3, 2)],
+		[Vector2i(7, 10), Vector2i(0, 3)], [Vector2i(18, 10), Vector2i(1, 3)],
+		[Vector2i(14, 10), Vector2i(2, 3)], [Vector2i(27, 8), Vector2i(3, 3)]
+	]:
+		decor.set_cell(position_and_tile[0], 0, position_and_tile[1])
+
+func sync_world_visibility() -> void:
+	var in_city := zone == "kallipolis"
+	for layer in [$World/Ground, $World/Water, $World/Structures, $World/Props, $World/Roofs, $World/LightLayer]:
+		layer.visible = in_city
+	for layer in [$World/InnGround, $World/InnDecor]:
+		layer.visible = zone == "inn"
 
 func create_art_tile_set(texture: Texture2D) -> TileSet:
 	var tile_set := TileSet.new()
@@ -258,7 +299,7 @@ func _process(delta: float) -> void:
 
 func try_move_player(motion: Vector2) -> void:
 	var candidate := player + motion
-	if zone == "kallipolis":
+	if zone == "kallipolis" or zone == "inn":
 		candidate.x = clampf(candidate.x, 16.0, 944.0)
 		candidate.y = clampf(candidate.y, TOWN_ORIGIN.y + 16.0, TOWN_ORIGIN.y + TOWN_ROWS * TILE_SIZE - 16.0)
 	else:
@@ -274,6 +315,16 @@ func can_walk_to(candidate: Vector2) -> bool:
 	if zone == "cistern":
 		var tile := town_tile_from_position(candidate)
 		return cistern_tile_kind(tile.x, tile.y) != "wall"
+	if zone == "inn":
+		var furniture := [
+			Rect2(178, 194, 38, 42), Rect2(368, 226, 38, 38), Rect2(624, 162, 34, 38),
+			Rect2(782, 162, 38, 38), Rect2(462, 130, 38, 38), Rect2(302, 322, 38, 38),
+			Rect2(750, 258, 38, 38), Rect2(814, 354, 38, 38), Rect2(238, 386, 38, 38),
+			Rect2(590, 386, 38, 38), Rect2(462, 386, 38, 38), Rect2(878, 322, 38, 38)
+		]
+		for obstacle in furniture:
+			if obstacle.grow(9.0).has_point(candidate):
+				return false
 	return true
 
 func town_tile_from_position(position: Vector2) -> Vector2i:
@@ -405,10 +456,20 @@ func try_interact() -> void:
 	if zone == "cistern":
 		interact_cistern()
 		return
+	if zone == "inn":
+		interact_inn()
+		return
+	if player.distance_to(inn_door_position) < 58.0:
+		zone = "inn"
+		player = inn_exit_position
+		sync_world_visibility()
+		show_dialogue("Pensão dos Degraus", ["O cheiro de pão, azeite e madeira antiga tira um pouco do sal da sua garganta.", "Atrás do balcão, uma mulher observa sua entrada como se já soubesse que você viria."], [], "")
+		return
 	if quest_stage >= 5 and player.distance_to(cistern_gate_position) < 58.0:
 		zone = "cistern"
 		quest_stage = max(quest_stage, 6)
 		player = Vector2(110, 420)
+		sync_world_visibility()
 		show_dialogue("Ariane", ["A cisterna não aparece nos mapas porque a cidade decidiu esquecê-la.", "Três ecos mantêm a porta fechada. Pegue-os sem deixar o medo escolher por você."], [], "")
 		return
 	if quest_stage == 2 and player.distance_to(crate_position) < 54.0:
@@ -426,10 +487,25 @@ func try_interact() -> void:
 	notice = "Nada para interagir aqui."
 	notice_time = 1.7
 
+func interact_inn() -> void:
+	if player.distance_to(inn_exit_position) < 64.0:
+		zone = "kallipolis"
+		player = inn_door_position + Vector2(0, 48)
+		sync_world_visibility()
+		notice = "Você volta à praça de Kallípolis."
+		notice_time = 1.8
+		return
+	if player.distance_to(inn_lysandra_position) < 70.0:
+		talk_to("pension")
+		return
+	notice = "A pensão está quieta. Lysandra parece esperar que você diga alguma coisa."
+	notice_time = 1.8
+
 func interact_cistern() -> void:
 	if player.distance_to(cistern_exit_position) < 58.0:
 		zone = "kallipolis"
 		player = Vector2(850, 400)
+		sync_world_visibility()
 		notice = "Você voltou à superfície."
 		notice_time = 1.8
 		return
@@ -638,6 +714,9 @@ func _draw() -> void:
 	if zone == "cistern" and not title_open:
 		draw_cistern(font)
 		return
+	if zone == "inn" and not title_open:
+		draw_inn(font)
+		return
 	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
 	# Crate objective.
 	if quest_stage == 2:
@@ -647,9 +726,12 @@ func _draw() -> void:
 		draw_rect(Rect2(cistern_gate_position - Vector2(20, 45), Vector2(40, 70)), Color("25364d"))
 		draw_arc(cistern_gate_position - Vector2(0, 15), 20, PI, TAU, 18, Color("72d7e5"), 3.0)
 		draw_string(font, cistern_gate_position + Vector2(-48, 38), "CISTERNA", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("9ee7f1"))
+	# A stable landmark that makes the first interior discoverable without a minimap.
+	draw_rect(Rect2(inn_door_position + Vector2(-39, -38), Vector2(78, 17)), Color(0.11, 0.05, 0.025, 0.88))
+	draw_string(font, inn_door_position + Vector2(-35, -26), "PENSÃO", HORIZONTAL_ALIGNMENT_CENTER, 70, 12, Color("ffe0a0"))
 	# NPCs.
 	for npc in npcs:
-		var visible: bool = npc["role"] != "ariane" or quest_stage >= 3
+		var visible: bool = npc["role"] != "pension" and (npc["role"] != "ariane" or quest_stage >= 3)
 		if visible:
 			var npc_position: Vector2 = npc["position"]
 			draw_character(npc_position, npc["sprite"])
@@ -663,6 +745,30 @@ func _draw() -> void:
 	if title_open:
 		draw_title(font)
 	elif battle_open:
+		draw_battle(font)
+	elif gallery_open:
+		draw_gallery(font)
+	elif inventory_open:
+		draw_inventory(font)
+	elif dialogue_open:
+		draw_dialogue(font)
+	else:
+		draw_controls(font)
+
+func draw_inn(font: Font) -> void:
+	# The room itself is a TileMap; this layer adds characters and legible interaction cues.
+	draw_rect(Rect2(0, TOWN_ORIGIN.y, 960, 448), Color(0.13, 0.045, 0.018, 0.10))
+	draw_rect(Rect2(0, TOWN_ORIGIN.y, 960, 448), Color("d8a96a"), false, 2.0)
+	draw_rect(Rect2(inn_exit_position - Vector2(34, 24), Vector2(68, 40)), Color(0.04, 0.025, 0.02, 0.72))
+	draw_string(font, inn_exit_position + Vector2(-30, 37), "SAÍDA", HORIZONTAL_ALIGNMENT_CENTER, 60, 12, Color("f2d9a1"))
+	draw_character(inn_lysandra_position, Vector2i(2, 0))
+	draw_rect(Rect2(inn_lysandra_position + Vector2(-39, -101), Vector2(78, 17)), Color(0.02, 0.04, 0.09, 0.84))
+	draw_string(font, inn_lysandra_position + Vector2(-35, -88), "Lysandra", HORIZONTAL_ALIGNMENT_CENTER, 70, 13, Color.WHITE)
+	draw_character(player, Vector2i(0, 0))
+	draw_hud(font, "PENSÃO DOS DEGRAUS")
+	if notice_time > 0.0:
+		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
+	if battle_open:
 		draw_battle(font)
 	elif gallery_open:
 		draw_gallery(font)

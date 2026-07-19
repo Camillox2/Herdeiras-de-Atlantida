@@ -19,3 +19,9 @@ Os assets foram concebidos para uma fantasia mediterranea original. Eles nao dev
 - Arquivos: `assets/custom/kallipolis-props-v1.png` e `kallipolis-props-v1-source.png`.
 - Uso: mercado, cais, barcos, caixas, peixe, escadas, placas, flores, cordas e lanternas.
 - Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI; a versao de uso tem fundo tecnico removido localmente para alpha.
+
+## Interior da Pensao dos Degraus v1
+
+- Arquivo: `assets/custom/kallipolis-inn-v1.png`.
+- Uso: piso de madeira e mosaico, cama, mesa, estante, lareira, balcao, janela, tapete, mapa, bau e escada da primeira casa jogavel.
+- Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI. A folha foi desenhada para uso em um TileMap de interior, com a mesma grade visual do mundo exterior.
