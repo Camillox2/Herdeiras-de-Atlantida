@@ -85,3 +85,31 @@ Os assets foram concebidos para uma fantasia mediterranea original. Eles nao dev
 - Arquivo: `assets/custom/pension-interior-v2.png`.
 - Uso: cenario 16:9 integral e exploravel com quarto, refeitorio, lareira, bar, cozinha, escada e entrada claramente conectados. Personagens, colisao, dialogos e interacoes continuam sendo processados pelo Godot.
 - Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI, composta especificamente para 960x540 e escalonamento proporcional.
+
+## Ciclo de caminhada de Ivo v3
+
+- Arquivos: `assets/custom/ivo-walk-sheet-v3.png` e `ivo-walk-sheet-v3-source.png`.
+- Uso: ciclo ativo do protagonista, com quatro quadros para frente, esquerda, direita e costas, silhueta e linha dos pes estaveis.
+- Origem: arte original criada com o ImageGen embutido da OpenAI para este projeto; a versao de uso teve o fundo chroma removido localmente para alpha.
+- Prompt final de producao: `Sprite sheet pixel art 4x4 rigoroso, personagem adulto Ivo de casaco vermelho, linhas frente/esquerda/direita/costas, quatro poses de caminhada realmente distintas por linha, corpo inteiro, mesma escala e linha dos pes, iluminacao mediterranea, sem texto, sem objetos extras, fundo magenta uniforme para recorte.`
+
+## Placas de orientacao v1
+
+- Arquivos: `assets/custom/wayfinding-signs-v1.png` e `wayfinding-signs-v1-source.png`.
+- Uso: marcos visuais para Pensao, Agora, Cisterna e ferry, sem depender de texto permanente sobre o mapa.
+- Origem: arte original criada com o ImageGen embutido da OpenAI; fundo chroma removido para alpha.
+- Prompt final de producao: `Folha horizontal com quatro placas mediterraneas de pixel art, silhuetas diferentes e legiveis: cama e pao para pensao, anfora e balanca para Agora, espiral para cisterna, barco para ferry; bronze, madeira, ceramica azul, vista top-down 3/4, sem palavras, fundo magenta uniforme.`
+
+## Fonte animada v1
+
+- Arquivos: `assets/custom/fountain-fx-v1.png` e `fountain-fx-v1-source.png`.
+- Uso: ciclo de quatro fases da fonte central, com jatos, respingos, espuma e reflexos variando continuamente.
+- Origem: arte original criada com o ImageGen embutido da OpenAI; fundo chroma removido para alpha.
+- Prompt final de producao: `Sprite sheet horizontal de quatro frames de uma fonte circular mediterranea em pixel art top-down 3/4, base identica em todos os frames, somente agua e respingos mudam, loop continuo, azul turquesa e branco, sem texto, fundo magenta uniforme.`
+
+## Marcador de objetivo v1
+
+- Arquivos: `assets/custom/quest-beacon-v1.png` e `quest-beacon-v1-source.png`.
+- Uso: marcador animado discreto sobre o proximo destino da missao.
+- Origem: arte original criada com o ImageGen embutido da OpenAI; fundo chroma removido para alpha.
+- Prompt final de producao: `Sprite sheet horizontal de quatro frames de um pequeno marcador de objetivo em pixel art, louros e chevron dourados, pulso luminoso progressivo, centro transparente, legivel sobre cenarios claros e escuros, sem letras, fundo magenta uniforme.`

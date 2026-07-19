@@ -1,6 +1,9 @@
 extends Node2D
 
-const SPEED := 190.0
+const SPEED := 118.0
+const MOVE_ACCELERATION := 760.0
+const MOVE_DECELERATION := 980.0
+const MOTION_SUBSTEP := 2.5
 const WORLD := Rect2(28, 70, 904, 530)
 const SAVE_PATH := "user://otherworld_save.cfg"
 const GRAPHICS_PATH := "user://otherworld_graphics.cfg"
@@ -41,8 +44,11 @@ const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028
 const KALLIPOLIS_TILESET := preload("res://assets/custom/kallipolis-tileset-v2.png")
 const KALLIPOLIS_TERRAIN_ATLAS := preload("res://assets/custom/kallipolis-terrain-native-v1.png")
 const KALLIPOLIS_CHARACTER_SHEET := preload("res://assets/custom/kallipolis-characters-v1.png")
-const IVO_WALK_SHEET := preload("res://assets/custom/ivo-walk-sheet-v2.png")
+const IVO_WALK_SHEET := preload("res://assets/custom/ivo-walk-sheet-v3.png")
 const AMBIENT_FX_SHEET := preload("res://assets/custom/ambient-fx-sheet-v1.png")
+const WAYFINDING_SIGNS := preload("res://assets/custom/wayfinding-signs-v1.png")
+const FOUNTAIN_FX_SHEET := preload("res://assets/custom/fountain-fx-v1.png")
+const QUEST_BEACON_SHEET := preload("res://assets/custom/quest-beacon-v1.png")
 const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1.png")
 const KALLIPOLIS_ENVIRONMENT_SHEET := preload("res://assets/custom/kallipolis-environment-v1.png")
 const KALLIPOLIS_AGORA_SHEET := preload("res://assets/custom/kallipolis-agora-v1.png")
@@ -62,15 +68,16 @@ const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
 const CHARACTER_CELL_SIZE := Vector2(443.5, 443.5)
 const IVO_WALK_CELL_SIZE := Vector2(313.5, 313.5)
-const IVO_WALK_FOOT_OFFSETS := [68.5, 59.5, 57.0, 54.5]
+const IVO_WALK_FOOT_OFFSETS := [52.0, 50.0, 50.0, 52.0]
 const ENVIRONMENT_CELL_SIZE := Vector2(313.5, 313.5)
 const AMBIENT_FX_CELL_SIZE := Vector2(362.0, 360.6667)
 const ART_TILE_SCALE := 32.0 / 289.0
-const CHARACTER_DRAW_SIZE := Vector2(72, 72)
-const CHARACTER_DRAW_OFFSET := Vector2(36, 63)
-const IVO_WALK_DRAW_SIZE := Vector2(72, 72)
-const PLAYER_COLLISION_RADIUS := 10.0
-const INTERACTION_DISTANCE := 64.0
+const CHARACTER_DRAW_SIZE := Vector2(58, 58)
+const CHARACTER_DRAW_OFFSET := Vector2(29, 52)
+const IVO_WALK_DRAW_SIZE := Vector2(56, 56)
+const PLAYER_COLLISION_RADIUS := 6.0
+const INTERACTION_DISTANCE := 72.0
+const FOUNTAIN_CENTER := Vector2(490, 355)
 const RESOLUTION_OPTIONS := [Vector2i(960, 540), Vector2i(1280, 720), Vector2i(1600, 900), Vector2i(1920, 1080), Vector2i(2560, 1440)]
 const RESOLUTION_LABELS := ["960 x 540", "1280 x 720", "1600 x 900", "1920 x 1080", "2560 x 1440"]
 const DISPLAY_MODE_LABELS := ["Janela", "Janela sem bordas", "Tela cheia"]
@@ -136,10 +143,16 @@ var ambient_time := 0.0
 var transition_cooldown := 0.0
 var current_music_zone := ""
 var persistence_enabled := true
+var audio_enabled := true
 var title_open := true
 var player_moving := false
 var player_facing := Vector2.DOWN
+var player_velocity := Vector2.ZERO
 var walk_phase := 0.0
+var footstep_distance := 0.0
+var footstep_index := 0
+var tap_move_direction := Vector2.ZERO
+var tap_move_time := 0.0
 var qa_autowalk := false
 var inventory_items: Array[String] = ["Pão seco", "Capa molhada"]
 
@@ -149,8 +162,8 @@ var cistern_exit_position := Vector2(104, 452)
 var cistern_gate_position := Vector2(895, 420)
 var cistern_chest_position := Vector2(456, 420)
 var inn_door_position := Vector2(242, 325)
-var inn_exit_position := Vector2(480, 552)
-var inn_entry_spawn := Vector2(400, 530)
+var inn_exit_position := Vector2(480, 580)
+var inn_entry_spawn := Vector2(480, 495)
 var inn_lysandra_position := Vector2(690, 335)
 var inn_counter_interaction_position := Vector2(548, 350)
 var agora_gate_position := Vector2(726, 346)
@@ -181,18 +194,19 @@ var npcs := [
 ]
 
 var ambient_actors := [
-	{"zone": "kallipolis", "name": "Doros", "role": "Pescador", "start": Vector2(135, 430), "end": Vector2(220, 430), "slot": Vector2i(2, 1), "phase": 0.1, "speed": 0.34, "line": "O mar muda de humor antes das pessoas. Hoje ele está inquieto."},
-	{"zone": "kallipolis", "name": "Eleni", "role": "Vendedora", "start": Vector2(376, 390), "end": Vector2(438, 390), "slot": Vector2i(2, 0), "phase": 1.4, "speed": 0.27, "line": "Se procura trabalho, comece ouvindo. Kallípolis cobra caro de quem chega falando."},
-	{"zone": "kallipolis", "name": "Mikon", "role": "Estivador", "start": Vector2(605, 432), "end": Vector2(686, 432), "slot": Vector2i(3, 1), "phase": 2.8, "speed": 0.31, "line": "As caixas de Pólemon pesam mais quando ninguém sabe o que existe dentro."},
-	{"zone": "agora", "name": "Phoebe", "role": "Mercadora", "start": Vector2(245, 420), "end": Vector2(365, 420), "slot": Vector2i(2, 0), "phase": 0.8, "speed": 0.24, "line": "A Ágora vende azeite, rumores e certezas falsas. Só o azeite vem em jarra."},
-	{"zone": "agora", "name": "Timon", "role": "Mensageiro", "start": Vector2(600, 390), "end": Vector2(720, 390), "slot": Vector2i(3, 1), "phase": 2.0, "speed": 0.38, "line": "Nereu abriu a travessia ao amanhecer. Fechou de novo antes que alguém perguntasse por quê."},
-	{"zone": "nereu", "name": "Kleon", "role": "Marinheiro", "start": Vector2(180, 420), "end": Vector2(325, 420), "slot": Vector2i(3, 1), "phase": 1.1, "speed": 0.28, "line": "Aqui até a água tem dono. Não repita isso perto dos guardas."},
-	{"zone": "nereu", "name": "Damaris", "role": "Arquivista", "start": Vector2(610, 430), "end": Vector2(760, 430), "slot": Vector2i(1, 0), "phase": 2.4, "speed": 0.22, "line": "Nerissa arquiva memórias porque sabe o estrago que uma lembrança solta pode fazer."},
+	{"zone": "kallipolis", "name": "Doros", "role": "Pescador", "points": [Vector2(142, 431), Vector2(208, 431), Vector2(208, 457), Vector2(142, 457)], "slot": Vector2i(2, 1), "speed": 23.0, "pause": 0.7, "line": "O mar muda de humor antes das pessoas. Hoje ele está inquieto."},
+	{"zone": "kallipolis", "name": "Eleni", "role": "Vendedora", "points": [Vector2(365, 390), Vector2(430, 390), Vector2(430, 420), Vector2(365, 420)], "slot": Vector2i(2, 0), "speed": 20.0, "pause": 1.0, "line": "Se procura trabalho, comece ouvindo. Kallípolis cobra caro de quem chega falando."},
+	{"zone": "kallipolis", "name": "Mikon", "role": "Estivador", "points": [Vector2(620, 430), Vector2(675, 430), Vector2(675, 456), Vector2(620, 456)], "slot": Vector2i(2, 1), "speed": 19.0, "pause": 1.2, "line": "As caixas de Pólemon pesam mais quando ninguém sabe o que existe dentro."},
+	{"zone": "agora", "name": "Phoebe", "role": "Mercadora", "points": [Vector2(255, 420), Vector2(345, 420), Vector2(345, 455), Vector2(255, 455)], "slot": Vector2i(2, 0), "speed": 18.0, "pause": 1.1, "line": "A Ágora vende azeite, rumores e certezas falsas. Só o azeite vem em jarra."},
+	{"zone": "agora", "name": "Timon", "role": "Mensageiro", "points": [Vector2(600, 390), Vector2(700, 390), Vector2(700, 430), Vector2(640, 430)], "slot": Vector2i(1, 1), "speed": 26.0, "pause": 0.6, "line": "Nereu abriu a travessia ao amanhecer. Fechou de novo antes que alguém perguntasse por quê."},
+	{"zone": "nereu", "name": "Kleon", "role": "Marinheiro", "points": [Vector2(190, 420), Vector2(310, 420), Vector2(310, 455), Vector2(230, 455)], "slot": Vector2i(2, 1), "speed": 21.0, "pause": 0.9, "line": "Aqui até a água tem dono. Não repita isso perto dos guardas."},
+	{"zone": "nereu", "name": "Damaris", "role": "Arquivista", "points": [Vector2(620, 430), Vector2(745, 430), Vector2(745, 460), Vector2(660, 460)], "slot": Vector2i(1, 0), "speed": 17.0, "pause": 1.3, "line": "Nerissa arquiva memórias porque sabe o estrago que uma lembrança solta pode fazer."},
 ]
 
 var crate_position := Vector2(656, 442)
 
 func _ready() -> void:
+	audio_enabled = DisplayServer.get_name() != "headless"
 	load_game()
 	load_graphics_settings()
 	var launch_arguments := OS.get_cmdline_user_args()
@@ -201,6 +215,16 @@ func _ready() -> void:
 		dialogue_open = false
 		zone = "kallipolis"
 		player = Vector2(496, 440)
+	if "--qa-playtest" in launch_arguments:
+		persistence_enabled = false
+		title_open = false
+		dialogue_open = false
+		pause_open = false
+		settings_open = false
+		zone = "kallipolis"
+		quest_stage = 0
+		player = Vector2(496, 440)
+		player_facing = Vector2.DOWN
 	if "--qa-inn" in launch_arguments:
 		title_open = false
 		dialogue_open = false
@@ -211,6 +235,7 @@ func _ready() -> void:
 		title_open = false
 		dialogue_open = false
 		zone = "agora"
+		quest_stage = max(quest_stage, 1)
 		player = agora_entry_spawn
 		player_facing = Vector2.UP
 	if "--qa-nereu" in launch_arguments:
@@ -254,6 +279,7 @@ func _ready() -> void:
 		zone = "kallipolis"
 		player = Vector2(560, 400)
 		qa_autowalk = true
+	initialize_ambient_actors()
 	ensure_valid_player_position()
 	apply_graphics_settings()
 	configure_kallipolis_layers()
@@ -330,7 +356,30 @@ func sync_world_visibility() -> void:
 		layer.visible = false
 	for layer in [$World/AgoraGround, $World/AgoraStructures, $World/AgoraProps, $World/AgoraRoofs]:
 		layer.visible = false
+	player_velocity = Vector2.ZERO
+	player_moving = false
+	walk_phase = 0.0
+	footstep_distance = 0.0
 	update_music_for_zone()
+	sync_water_post_effect()
+
+func sync_water_post_effect() -> void:
+	if not has_node("WaterPostFX"):
+		return
+	var exterior_with_water := zone in ["kallipolis", "agora", "nereu"]
+	var interface_covering_scene := title_open or battle_open or gallery_open or inventory_open or map_open or pause_open or dialogue_open
+	$WaterPostFX.visible = water_effects_enabled and exterior_with_water and not interface_covering_scene
+	if not $WaterPostFX.visible:
+		return
+	var surface_y := 405.0
+	if zone == "agora":
+		surface_y = 466.0
+	elif zone == "nereu":
+		surface_y = 468.0
+	var material := $WaterPostFX.material as ShaderMaterial
+	if material:
+		material.set_shader_parameter("water_top", surface_y / 540.0)
+		material.set_shader_parameter("motion_strength", 0.0018 if scale_mode_index == 0 else 0.0024)
 
 func ensure_valid_player_position() -> void:
 	if can_walk_to(player) and not is_character_blocking(player):
@@ -339,10 +388,13 @@ func ensure_valid_player_position() -> void:
 		"inn": player = inn_entry_spawn
 		"agora": player = agora_entry_spawn
 		"nereu": player = nereu_entry_spawn
-		"cistern": player = Vector2(110, 420)
+		"cistern": player = Vector2(190, 420)
 		_: player = Vector2(496, 440)
 
 func update_music_for_zone() -> void:
+	if not audio_enabled:
+		$Music.stop()
+		return
 	var music_zone := zone
 	if zone == "inn":
 		music_zone = "kallipolis"
@@ -490,17 +542,14 @@ func build_kallipolis_tilemaps() -> void:
 func _process(delta: float) -> void:
 	player_moving = false
 	ambient_time = fmod(ambient_time + delta, 10000.0)
+	update_ambient_actors(delta)
 	transition_cooldown = maxf(0.0, transition_cooldown - delta)
 	if water_effects_enabled:
 		water_phase = fmod(water_phase + delta * 1.4, TAU)
 	if notice_time > 0.0:
 		notice_time -= delta
 	if title_open:
-		if Input.is_action_just_pressed("interact"):
-			title_open = false
-			$AudioConfirm.play()
-		if Input.is_action_just_pressed("restart"):
-			reset_game()
+		pass # Title input is event-driven so even a very short key tap is reliable.
 	elif battle_open:
 		handle_battle_input()
 	elif gallery_open:
@@ -512,49 +561,103 @@ func _process(delta: float) -> void:
 	elif pause_open:
 		pass # Pause and graphics navigation are event-driven in _unhandled_input.
 	elif dialogue_open:
-		pass # Dialogue choices are also event-driven for reliable short key taps.
+		player_velocity = player_velocity.move_toward(Vector2.ZERO, MOVE_DECELERATION * delta)
 	else:
 		var direction := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+		if direction.length_squared() <= 0.01 and tap_move_time > 0.0:
+			direction = tap_move_direction
+		tap_move_time = maxf(0.0, tap_move_time - delta)
 		if qa_autowalk:
-			direction = Vector2.RIGHT if fmod(ambient_time, 4.0) < 2.0 else Vector2.LEFT
-		player_moving = direction.length_squared() > 0.01
+			var qa_direction_index := posmod(int(floor(ambient_time / 1.35)), 4)
+			direction = [Vector2.RIGHT, Vector2.DOWN, Vector2.LEFT, Vector2.UP][qa_direction_index]
+		var target_velocity := direction * SPEED
+		var acceleration := MOVE_ACCELERATION if direction.length_squared() > 0.01 else MOVE_DECELERATION
+		player_velocity = player_velocity.move_toward(target_velocity, acceleration * delta)
+		if direction.length_squared() > 0.01:
+			player_facing = cardinal_facing(direction)
+		var previous_position := player
+		try_move_player(player_velocity * delta)
+		var travelled := player.distance_to(previous_position)
+		player_moving = travelled > 0.02
 		if player_moving:
-			player_facing = direction.normalized()
-			walk_phase += delta * 10.0
-		else:
+			walk_phase = fmod(walk_phase + travelled * 0.075, 4000.0)
+			footstep_distance += travelled
+			if footstep_distance >= 25.0:
+				footstep_distance = fmod(footstep_distance, 25.0)
+				play_footstep()
+		elif direction.length_squared() <= 0.01:
 			walk_phase = 0.0
-		try_move_player(direction * SPEED * delta)
+	sync_water_post_effect()
 	queue_redraw()
+
+func cardinal_facing(direction: Vector2) -> Vector2:
+	if absf(direction.x) > absf(direction.y):
+		return Vector2.RIGHT if direction.x > 0.0 else Vector2.LEFT
+	return Vector2.DOWN if direction.y > 0.0 else Vector2.UP
+
+func play_footstep() -> void:
+	if not has_node("AudioFootstep"):
+		return
+	footstep_index += 1
+	$AudioFootstep.pitch_scale = 0.94 if footstep_index % 2 == 0 else 1.04
+	play_sound($AudioFootstep)
+
+func play_sound(player_node: AudioStreamPlayer) -> void:
+	if audio_enabled and player_node.stream:
+		player_node.play()
 
 func _unhandled_input(event: InputEvent) -> void:
 	# Continuous movement belongs exclusively to _process. Discrete actions are
 	# consumed here once, preventing the same E press from closing and reopening a dialogue.
+	if title_open:
+		if event is InputEventKey and event.pressed and not event.echo:
+			if event.is_action_pressed("interact"):
+				title_open = false
+				play_sound($AudioConfirm)
+			elif event.is_action_pressed("restart"):
+				reset_game()
+			queue_redraw()
+		return
 	if pause_open:
 		handle_pause_event(event)
 		return
 	if dialogue_open:
 		handle_dialogue_event(event)
 		return
-	if title_open or battle_open or gallery_open or inventory_open or map_open:
+	if battle_open or gallery_open or inventory_open or map_open:
 		return
 	if not (event is InputEventKey) or not event.pressed or event.echo:
 		return
+	# Buffer very short directional taps for a few frames. This removes the common
+	# "I pressed it but nothing happened" feeling without adding grid snapping.
+	if event.is_action_pressed("move_left"):
+		tap_move_direction = Vector2.LEFT
+		tap_move_time = 0.11
+	elif event.is_action_pressed("move_right"):
+		tap_move_direction = Vector2.RIGHT
+		tap_move_time = 0.11
+	elif event.is_action_pressed("move_up"):
+		tap_move_direction = Vector2.UP
+		tap_move_time = 0.11
+	elif event.is_action_pressed("move_down"):
+		tap_move_direction = Vector2.DOWN
+		tap_move_time = 0.11
 	if event.is_action_pressed("interact"):
 		try_interact()
 	elif event.is_action_pressed("save_game"):
 		save_game()
 	elif event.is_action_pressed("journal"):
 		gallery_open = true
-		$AudioConfirm.play()
+		play_sound($AudioConfirm)
 	elif event.is_action_pressed("inventory"):
 		inventory_open = true
-		$AudioConfirm.play()
+		play_sound($AudioConfirm)
 	elif event.is_action_pressed("map"):
 		map_open = true
-		$AudioConfirm.play()
+		play_sound($AudioConfirm)
 	elif event.is_action_pressed("pause_menu"):
 		pause_open = true
-		$AudioConfirm.play()
+		play_sound($AudioConfirm)
 	queue_redraw()
 
 func handle_pause_event(event: InputEvent) -> void:
@@ -570,13 +673,13 @@ func handle_pause_event(event: InputEvent) -> void:
 	if settings_open:
 		if cancel:
 			cancel_graphics_changes()
-			$AudioClick.play()
+			play_sound($AudioClick)
 		elif go_up:
 			settings_selection = posmod(settings_selection - 1, 10)
-			$AudioClick.play()
+			play_sound($AudioClick)
 		elif go_down:
 			settings_selection = posmod(settings_selection + 1, 10)
-			$AudioClick.play()
+			play_sound($AudioClick)
 		elif go_left and settings_selection < 8:
 			change_graphics_setting(-1)
 		elif go_right and settings_selection < 8:
@@ -591,13 +694,13 @@ func handle_pause_event(event: InputEvent) -> void:
 		return
 	if cancel:
 		pause_open = false
-		$AudioClick.play()
+		play_sound($AudioClick)
 	elif go_up:
 		pause_selection = posmod(pause_selection - 1, 4)
-		$AudioClick.play()
+		play_sound($AudioClick)
 	elif go_down:
 		pause_selection = posmod(pause_selection + 1, 4)
-		$AudioClick.play()
+		play_sound($AudioClick)
 	elif confirm:
 		activate_pause_selection()
 	queue_redraw()
@@ -612,65 +715,83 @@ func handle_dialogue_event(event: InputEvent) -> void:
 	var at_last_page := dialogue_page >= dialogue_lines.size() - 1
 	if not at_last_page and confirm:
 		dialogue_page += 1
-		$AudioClick.play()
+		play_sound($AudioClick)
 	elif at_last_page and not dialogue_choices.is_empty():
 		if go_up:
 			choice_index = posmod(choice_index - 1, dialogue_choices.size())
-			$AudioClick.play()
+			play_sound($AudioClick)
 		elif go_down:
 			choice_index = posmod(choice_index + 1, dialogue_choices.size())
-			$AudioClick.play()
+			play_sound($AudioClick)
 		elif confirm:
 			choose_dialogue()
-			$AudioConfirm.play()
+			play_sound($AudioConfirm)
 	elif confirm:
 		close_dialogue()
-		$AudioClick.play()
+		play_sound($AudioClick)
 	queue_redraw()
 
 func try_move_player(motion: Vector2) -> void:
 	if motion.length_squared() <= 0.0001:
 		return
+	# Sweep large frame motions in small foot-level steps. This prevents tunnelling,
+	# visible snapping and the backwards/forwards correction seen at obstacle edges.
+	var substeps := maxi(1, ceili(motion.length() / MOTION_SUBSTEP))
+	var step_motion := motion / float(substeps)
+	for _step in substeps:
+		if not try_move_step(step_motion):
+			break
+
+func try_move_step(motion: Vector2) -> bool:
 	var candidate := player + motion
 	if zone in ["kallipolis", "inn", "agora", "nereu"]:
-		candidate.x = clampf(candidate.x, 16.0, 944.0)
-		candidate.y = clampf(candidate.y, TOWN_ORIGIN.y + 16.0, TOWN_ORIGIN.y + TOWN_ROWS * TILE_SIZE - 16.0)
+		candidate.x = clampf(candidate.x, 12.0, 948.0)
+		candidate.y = clampf(candidate.y, TOWN_ORIGIN.y + 12.0, TOWN_ORIGIN.y + TOWN_ROWS * TILE_SIZE - 12.0)
 	else:
 		candidate.x = clampf(candidate.x, WORLD.position.x + 12.0, WORLD.end.x - 12.0)
 		candidate.y = clampf(candidate.y, WORLD.position.y + 12.0, WORLD.end.y - 12.0)
 	if can_walk_to(candidate) and not is_character_blocking(candidate):
 		player = candidate
-		return
+		return true
 	# Sliding on one axis keeps movement fluid along walls and water edges.
 	var candidate_x := Vector2(candidate.x, player.y)
 	var candidate_y := Vector2(player.x, candidate.y)
 	if absf(motion.x) >= absf(motion.y):
 		if can_walk_to(candidate_x) and not is_character_blocking(candidate_x):
 			player = candidate_x
+			player_velocity.y = 0.0
+			return true
 		elif can_walk_to(candidate_y) and not is_character_blocking(candidate_y):
 			player = candidate_y
+			player_velocity.x = 0.0
+			return true
 	else:
 		if can_walk_to(candidate_y) and not is_character_blocking(candidate_y):
 			player = candidate_y
+			player_velocity.x = 0.0
+			return true
 		elif can_walk_to(candidate_x) and not is_character_blocking(candidate_x):
 			player = candidate_x
+			player_velocity.y = 0.0
+			return true
+	player_velocity = Vector2.ZERO
+	return false
 
 func is_character_blocking(candidate: Vector2) -> bool:
 	for npc in npcs:
 		if zone != "kallipolis":
 			break
 		var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
-		if visible and candidate.distance_to(npc["position"]) < PLAYER_COLLISION_RADIUS + 11.0:
+		if visible and candidate.distance_to(npc["position"]) < PLAYER_COLLISION_RADIUS + 6.0:
 			return true
-	if zone == "inn" and candidate.distance_to(inn_lysandra_position) < PLAYER_COLLISION_RADIUS + 12.0:
+	if zone == "inn" and candidate.distance_to(inn_lysandra_position) < PLAYER_COLLISION_RADIUS + 7.0:
 		return true
-	if zone == "agora" and candidate.distance_to(agora_polemon_position) < PLAYER_COLLISION_RADIUS + 12.0:
+	if zone == "agora" and candidate.distance_to(agora_polemon_position) < PLAYER_COLLISION_RADIUS + 7.0:
 		return true
-	if zone == "nereu" and candidate.distance_to(nereu_nerissa_position) < PLAYER_COLLISION_RADIUS + 12.0:
+	if zone == "nereu" and candidate.distance_to(nereu_nerissa_position) < PLAYER_COLLISION_RADIUS + 7.0:
 		return true
-	for actor in ambient_actors:
-		if actor["zone"] == zone and candidate.distance_to(ambient_actor_position(actor)) < PLAYER_COLLISION_RADIUS + 9.0:
-			return true
+	# Ambient residents are deliberately non-blocking: a lively crowd must not turn
+	# the plaza into an invisible maze.
 	return false
 
 func can_walk_to(candidate: Vector2) -> bool:
@@ -680,15 +801,15 @@ func can_walk_to(candidate: Vector2) -> bool:
 		var tile := town_tile_from_position(candidate)
 		return cistern_tile_kind(tile.x, tile.y) != "wall"
 	if zone == "inn":
-		if candidate.x < 34.0 or candidate.x > 926.0 or candidate.y < 154.0 or candidate.y > 552.0:
+		if candidate.x < 24.0 or candidate.x > 936.0 or candidate.y < 142.0 or candidate.y > 592.0:
 			return false
 		var furniture := [
-			Rect2(58, 178, 220, 176), Rect2(318, 268, 208, 142),
-			Rect2(326, 374, 206, 140), Rect2(566, 226, 310, 284),
-			Rect2(870, 158, 58, 310), Rect2(34, 404, 270, 96)
+			Rect2(54, 174, 228, 180), Rect2(337, 257, 145, 116),
+			Rect2(331, 367, 151, 112), Rect2(590, 230, 270, 237),
+			Rect2(870, 152, 58, 316), Rect2(49, 392, 212, 88)
 		]
 		for obstacle in furniture:
-			if obstacle.grow(9.0).has_point(candidate):
+			if obstacle.grow(4.0).has_point(candidate):
 				return false
 	if zone == "agora":
 		return can_walk_agora(candidate)
@@ -697,14 +818,25 @@ func can_walk_to(candidate: Vector2) -> bool:
 	return true
 
 func can_walk_kallipolis(candidate: Vector2) -> bool:
-	# World coordinates are 72 px below the painted viewport. Broad regions keep
-	# movement readable while landmark silhouettes, fountain and sea stay solid.
-	var on_promenade := Rect2(74, 316, 812, 139).has_point(candidate)
-	var on_west_pier := Rect2(70, 420, 168, 102).has_point(candidate)
-	if not (on_promenade or on_west_pier):
+	# Only the character's feet are tested. Overlapping regions follow the painted
+	# plaza, door approaches, western dock and central quay without invisible walls.
+	var walkable_regions := [
+		Rect2(38, 286, 884, 190),
+		Rect2(170, 235, 150, 120),
+		Rect2(408, 232, 170, 126),
+		Rect2(700, 232, 178, 132),
+		Rect2(35, 397, 260, 194),
+		Rect2(430, 395, 124, 105)
+	]
+	var in_walkable_region := false
+	for region in walkable_regions:
+		if region.has_point(candidate):
+			in_walkable_region = true
+			break
+	if not in_walkable_region:
 		return false
-	var fountain_center := Vector2(480, 374)
-	if candidate.distance_to(fountain_center) < 56.0:
+	var fountain_offset := candidate - FOUNTAIN_CENTER
+	if pow(fountain_offset.x / 39.0, 2.0) + pow(fountain_offset.y / 25.0, 2.0) < 1.0:
 		return false
 	return true
 
@@ -715,7 +847,7 @@ func can_walk_agora(candidate: Vector2) -> bool:
 	if not (in_central_plaza or in_market_lane or in_route_lane):
 		return false
 	var armillary_center := Vector2(480, 340)
-	if candidate.distance_to(armillary_center) < 58.0:
+	if candidate.distance_to(armillary_center) < 37.0:
 		return false
 	return true
 
@@ -727,7 +859,7 @@ func can_walk_nereu(candidate: Vector2) -> bool:
 	if not (in_lower_quay or in_outer_boulevard or in_north_avenue or in_side_gate):
 		return false
 	var central_pool := Vector2(480, 345)
-	if candidate.distance_to(central_pool) < 98.0:
+	if candidate.distance_to(central_pool) < 72.0:
 		return false
 	return true
 
@@ -789,12 +921,12 @@ func handle_gallery_input() -> void:
 func handle_inventory_input() -> void:
 	if Input.is_action_just_pressed("inventory") or Input.is_action_just_pressed("interact"):
 		inventory_open = false
-		$AudioClick.play()
+		play_sound($AudioClick)
 
 func handle_map_input() -> void:
 	if Input.is_action_just_pressed("map") or Input.is_action_just_pressed("pause_menu") or Input.is_action_just_pressed("interact"):
 		map_open = false
-		$AudioClick.play()
+		play_sound($AudioClick)
 
 func activate_pause_selection() -> void:
 	match pause_selection:
@@ -807,7 +939,7 @@ func activate_pause_selection() -> void:
 		3:
 			pause_open = false
 			title_open = true
-	$AudioConfirm.play()
+	play_sound($AudioConfirm)
 
 func change_graphics_setting(change: int) -> void:
 	match settings_selection:
@@ -820,7 +952,7 @@ func change_graphics_setting(change: int) -> void:
 		6: warm_lighting_enabled = not warm_lighting_enabled
 		7: brightness_percent = clampi(brightness_percent + change * 5, 70, 120)
 	graphics_dirty = true
-	$AudioConfirm.play()
+	play_sound($AudioConfirm)
 
 func begin_graphics_settings() -> void:
 	graphics_snapshot = {
@@ -844,7 +976,7 @@ func confirm_graphics_changes() -> void:
 	settings_open = false
 	notice = "Configurações gráficas aplicadas."
 	notice_time = 2.0
-	$AudioConfirm.play()
+	play_sound($AudioConfirm)
 
 func cancel_graphics_changes() -> void:
 	if not graphics_snapshot.is_empty():
@@ -922,7 +1054,7 @@ func handle_battle_input() -> void:
 		battle_menu = posmod(battle_menu + 1, battle_options)
 	if Input.is_action_just_pressed("interact"):
 		if battle_menu == 0:
-			$AudioAttack.play()
+			play_sound($AudioAttack)
 			var damage := 6 + resolve + weapon_bonus()
 			resolve = 0
 			enemy_health -= damage
@@ -946,7 +1078,7 @@ func handle_battle_input() -> void:
 				combat_message = "A Marca está vazia. Você precisa recuperar Essência com Focar."
 				enemy_turn(4)
 			else:
-				$AudioAttack.play()
+				play_sound($AudioAttack)
 				essence -= 1
 				var magic_damage := 10 + resolve
 				resolve = 0
@@ -980,7 +1112,7 @@ func finish_battle() -> void:
 func try_interact() -> void:
 	if transition_cooldown > 0.0:
 		return
-	$AudioClick.play()
+	play_sound($AudioClick)
 	if zone == "cistern":
 		interact_cistern()
 		return
@@ -993,7 +1125,7 @@ func try_interact() -> void:
 	if zone == "nereu":
 		interact_nereu()
 		return
-	if player.distance_to(inn_door_position) < 58.0:
+	if player.distance_to(inn_door_position) < INTERACTION_DISTANCE:
 		zone = "inn"
 		player = inn_entry_spawn
 		player_facing = Vector2.UP
@@ -1001,7 +1133,7 @@ func try_interact() -> void:
 		sync_world_visibility()
 		show_dialogue("Pensão dos Degraus", ["O cheiro de pão, azeite e madeira antiga tira um pouco do sal da sua garganta.", "Atrás do balcão, uma mulher observa sua entrada como se já soubesse que você viria."], [], "")
 		return
-	if player.distance_to(agora_gate_position) < 62.0:
+	if player.distance_to(agora_gate_position) < INTERACTION_DISTANCE:
 		zone = "agora"
 		player = agora_entry_spawn
 		player_facing = Vector2.UP
@@ -1009,14 +1141,14 @@ func try_interact() -> void:
 		sync_world_visibility()
 		show_dialogue("Ágora das Colunas", ["O mercado se abre atrás do arco de pedra: vozes, címbalos e o atrito de sandálias no mosaico.", "Aqui, toda pessoa parece vender alguma coisa — até o silêncio."], [], "")
 		return
-	if quest_stage >= 5 and player.distance_to(cistern_gate_position) < 58.0:
+	if quest_stage >= 5 and player.distance_to(cistern_gate_position) < INTERACTION_DISTANCE:
 		zone = "cistern"
 		quest_stage = max(quest_stage, 6)
-		player = Vector2(110, 420)
+		player = Vector2(190, 420)
 		sync_world_visibility()
 		show_dialogue("Ariane", ["A cisterna não aparece nos mapas porque a cidade decidiu esquecê-la.", "Três ecos mantêm a porta fechada. Pegue-os sem deixar o medo escolher por você."], [], "")
 		return
-	if quest_stage == 2 and player.distance_to(crate_position) < 54.0:
+	if quest_stage == 2 and player.distance_to(crate_position) < INTERACTION_DISTANCE:
 		quest_stage = 3
 		inventory_items.append("Moeda azul de Atlântida")
 		magic_unlocked = true
@@ -1025,7 +1157,8 @@ func try_interact() -> void:
 		show_dialogue("Caixa selada", ["A marca no seu pulso esquenta.", "Dentro da caixa há uma moeda azul e um símbolo que parece um labirinto.", "No telhado, alguém observa você."], [], "")
 		return
 	for npc in npcs:
-		if player.distance_to(npc.position) < 60.0:
+		var visible: bool = npc["role"] != "pension" and npc["role"] != "smuggler" and (npc["role"] != "ariane" or quest_stage >= 3)
+		if visible and player.distance_to(npc.position) < INTERACTION_DISTANCE:
 			talk_to(npc.role)
 			return
 	if try_talk_to_nearby_resident():
@@ -1034,7 +1167,7 @@ func try_interact() -> void:
 	notice_time = 1.7
 
 func interact_inn() -> void:
-	if player.distance_to(inn_exit_position) < 64.0:
+	if player.distance_to(inn_exit_position) < INTERACTION_DISTANCE:
 		zone = "kallipolis"
 		player = inn_door_position + Vector2(0, 72)
 		player_facing = Vector2.DOWN
@@ -1043,14 +1176,14 @@ func interact_inn() -> void:
 		notice = "Você volta à praça de Kallípolis."
 		notice_time = 1.8
 		return
-	if player.distance_to(inn_counter_interaction_position) < 76.0:
+	if player.distance_to(inn_counter_interaction_position) < INTERACTION_DISTANCE:
 		talk_to("pension")
 		return
 	notice = "A pensão está quieta. Lysandra parece esperar que você diga alguma coisa."
 	notice_time = 1.8
 
 func interact_agora() -> void:
-	if player.distance_to(agora_exit_position) < 66.0:
+	if player.distance_to(agora_exit_position) < INTERACTION_DISTANCE:
 		zone = "kallipolis"
 		player = agora_gate_position - Vector2(76, 0)
 		player_facing = Vector2.LEFT
@@ -1059,13 +1192,13 @@ func interact_agora() -> void:
 		notice = "O cais continua atrás de você."
 		notice_time = 1.8
 		return
-	if player.distance_to(agora_polemon_position) < 70.0:
+	if player.distance_to(agora_polemon_position) < INTERACTION_DISTANCE:
 		talk_to("smuggler")
 		return
-	if player.distance_to(agora_notice_board_position) < 70.0:
+	if player.distance_to(agora_notice_board_position) < INTERACTION_DISTANCE:
 		show_dialogue("Edital da cidade", ["O bronze lista dívidas de marinheiros, preços de azeite e uma recompensa por 'objetos que cantam sob a água'.", "A última linha foi riscada tantas vezes que o metal parece ferido."], [], "")
 		return
-	if player.distance_to(agora_route_position) < 72.0:
+	if player.distance_to(agora_route_position) < INTERACTION_DISTANCE:
 		if quest_stage < 9:
 			show_dialogue("Portão de Nereu", ["O arco oriental permanece fechado. Guardas azuis conferem selos de travessia.", "Ainda existe algo sob Kallípolis que você precisa terminar."], [], "")
 		else:
@@ -1082,19 +1215,21 @@ func interact_agora() -> void:
 	notice_time = 1.8
 
 func interact_nereu() -> void:
-	if player.distance_to(nereu_exit_position) < 64.0:
+	if player.distance_to(nereu_exit_position) < INTERACTION_DISTANCE:
 		zone = "agora"
-		player = agora_route_position - Vector2(48, 0)
+		# Spawn outside the ferry interaction radius so a second E press cannot
+		# immediately send the player back to Nereu.
+		player = agora_route_position - Vector2(84, 0)
 		player_facing = Vector2.LEFT
 		transition_cooldown = 0.45
 		sync_world_visibility()
 		notice = "O ferry retorna à Ágora de Kallípolis."
 		notice_time = 1.8
 		return
-	if player.distance_to(nereu_nerissa_position) < 72.0:
+	if player.distance_to(nereu_nerissa_position) < INTERACTION_DISTANCE:
 		start_nerissa_intro()
 		return
-	if player.distance_to(nereu_palace_position) < 72.0:
+	if player.distance_to(nereu_palace_position) < INTERACTION_DISTANCE:
 		show_dialogue("Palácio da Maré", ["Guardas cruzam lanças diante do salão da capitã.", "O símbolo na sua marca responde às fontes do pátio com uma pulsação quase imperceptível."], [], "")
 		return
 	if try_talk_to_nearby_resident():
@@ -1106,14 +1241,16 @@ func start_nerissa_intro() -> void:
 	show_dialogue("Nerissa", ["Então você é o estrangeiro que fez Kallípolis lembrar do que enterrou.", "Em Nereu, memórias são catalogadas, armadas e lançadas ao mar.", "Se veio por respostas, aprenda a reconhecer uma pergunta perigosa."], ["Perguntar sobre Atlântida.", "Dizer que procura Ariane.", "Admitir que ainda não sabe o que procura."], "nerissa_intro", "neutral")
 
 func interact_cistern() -> void:
-	if player.distance_to(cistern_exit_position) < 58.0:
+	if player.distance_to(cistern_exit_position) < INTERACTION_DISTANCE:
 		zone = "kallipolis"
-		player = Vector2(850, 400)
+		player = cistern_gate_position - Vector2(96, 20)
+		player_facing = Vector2.LEFT
+		transition_cooldown = 0.45
 		sync_world_visibility()
 		notice = "Você voltou à superfície."
 		notice_time = 1.8
 		return
-	if not cistern_chest_open and player.distance_to(cistern_chest_position) < 52.0:
+	if not cistern_chest_open and player.distance_to(cistern_chest_position) < INTERACTION_DISTANCE:
 		cistern_chest_open = true
 		equipped_weapon = "Daga de bronze (+4 Ataque)"
 		equipped_armor = "Manto de escamas (+2 Guarda)"
@@ -1122,7 +1259,7 @@ func interact_cistern() -> void:
 		show_dialogue("Baú afundado", ["Você encontra uma lâmina de bronze intacta e um manto de escamas leves.", "EQUIPAMENTO ATUALIZADO: ataque e guarda aumentaram."], [], "")
 		return
 	for i in cistern_shard_positions.size():
-		if not cistern_shards[i] and player.distance_to(cistern_shard_positions[i]) < 48.0:
+		if not cistern_shards[i] and player.distance_to(cistern_shard_positions[i]) < INTERACTION_DISTANCE:
 			cistern_shards[i] = true
 			relics += 1
 			inventory_items.append("Eco de Atlântida %d" % relics)
@@ -1131,7 +1268,7 @@ func interact_cistern() -> void:
 			else:
 				show_dialogue("Eco de Atlântida", ["Uma lembrança sem dono toca sua mão.", "Relíquia obtida: Eco %d de 3." % relics], [], "")
 			return
-	if player.distance_to(cistern_door_position) < 64.0:
+	if player.distance_to(cistern_door_position) < INTERACTION_DISTANCE:
 		if relics < 3:
 			show_dialogue("Porta de Bronze", ["Três círculos vazios esperam por ecos perdidos.", "Você possui %d de 3 relíquias." % relics], [], "")
 		else:
@@ -1168,7 +1305,7 @@ func talk_to(role: String) -> void:
 				show_dialogue("Coletor", ["Cidadãos sem registro não carregam relíquias.", "Entregue a moeda e ninguém se machuca."], [], "")
 
 func show_dialogue(speaker: String, lines: Array, choices: Array = [], action := "", expression := "neutral") -> void:
-	$AudioConfirm.play()
+	play_sound($AudioConfirm)
 	dialogue_speaker = speaker
 	dialogue_lines.assign(lines)
 	dialogue_choices.assign(choices)
@@ -1185,9 +1322,46 @@ func close_dialogue() -> void:
 	dialogue_action = ""
 	dialogue_page = 0
 
+func initialize_ambient_actors() -> void:
+	for actor in ambient_actors:
+		var points: Array = actor["points"]
+		actor["position"] = Vector2(points[0])
+		actor["target_index"] = 1 if points.size() > 1 else 0
+		actor["wait_time"] = float(actor["pause"]) * 0.5
+		actor["moving"] = false
+		actor["facing"] = Vector2.DOWN
+		actor["walk_phase"] = 0.0
+
+func update_ambient_actors(delta: float) -> void:
+	for actor in ambient_actors:
+		var wait_time := float(actor.get("wait_time", 0.0))
+		if wait_time > 0.0:
+			actor["wait_time"] = maxf(0.0, wait_time - delta)
+			actor["moving"] = false
+			continue
+		var points: Array = actor["points"]
+		if points.size() < 2:
+			continue
+		var target_index := int(actor.get("target_index", 0))
+		var current_position := Vector2(actor.get("position", points[0]))
+		var target_position := Vector2(points[target_index])
+		var direction := current_position.direction_to(target_position)
+		var distance := current_position.distance_to(target_position)
+		if distance <= 0.8:
+			actor["position"] = target_position
+			actor["target_index"] = posmod(target_index + 1, points.size())
+			actor["wait_time"] = float(actor["pause"])
+			actor["moving"] = false
+			continue
+		var travelled := minf(distance, float(actor["speed"]) * delta)
+		actor["position"] = current_position + direction * travelled
+		actor["facing"] = cardinal_facing(direction)
+		actor["moving"] = true
+		actor["walk_phase"] = fmod(float(actor.get("walk_phase", 0.0)) + travelled * 0.09, 4000.0)
+
 func ambient_actor_position(actor: Dictionary) -> Vector2:
-	var travel := (sin(ambient_time * float(actor["speed"]) * TAU + float(actor["phase"])) + 1.0) * 0.5
-	return Vector2(actor["start"]).lerp(Vector2(actor["end"]), travel)
+	var points: Array = actor["points"]
+	return Vector2(actor.get("position", points[0]))
 
 func find_nearby_ambient_actor() -> Dictionary:
 	var nearest: Dictionary = {}
@@ -1214,11 +1388,11 @@ func choose_dialogue() -> void:
 		"lysandra_intro":
 			quest_stage = max(quest_stage, 1)
 			if choice_index == 0:
-				show_dialogue("Lysandra", ["Bom. A verdade não compra cama, mas evita que você durma em lugar pior.", "Pólemon procura braços fortes perto da fonte."], [], "")
+				show_dialogue("Lysandra", ["Bom. A verdade não compra cama, mas evita que você durma em lugar pior.", "Pólemon contrata carregadores na Ágora. Siga a placa da ânfora e das balanças."], [], "")
 			elif choice_index == 1:
-				show_dialogue("Lysandra", ["Todo mundo procura trabalho. Pouca gente admite que procura uma chance.", "Pólemon está perto da fonte."], [], "")
+				show_dialogue("Lysandra", ["Todo mundo procura trabalho. Pouca gente admite que procura uma chance.", "Pólemon está na Ágora. Procure a placa da ânfora e das balanças."], [], "")
 			else:
-				show_dialogue("Lysandra", ["Humor é uma casa sem janela. Um dia você vai precisar sair dela.", "Pólemon está perto da fonte."], [], "")
+				show_dialogue("Lysandra", ["Humor é uma casa sem janela. Um dia você vai precisar sair dela.", "Pólemon está na Ágora. A placa da ânfora marca o caminho."], [], "")
 		"polemon_job":
 			if choice_index == 0:
 				quest_stage = 2
@@ -1333,14 +1507,53 @@ func reset_game() -> void:
 
 func quest_text() -> String:
 	match quest_stage:
-		0, 1: return "Encontre um trabalho em Kallípolis"
+		0: return "Fale com Lysandra na Pensão"
+		1: return "Encontre Pólemon na Ágora"
 		2: return "Leve a caixa ao cais"
 		3: return "Descubra quem observa você"
 		4: return "Enfrente o Coletor no cais"
 		5: return "Entre na Cisterna esquecida"
 		6, 7, 8: return "Colete os Ecos de Atlântida (%d/3)" % relics
-		9: return "Atravesse a Ágora e siga para Nereu"
+		9:
+			if zone == "nereu": return "Fale com Nerissa em Nereu"
+			if zone == "agora": return "Tome o ferry para Nereu"
+			return "Atravesse a Ágora e siga para Nereu"
 		_: return "Descubra o Juramento das Moiras"
+
+func objective_target_data() -> Dictionary:
+	match quest_stage:
+		0:
+			if zone == "kallipolis": return {"position": inn_door_position, "label": "Pensão dos Degraus"}
+			if zone == "inn": return {"position": inn_counter_interaction_position, "anchor": inn_lysandra_position, "label": "Lysandra"}
+		1:
+			if zone == "inn": return {"position": inn_exit_position, "label": "Saída para Kallípolis"}
+			if zone == "kallipolis": return {"position": agora_gate_position, "label": "Ágora das Colunas"}
+			if zone == "agora": return {"position": agora_polemon_position, "label": "Pólemon"}
+		2:
+			if zone == "agora": return {"position": agora_exit_position, "label": "Voltar ao cais"}
+			if zone == "kallipolis": return {"position": crate_position, "label": "Caixa no cais"}
+		3:
+			if zone == "kallipolis": return {"position": Vector2(npcs[2]["position"]), "label": "Ariane"}
+		4:
+			if zone == "kallipolis": return {"position": Vector2(npcs[3]["position"]), "label": "Coletor"}
+		5:
+			if zone == "kallipolis": return {"position": cistern_gate_position, "label": "Entrada da Cisterna"}
+		6, 7, 8:
+			if zone == "cistern":
+				for index in cistern_shard_positions.size():
+					if not cistern_shards[index]:
+						return {"position": cistern_shard_positions[index], "label": "Eco de Atlântida"}
+		9:
+			if zone == "kallipolis": return {"position": agora_gate_position, "label": "Ágora das Colunas"}
+			if zone == "agora": return {"position": agora_route_position, "label": "Ferry para Nereu"}
+			if zone == "nereu": return {"position": nereu_nerissa_position, "label": "Nerissa"}
+	# If the objective belongs to another district, guide the player to the local exit.
+	match zone:
+		"inn": return {"position": inn_exit_position, "label": "Saída para Kallípolis"}
+		"agora": return {"position": agora_exit_position, "label": "Voltar a Kallípolis"}
+		"nereu": return {"position": nereu_exit_position, "label": "Ferry para a Ágora"}
+		"cistern": return {"position": cistern_exit_position, "label": "Voltar à superfície"}
+	return {}
 
 func location_name() -> String:
 	match zone:
@@ -1374,6 +1587,8 @@ func _draw() -> void:
 	draw_texture_rect(KALLIPOLIS_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_water_shimmer(405.0, 540.0)
 	draw_ambient_fx("kallipolis", 405.0, 540.0)
+	draw_wayfinding_signs()
+	draw_fountain_animation()
 	# Crate objective.
 	if quest_stage == 2:
 		var crate_display := display_position(crate_position)
@@ -1392,6 +1607,9 @@ func _draw() -> void:
 	draw_ambient_actors()
 	# Player sprite.
 	draw_player_character(display_position(player))
+	draw_objective_beacon(font)
+	draw_quest_tracker(font)
+	draw_notice_toast(font)
 	draw_scene_color_grade()
 	if not title_open and not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
 		draw_interaction_prompt(font)
@@ -1415,6 +1633,9 @@ func draw_inn(font: Font) -> void:
 	draw_texture_rect(PENSION_INTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_character(display_position(inn_lysandra_position), Vector2i(2, 0))
 	draw_player_character(display_position(player))
+	draw_objective_beacon(font)
+	draw_quest_tracker(font)
+	draw_notice_toast(font)
 	draw_scene_color_grade()
 	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
 		draw_interaction_prompt(font)
@@ -1436,10 +1657,14 @@ func draw_agora(font: Font) -> void:
 	draw_texture_rect(AGORA_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_water_shimmer(466.0, 540.0)
 	draw_ambient_fx("agora", 466.0, 540.0)
+	draw_wayfinding_signs()
 	draw_character(display_position(agora_polemon_position), Vector2i(3, 0))
 	draw_ambient_actors()
 	draw_circle(display_position(agora_notice_board_position) + Vector2(0, -18), 7, Color(0.95, 0.76, 0.34, 0.24 + sin(water_phase * 2.0) * 0.06))
 	draw_player_character(display_position(player))
+	draw_objective_beacon(font)
+	draw_quest_tracker(font)
+	draw_notice_toast(font)
 	draw_scene_color_grade()
 	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
 		draw_interaction_prompt(font)
@@ -1460,9 +1685,13 @@ func draw_nereu(font: Font) -> void:
 	draw_texture_rect(NEREU_EXTERIOR, Rect2(0, 0, 960, 540), false, Color.WHITE)
 	draw_water_shimmer(468.0, 540.0)
 	draw_ambient_fx("nereu", 468.0, 540.0)
+	draw_wayfinding_signs()
 	draw_character(display_position(nereu_nerissa_position), Vector2i(1, 0))
 	draw_ambient_actors()
 	draw_player_character(display_position(player))
+	draw_objective_beacon(font)
+	draw_quest_tracker(font)
+	draw_notice_toast(font)
 	draw_scene_color_grade()
 	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
 		draw_interaction_prompt(font)
@@ -1538,6 +1767,9 @@ func draw_cistern(font: Font) -> void:
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("7a4e2e"))
 		draw_rect(Rect2(chest_display - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
 	draw_player_character(display_position(player))
+	draw_objective_beacon(font)
+	draw_quest_tracker(font)
+	draw_notice_toast(font)
 	draw_scene_color_grade()
 	if not battle_open and not gallery_open and not inventory_open and not map_open and not pause_open and not dialogue_open:
 		draw_interaction_prompt(font)
@@ -1593,13 +1825,89 @@ func draw_ambient_actors() -> void:
 			continue
 		var world_position := ambient_actor_position(actor)
 		var display := display_position(world_position)
-		var walking_bob := -roundf(absf(sin(ambient_time * float(actor["speed"]) * TAU * 2.0)) * 1.0)
-		draw_character_scaled(display + Vector2(0, walking_bob), actor["slot"], Vector2(54, 54))
+		var actor_walk_phase := float(actor.get("walk_phase", 0.0))
+		var walking_bob := -roundf(absf(sin(actor_walk_phase * PI * 0.5))) if bool(actor.get("moving", false)) else 0.0
+		draw_character_scaled(display + Vector2(0, walking_bob), actor["slot"], Vector2(46, 46))
+		var name_distance := 126.0 if actor["name"] == "Mikon" else 82.0
+		if player.distance_to(world_position) < name_distance:
+			draw_nameplate(ThemeDB.fallback_font, display, actor["name"])
 
 func draw_character_scaled(position: Vector2, slot: Vector2i, size: Vector2) -> void:
 	var source := Rect2(slot.x * CHARACTER_CELL_SIZE.x, slot.y * CHARACTER_CELL_SIZE.y, CHARACTER_CELL_SIZE.x, CHARACTER_CELL_SIZE.y)
 	draw_sprite_shadow(position + Vector2(0, 3), Vector2(size.x * 0.17, 3), Color(0.01, 0.02, 0.04, 0.28))
 	draw_texture_rect_region(KALLIPOLIS_CHARACTER_SHEET, Rect2(position - Vector2(size.x * 0.5, size.y * 0.87), size), source, Color.WHITE)
+
+func draw_sheet_frame(texture: Texture2D, frame_count: int, frame: int, destination: Rect2, modulate := Color.WHITE) -> void:
+	var cell_size := Vector2(float(texture.get_width()) / float(frame_count), float(texture.get_height()))
+	var source := Rect2(Vector2(float(posmod(frame, frame_count)) * cell_size.x, 0.0), cell_size)
+	draw_texture_rect_region(texture, destination, source, modulate)
+
+func draw_wayfinding_signs() -> void:
+	var signs: Array = []
+	match zone:
+		"kallipolis":
+			signs = [
+				[inn_door_position + Vector2(48, 2), 0],
+				[agora_gate_position + Vector2(-54, 5), 1]
+			]
+			if quest_stage >= 5:
+				signs.append([cistern_gate_position + Vector2(-42, 0), 2])
+		"agora":
+			signs = [
+				[agora_notice_board_position + Vector2(0, -4), 1],
+				[agora_route_position + Vector2(-38, 0), 3]
+			]
+		"nereu":
+			signs = [[nereu_exit_position + Vector2(-42, -2), 3]]
+	for sign_data in signs:
+		var center := display_position(Vector2(sign_data[0]))
+		var destination := Rect2(center - Vector2(25, 64), Vector2(50, 67))
+		draw_sheet_frame(WAYFINDING_SIGNS, 4, int(sign_data[1]), destination)
+
+func draw_fountain_animation() -> void:
+	if not water_effects_enabled or zone != "kallipolis":
+		return
+	var frame := posmod(int(floor(ambient_time * 5.5)), 4)
+	var center := display_position(FOUNTAIN_CENTER)
+	var destination := Rect2(center - Vector2(38, 63), Vector2(76, 101))
+	draw_sheet_frame(FOUNTAIN_FX_SHEET, 4, frame, destination)
+
+func draw_objective_beacon(font: Font) -> void:
+	if title_open or battle_open or gallery_open or inventory_open or map_open or pause_open or dialogue_open:
+		return
+	var target := objective_target_data()
+	if target.is_empty():
+		return
+	var target_position := Vector2(target.get("anchor", target["position"]))
+	var anchor := display_position(target_position) + Vector2(0, -43 + sin(ambient_time * 3.2) * 2.0)
+	var frame := posmod(int(floor(ambient_time * 6.0)), 4)
+	draw_sheet_frame(QUEST_BEACON_SHEET, 4, frame, Rect2(anchor - Vector2(19, 51), Vector2(38, 51)))
+	var label: String = target["label"]
+	var width := clampf(40.0 + label.length() * 6.4, 110.0, 210.0)
+	var panel := Rect2(anchor + Vector2(-width * 0.5, 2), Vector2(width, 20))
+	draw_rect(panel, Color(0.015, 0.025, 0.06, 0.88))
+	draw_rect(panel, Color(0.91, 0.72, 0.35, 0.9), false, 1.0)
+	draw_string(font, panel.position + Vector2(8, 15), label, HORIZONTAL_ALIGNMENT_CENTER, width - 16.0, 12, Color("fff4d2"))
+
+func draw_quest_tracker(font: Font) -> void:
+	if title_open or battle_open or gallery_open or inventory_open or map_open or pause_open or dialogue_open:
+		return
+	var panel := Rect2(600, 12, 348, 48)
+	draw_rect(panel, Color(0.012, 0.024, 0.055, 0.9))
+	draw_rect(panel, Color(0.67, 0.82, 0.85, 0.72), false, 1.0)
+	var frame := posmod(int(floor(ambient_time * 6.0)), 4)
+	draw_sheet_frame(QUEST_BEACON_SHEET, 4, frame, Rect2(610, 13, 33, 44))
+	draw_string(font, Vector2(650, 29), "PRÓXIMO PASSO", HORIZONTAL_ALIGNMENT_LEFT, 278, 10, Color("e9c46a"))
+	draw_string(font, Vector2(650, 49), quest_text(), HORIZONTAL_ALIGNMENT_LEFT, 284, 14, Color("f5f7fb"))
+
+func draw_notice_toast(font: Font) -> void:
+	if notice_time <= 0.0 or notice.is_empty() or dialogue_open or battle_open:
+		return
+	var width := clampf(54.0 + notice.length() * 6.8, 240.0, 620.0)
+	var panel := Rect2(480.0 - width * 0.5, 486, width, 34)
+	draw_rect(panel, Color(0.012, 0.024, 0.055, 0.93))
+	draw_rect(panel, Color(0.91, 0.72, 0.35, 0.84), false, 1.0)
+	draw_string(font, panel.position + Vector2(14, 23), notice, HORIZONTAL_ALIGNMENT_CENTER, width - 28.0, 13, Color("fff4d2"))
 
 func draw_ambient_fx(scene_zone: String, water_top: float, water_bottom: float) -> void:
 	if not water_effects_enabled:
@@ -1615,11 +1923,13 @@ func draw_ambient_fx(scene_zone: String, water_top: float, water_bottom: float) 
 		var drift_x := fmod(index * 217.0 + ambient_time * (11.0 + index), 1000.0) - 20.0
 		var drift_y := 155.0 + fmod(index * 83.0 + ambient_time * (18.0 + index * 2.0), maxf(80.0, water_top - 150.0))
 		draw_ambient_fx_cell(Vector2(drift_x, drift_y), Vector2i(posmod(frame + index, 4), 1), Vector2(18, 18), Color(1, 1, 1, 0.78))
-	# Foam accents follow the animated water and make the shoreline visibly alive.
-	for index in range(8):
-		var ripple_x := 54.0 + fmod(index * 137.0 + ambient_time * (5.0 + index), 870.0)
-		var ripple_y := lerpf(water_top + 17.0, water_bottom - 24.0, float(posmod(index * 3, 8)) / 7.0)
-		draw_ambient_fx_cell(Vector2(ripple_x, ripple_y), Vector2i(posmod(frame + index, 4), 2), Vector2(27, 22), Color(1, 1, 1, 0.62))
+	# Small authored ripple sprites travel at uneven rates; low opacity keeps them
+	# integrated with the painted sea instead of looking like bright HUD lines.
+	for index in range(7):
+		var ripple_x := 40.0 + fmod(index * 149.0 + ambient_time * (2.4 + index * 0.35), 900.0)
+		var ripple_y := lerpf(water_top + 13.0, water_bottom - 19.0, float(posmod(index * 5, 9)) / 8.0)
+		var ripple_size := Vector2(23.0 + float(index % 3) * 5.0, 14.0 + float(index % 2) * 3.0)
+		draw_ambient_fx_cell(Vector2(ripple_x, ripple_y), Vector2i(posmod(frame + index, 4), 2), ripple_size, Color(1, 1, 1, 0.32))
 
 func draw_ambient_fx_cell(center: Vector2, slot: Vector2i, size: Vector2, modulate := Color.WHITE) -> void:
 	var source := Rect2(slot.x * AMBIENT_FX_CELL_SIZE.x, slot.y * AMBIENT_FX_CELL_SIZE.y, AMBIENT_FX_CELL_SIZE.x, AMBIENT_FX_CELL_SIZE.y)
@@ -1659,7 +1969,7 @@ func interaction_prompt_data() -> Dictionary:
 			if not cistern_shards[index]:
 				candidates.append({"position": cistern_shard_positions[index], "label": "Tocar o Eco"})
 	var nearest: Dictionary = {}
-	var nearest_distance := 82.0
+	var nearest_distance := INTERACTION_DISTANCE
 	for candidate in candidates:
 		var distance := player.distance_to(candidate["position"])
 		if distance < nearest_distance:
@@ -1755,22 +2065,13 @@ func draw_sprite_shadow(center: Vector2, radii: Vector2, color: Color) -> void:
 func draw_water_shimmer(surface_y: float, bottom_y: float) -> void:
 	if not water_effects_enabled:
 		return
-	# Layered waves travel at different speeds; the stronger shoreline band makes
-	# motion readable even at 960x540 while preserving the painted water beneath.
-	for row in range(7):
-		var y := lerpf(surface_y + 8.0, bottom_y - 14.0, float(row) / 6.0)
-		var points := PackedVector2Array()
-		for column in range(49):
-			var x := float(column) * 20.0
-			var wave := sin(column * 0.58 + water_phase * (1.25 + row * 0.09)) * (1.7 + row * 0.28)
-			wave += sin(column * 0.21 - water_phase * 0.72) * 0.8
-			points.append(Vector2(x, y + wave))
-		draw_polyline(points, Color(0.69, 0.97, 0.96, 0.13 + row * 0.012), 1.2, true)
-	var shore := PackedVector2Array()
-	for column in range(65):
-		var shore_x := float(column) * 15.0
-		shore.append(Vector2(shore_x, surface_y + 3.0 + sin(column * 0.5 + water_phase * 2.1) * 2.0))
-	draw_polyline(shore, Color(0.78, 1.0, 0.94, 0.28), 2.0, true)
+	# The screen-space shader provides continuous refraction. These sparse authored
+	# shoreline ripples add readable foam without the former seven synthetic lines.
+	var frame := posmod(int(floor(ambient_time * 4.5)), 4)
+	for index in range(11):
+		var x := 24.0 + float(index) * 92.0 + sin(ambient_time * 0.55 + index * 1.7) * 13.0
+		var y := surface_y + 5.0 + float(index % 3) * 4.0
+		draw_ambient_fx_cell(Vector2(x, y), Vector2i(posmod(frame + index, 4), 2), Vector2(31, 17), Color(1, 1, 1, 0.24))
 
 func draw_scene_color_grade() -> void:
 	if warm_lighting_enabled:

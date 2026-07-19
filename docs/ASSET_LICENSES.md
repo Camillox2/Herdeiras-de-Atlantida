@@ -71,3 +71,10 @@ Os assets do jogo final devem ter uma lista de origem e licença neste mesmo doc
 - Arquivos: `assets/custom/ivo-walk-sheet-v2.png`, `ambient-fx-sheet-v1.png` e respectivos arquivos `-source`.
 - Origem: arte original gerada especificamente para Herdeiras de Atlântida com a ferramenta de geração de imagens da OpenAI e finalizada para fundo transparente.
 - Uso: caminhada em quatro direções, gaivotas, folhas, pétalas, espuma e brilhos da água.
+
+## Sprites de movimento e orientacao v3
+
+- Arquivos: `assets/custom/ivo-walk-sheet-v3.png`, `wayfinding-signs-v1.png`, `fountain-fx-v1.png`, `quest-beacon-v1.png` e respectivos arquivos `-source`.
+- Origem: artes originais geradas especificamente para Herdeiras de Atlântida com a ferramenta de geração de imagens da OpenAI e finalizadas localmente para transparência.
+- Uso: caminhada cardinal do protagonista, placas de orientação, fonte animada e marcador de missão.
+- Direção: fantasia mediterrânea original; nenhum sprite, personagem, mapa ou elemento de interface foi extraído de outro jogo.

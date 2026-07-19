@@ -5,10 +5,10 @@
 - Tela de abertura e início de jornada.
 - Exploração top-down em Kallípolis, Pensão dos Degraus, Ágora das Colunas, Cisterna e Nereu.
 - Mapas exteriores ilustrados de forma coesa, com rotas caminháveis, colisões próprias e água animada com reflexos opcionais.
-- Personagem estável e animado em quatro direções, sem passo duplicado e na mesma escala visual dos NPCs.
-- Moradores com rotas, falas, colisão e prioridade correta para personagens de missão.
-- Gaivotas, folhas, pétalas, espuma, ondas em camadas e movimento ambiental contínuo.
-- Prompts contextuais `[E]` para portas, NPCs, itens e saídas.
+- Personagem com aceleração/desaceleração, varredura de colisão, deslizamento e dezesseis quadros cardinais na mesma escala visual dos NPCs.
+- Moradores com rotas de vários pontos, pausas, falas e prioridade correta para personagens de missão; Mikon está visível e interativo.
+- Gaivotas, folhas, pétalas, espuma, fonte em quatro fases e água com refracão/causticas em shader.
+- Objetivo compacto, marcador animado, placas ilustradas e prompts contextuais `[E]` para portas, NPCs, itens e saídas.
 - Diálogos paginados, escolhas ramificadas e afinidade com Ariane.
 - Caixa selada, moeda de Atlântida e combate contra o Coletor.
 - Transição para a Cisterna Esquecida.
@@ -47,3 +47,5 @@
 ## Escopo desta build
 
 Esta é uma primeira build de prólogo com começo, meio e encerramento local: Kallípolis → Ágora → Cisterna Esquecida → chegada a Nereu. Os capítulos seguintes podem continuar a partir de Nereu sem quebrar saves nem os sistemas centrais.
+
+O resultado da rodada de jogabilidade e regressão de 19/07/2026 está em [QA_2026-07-19.md](QA_2026-07-19.md).

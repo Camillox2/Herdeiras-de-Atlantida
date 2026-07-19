@@ -8,20 +8,20 @@ Ivo chega a Kallípolis sem recursos nem respostas. O prólogo leva o jogador pe
 
 ## Estado visual
 
-![Kallipolis viva e explorável](docs/screenshots/kallipolis-alive.png)
+![Kallipolis viva, guiada e explorável](docs/screenshots/kallipolis-guided.jpg)
 
-![Interior da Pensão dos Degraus](docs/screenshots/inn-stable.png)
+![Interior da Pensão dos Degraus](docs/screenshots/pension-guided.jpg)
 
-![Ágora das Colunas](docs/screenshots/agora-alive.png)
+![Ágora das Colunas](docs/screenshots/agora-guided.jpg)
 
-![Chegada a Nereu](docs/screenshots/nereu-alive.png)
+![Chegada a Nereu](docs/screenshots/nereu-guided.jpg)
 
 Inclui:
 
 - quatro áreas ilustradas e jogáveis: Kallípolis, Pensão dos Degraus, Ágora e Nereu, além da Cisterna;
-- movimento estável em quatro direções, colisões por ambiente/NPC/água e transições seguras;
-- moradores com rotas e falas próprias, gaivotas, folhas, espuma e água animada;
-- prompts contextuais de interação sem placas permanentes sobre o cenário;
+- movimento com aceleração, desaceleração, quatro direções reais, colisão por varredura e deslizamento junto a obstáculos;
+- moradores com rotas de vários pontos e falas próprias, gaivotas, folhas, espuma, fonte e água animadas;
+- objetivo compacto, marcador de destino, placas ilustradas e prompts contextuais somente quando o jogador se aproxima;
 - diálogos com escolhas e afinidade com Ariane;
 - primeiro encontro com Nerissa em Nereu, com escolhas, retrato e expressão;
 - combate por turnos: atacar, defender, focar e Ressonância;
