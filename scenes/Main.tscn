@@ -1,6 +1,6 @@
 [gd_scene load_steps=8 format=3]
 
-[ext_resource type="Script" path="res://scripts/Main.gd" id="1_main"]
+[ext_resource type="Script" path="res://scripts/MainRuntimeFixed.gd" id="1_main"]
 [ext_resource type="AudioStream" path="res://assets/audio/kenney-rpg/Audio/bookOpen.ogg" id="2_open"]
 [ext_resource type="AudioStream" path="res://assets/audio/kenney-rpg/Audio/metalClick.ogg" id="3_click"]
 [ext_resource type="AudioStream" path="res://assets/audio/kenney-rpg/Audio/knifeSlice.ogg" id="4_attack"]
