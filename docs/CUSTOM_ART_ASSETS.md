@@ -37,3 +37,9 @@ Os assets foram concebidos para uma fantasia mediterranea original. Eles nao dev
 - Arquivos: `assets/custom/pension-exterior-v1.png` e `pension-exterior-v1-source.png`.
 - Uso: marco visual da pensao no cais; a fachada substitui paredes e telhados repetidos por uma silhueta unica com porta, escadas, janelas, plantas e lanterna.
 - Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI. A versao de uso teve o fundo tecnico removido localmente para alpha.
+
+## Marcos da cidade v1
+
+- Arquivos: `assets/custom/market-exterior-v1.png`, `assets/custom/archive-exterior-v1.png` e seus respectivos arquivos `-source`.
+- Uso: o Mercado das Figueiras e o Arquivo do Farol substituem as duas fachadas repetidas no centro de Kallipolis. Cada um tem silhueta, paleta de detalhes e leitura funcional propria mesmo sem etiquetas permanentes na tela.
+- Origem: arte original criada para Herdeiras de Atlantida com geracao de imagem da OpenAI. As versoes de uso tiveram o fundo tecnico removido localmente para alpha.

@@ -43,6 +43,8 @@ const KALLIPOLIS_PROPS_SHEET := preload("res://assets/custom/kallipolis-props-v1
 const KALLIPOLIS_INN_SHEET := preload("res://assets/custom/kallipolis-inn-v1.png")
 const KALLIPOLIS_AGORA_SHEET := preload("res://assets/custom/kallipolis-agora-v1.png")
 const PENSION_EXTERIOR := preload("res://assets/custom/pension-exterior-v1.png")
+const MARKET_EXTERIOR := preload("res://assets/custom/market-exterior-v1.png")
+const ARCHIVE_EXTERIOR := preload("res://assets/custom/archive-exterior-v1.png")
 const HARBOR_WATER_SHADER := preload("res://shaders/harbor_water.gdshader")
 const ART_SOURCE_ORIGINS := [17.0, 328.0, 638.0, 949.0]
 const ART_SOURCE_SIZE := Vector2(289, 289)
@@ -310,13 +312,8 @@ func build_kallipolis_tilemaps() -> void:
 			elif (column + row * 3) % 9 == 0:
 				ground_slot = Vector2i(1, 0)
 			ground.set_cell(cell, 0, ground_slot)
-	var building_blocks := [Rect2i(5, 2, 4, 3), Rect2i(11, 2, 5, 3), Rect2i(20, 3, 5, 3)]
-	for building_index in building_blocks.size():
-		if building_index == 0:
-			continue # The pension uses a unique exterior sprite instead of repeated wall fragments.
-		var building: Rect2i = building_blocks[building_index]
-		for column in range(building.position.x, building.end.x):
-			roofs.set_cell(Vector2i(column, building.position.y), 0, Vector2i(0, 1))
+	# The three former building blocks are now complete landmark sprites: pension, market and archive.
+	# Keeping this layer empty there prevents repeated roof strips from peeking through their silhouettes.
 	structures.set_cell(Vector2i(14, 7), 0, Vector2i(2, 2))
 	for pier_x in range(3, 8):
 		structures.set_cell(Vector2i(pier_x, 11), 0, Vector2i(1, 2))
@@ -847,8 +844,10 @@ func _draw() -> void:
 		draw_agora(font)
 		return
 	# Kallipolis is rendered by World/Ground, World/Structures and World/Roofs TileMap layers.
-	# A named landmark is a complete sprite, which avoids the "wallpaper house" effect of repeated tiles.
+	# Named landmarks are complete sprites, which avoids the "wallpaper house" effect of repeated tiles.
 	draw_texture_rect(PENSION_EXTERIOR, Rect2(display_position(Vector2(132, 89)), Vector2(228, 228)), false, Color.WHITE)
+	draw_texture_rect(MARKET_EXTERIOR, Rect2(display_position(Vector2(350, 78)), Vector2(218, 218)), false, Color.WHITE)
+	draw_texture_rect(ARCHIVE_EXTERIOR, Rect2(display_position(Vector2(641, 71)), Vector2(202, 258)), false, Color.WHITE)
 	# Crate objective.
 	if quest_stage == 2:
 		var crate_display := display_position(crate_position)
