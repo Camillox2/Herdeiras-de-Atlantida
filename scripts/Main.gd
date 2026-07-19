@@ -3,6 +3,10 @@ extends Node2D
 const SPEED := 190.0
 const WORLD := Rect2(28, 70, 904, 410)
 const SAVE_PATH := "user://otherworld_save.cfg"
+const TILE_SIZE := 32
+const TOWN_ORIGIN := Vector2(0, 72)
+const TOWN_COLUMNS := 30
+const TOWN_ROWS := 14
 const ARIANE_PORTRAIT := preload("res://assets/portraits/ariane.png")
 const ARIANE_EMBARRASSED_PORTRAIT := preload("res://assets/portraits/ariane-embarrassed-v2.png")
 const KALLIPOLIS_OPENING := preload("res://assets/backgrounds/kallipolis-opening.png")
@@ -18,8 +22,22 @@ const MELIA_PORTRAIT := preload("res://assets/portraits/melia.png")
 const MELIA_EMBARRASSED_PORTRAIT := preload("res://assets/portraits/melia-embarrassed.png")
 const CASSIA_PORTRAIT := preload("res://assets/portraits/cassia.png")
 const CASSIA_EMBARRASSED_PORTRAIT := preload("res://assets/portraits/cassia-embarrassed.png")
+const TOWN_GRASS := preload("res://assets/kenney/tiny-town/Tiles/tile_0000.png")
+const TOWN_FLOWERS := preload("res://assets/kenney/tiny-town/Tiles/tile_0001.png")
+const TOWN_PATH := preload("res://assets/kenney/tiny-town/Tiles/tile_0012.png")
+const TOWN_STONE := preload("res://assets/kenney/tiny-town/Tiles/tile_0048.png")
+const TOWN_ROOF := preload("res://assets/kenney/tiny-town/Tiles/tile_0052.png")
+const TOWN_TREE := preload("res://assets/kenney/tiny-town/Tiles/tile_0005.png")
+const SPRITE_LYSANDRA := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0084.png")
+const SPRITE_IVO := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0085.png")
+const SPRITE_POLEMON := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0088.png")
+const SPRITE_ARIANE := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0087.png")
+const SPRITE_COLLECTOR := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0090.png")
+const DUNGEON_FLOOR := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0048.png")
+const DUNGEON_WALL := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0014.png")
+const DUNGEON_TORCH := preload("res://assets/kenney/tiny-dungeon/Tiles/tile_0028.png")
 
-var player := Vector2(480, 410)
+var player := Vector2(496, 456)
 var gold := 7
 var health := 24
 var max_health := 24
@@ -77,13 +95,13 @@ var heroines := [
 ]
 
 var npcs := [
-	{"name": "Lysandra", "position": Vector2(205, 230), "color": Color("b88963"), "role": "pension"},
-	{"name": "Pólemon", "position": Vector2(496, 214), "color": Color("cfa24d"), "role": "smuggler"},
-	{"name": "Ariane", "position": Vector2(760, 214), "color": Color("4f87c8"), "role": "ariane"},
-	{"name": "Coletor", "position": Vector2(745, 386), "color": Color("9d4d58"), "role": "collector"},
+	{"name": "Lysandra", "position": Vector2(304, 250), "color": Color("b88963"), "role": "pension", "sprite": SPRITE_LYSANDRA},
+	{"name": "Pólemon", "position": Vector2(464, 250), "color": Color("cfa24d"), "role": "smuggler", "sprite": SPRITE_POLEMON},
+	{"name": "Ariane", "position": Vector2(752, 314), "color": Color("4f87c8"), "role": "ariane", "sprite": SPRITE_ARIANE},
+	{"name": "Coletor", "position": Vector2(816, 442), "color": Color("9d4d58"), "role": "collector", "sprite": SPRITE_COLLECTOR},
 ]
 
-var crate_position := Vector2(560, 368)
+var crate_position := Vector2(656, 442)
 
 func _ready() -> void:
 	load_game()
@@ -96,6 +114,8 @@ func _process(delta: float) -> void:
 		if Input.is_action_just_pressed("interact"):
 			title_open = false
 			$AudioConfirm.play()
+		if Input.is_action_just_pressed("restart"):
+			reset_game()
 	elif battle_open:
 		handle_battle_input()
 	elif gallery_open:
@@ -120,18 +140,58 @@ func _process(delta: float) -> void:
 
 func try_move_player(motion: Vector2) -> void:
 	var candidate := player + motion
-	candidate.x = clampf(candidate.x, WORLD.position.x + 12.0, WORLD.end.x - 12.0)
-	candidate.y = clampf(candidate.y, WORLD.position.y + 12.0, WORLD.end.y - 12.0)
+	if zone == "kallipolis":
+		candidate.x = clampf(candidate.x, 16.0, 944.0)
+		candidate.y = clampf(candidate.y, TOWN_ORIGIN.y + 16.0, TOWN_ORIGIN.y + TOWN_ROWS * TILE_SIZE - 16.0)
+	else:
+		candidate.x = clampf(candidate.x, WORLD.position.x + 12.0, WORLD.end.x - 12.0)
+		candidate.y = clampf(candidate.y, WORLD.position.y + 12.0, WORLD.end.y - 12.0)
 	if can_walk_to(candidate):
 		player = candidate
 
 func can_walk_to(candidate: Vector2) -> bool:
 	if zone == "kallipolis":
-		var city_obstacles := [Rect2(50, 92, 230, 115), Rect2(357, 98, 214, 86), Rect2(650, 86, 254, 110)]
-		for obstacle in city_obstacles:
-			if obstacle.grow(8.0).has_point(candidate):
-				return false
+		var tile := town_tile_from_position(candidate)
+		return town_tile_kind(tile.x, tile.y) not in ["water", "building", "tree"]
+	if zone == "cistern":
+		var tile := town_tile_from_position(candidate)
+		return cistern_tile_kind(tile.x, tile.y) != "wall"
 	return true
+
+func town_tile_from_position(position: Vector2) -> Vector2i:
+	return Vector2i(floori(position.x / TILE_SIZE), floori((position.y - TOWN_ORIGIN.y) / TILE_SIZE))
+
+func town_tile_kind(column: int, row: int) -> String:
+	if column < 0 or column >= TOWN_COLUMNS or row < 0 or row >= TOWN_ROWS:
+		return "water"
+	# The western harbour and the northern canal create a recognisable shoreline.
+	if (column <= 2 and row >= 7) or (column >= 27 and row <= 2):
+		return "water"
+	# Main avenue, fountain square and the pier.
+	if (row == 8 and column >= 3) or (column == 14 and row >= 3) or (row in [6, 7] and column in range(11, 18)) or (row == 11 and column <= 7):
+		return "path"
+	# Pension, market hall and cliffside home.
+	var buildings := [Rect2i(5, 2, 4, 3), Rect2i(11, 2, 5, 3), Rect2i(20, 3, 5, 3)]
+	for building in buildings:
+		if building.has_point(Vector2i(column, row)):
+			return "building"
+	var trees := [Vector2i(3, 2), Vector2i(4, 2), Vector2i(3, 3), Vector2i(9, 2), Vector2i(18, 2), Vector2i(19, 2), Vector2i(25, 2), Vector2i(26, 3), Vector2i(4, 12), Vector2i(5, 12), Vector2i(24, 11), Vector2i(25, 11), Vector2i(27, 10)]
+	if Vector2i(column, row) in trees:
+		return "tree"
+	return "grass"
+
+func cistern_tile_kind(column: int, row: int) -> String:
+	if column < 0 or column >= TOWN_COLUMNS or row < 0 or row >= TOWN_ROWS:
+		return "wall"
+	if column == 0 or column == TOWN_COLUMNS - 1 or row == 0 or row == TOWN_ROWS - 1:
+		return "wall"
+	var wall_cells := [
+		Vector2i(6, 1), Vector2i(6, 2), Vector2i(6, 3), Vector2i(6, 4), Vector2i(6, 5),
+		Vector2i(11, 8), Vector2i(11, 9), Vector2i(11, 10), Vector2i(11, 11), Vector2i(11, 12),
+		Vector2i(18, 1), Vector2i(18, 2), Vector2i(18, 3), Vector2i(18, 4), Vector2i(18, 5),
+		Vector2i(23, 8), Vector2i(23, 9), Vector2i(23, 10), Vector2i(23, 11), Vector2i(23, 12)
+	]
+	return "wall" if Vector2i(column, row) in wall_cells else "floor"
 
 func handle_gallery_input() -> void:
 	if Input.is_action_just_pressed("move_left"):
@@ -300,7 +360,7 @@ func talk_to(role: String) -> void:
 			if quest_stage < 3:
 				show_dialogue("Ariane", ["Você está olhando para o telhado errado.", "Ou isso é coragem demais, ou falta de prática."], [], "")
 			elif quest_stage == 3:
-				show_dialogue("Ariane", ["Você abriu a caixa. Isso foi uma escolha, não um acidente.", "Por que voltou para salvar a criança da cisterna?"], ["Eu teria sabido se tivesse ido embora.", "Os guardas estavam olhando.", "Eu gosto de entradas dramáticas."], "ariane_truth")
+				show_dialogue("Ariane", ["Você abriu a caixa. Isso foi uma escolha, não um acidente.", "Você podia vender a moeda e sumir. Por que ainda está aqui?"], ["Porque não quero ser a pessoa que foge.", "Os guardas estavam olhando.", "Eu gosto de entradas dramáticas."], "ariane_truth")
 			else:
 				show_dialogue("Ariane", ["O Coletor está procurando a moeda. Ele não vai perguntar duas vezes.", "Use o que aprendeu: não decida sozinho quando puder pedir ajuda."], [], "")
 		"collector":
@@ -416,6 +476,28 @@ func load_game() -> void:
 		cistern_chest_open = save.get_value("state", "cistern_chest_open", cistern_chest_open)
 		inventory_items = save.get_value("state", "inventory_items", inventory_items)
 
+func reset_game() -> void:
+	player = Vector2(496, 456)
+	gold = 7
+	health = max_health
+	essence = 0
+	magic_unlocked = false
+	quest_stage = 0
+	ariane_affinity = 0
+	zone = "kallipolis"
+	relics = 0
+	resolve = 0
+	cistern_shards = [false, false, false]
+	shade_defeated = false
+	cistern_chest_open = false
+	equipped_weapon = "Faca de cais (+2 Ataque)"
+	equipped_armor = "Capa de viagem (+1 Guarda)"
+	equipped_relic = "Marca das Moiras (selada)"
+	inventory_items = ["Pão seco", "Capa molhada"]
+	ConfigFile.new().save(SAVE_PATH)
+	title_open = false
+	show_dialogue("Ivo", ["O mar devolve você a Kallípolis.", "Desta vez, a história começa antes da primeira escolha."], [], "")
+
 func quest_text() -> String:
 	match quest_stage:
 		0, 1: return "Encontre um trabalho em Kallípolis"
@@ -438,8 +520,7 @@ func _draw() -> void:
 	if zone == "cistern" and not title_open:
 		draw_cistern(font)
 		return
-	draw_texture_rect(KALLIPOLIS_OPENING, Rect2(0, 0, 960, 540), false, Color.WHITE)
-	draw_rect(Rect2(0, 0, 960, 540), Color(0.015, 0.03, 0.08, 0.12))
+	draw_kallipolis_map(font)
 	# Crate objective.
 	if quest_stage == 2:
 		draw_rect(Rect2(crate_position - Vector2(16, 13), Vector2(32, 26)), Color("795036"))
@@ -454,11 +535,11 @@ func _draw() -> void:
 		var visible: bool = npc["role"] != "ariane" or quest_stage >= 3
 		if visible:
 			var npc_position: Vector2 = npc["position"]
-			draw_pixel_person(npc_position, npc["color"], Color("293246"))
+			draw_character(npc_position, npc["sprite"])
 			draw_rect(Rect2(npc_position + Vector2(-34, -43), Vector2(68, 17)), Color(0.02, 0.04, 0.09, 0.82))
 			draw_string(font, npc_position + Vector2(-29, -30), npc["name"], HORIZONTAL_ALIGNMENT_CENTER, 58, 13, Color.WHITE)
 	# Player sprite.
-	draw_pixel_person(player, Color("55342f"), Color("bf4d55"))
+	draw_character(player, SPRITE_IVO)
 	draw_hud(font, "KALLÍPOLIS")
 	if notice_time > 0.0:
 		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
@@ -475,9 +556,49 @@ func _draw() -> void:
 	else:
 		draw_controls(font)
 
+func draw_kallipolis_map(font: Font) -> void:
+	# This is deliberately a real traversable tile grid, not a painted backdrop.
+	for row in TOWN_ROWS:
+		for column in TOWN_COLUMNS:
+			var map_position := TOWN_ORIGIN + Vector2(column * TILE_SIZE, row * TILE_SIZE)
+			var destination := Rect2(map_position, Vector2(TILE_SIZE, TILE_SIZE))
+			match town_tile_kind(column, row):
+				"water":
+					draw_rect(destination, Color("195975"))
+					draw_line(map_position + Vector2(4, 11), map_position + Vector2(27, 11), Color("5fb0bd"), 1.0)
+					draw_line(map_position + Vector2(8, 23), map_position + Vector2(30, 23), Color("347d99"), 1.0)
+				"path":
+					draw_texture_rect(TOWN_PATH, destination, false, Color.WHITE)
+				"building":
+					draw_texture_rect(TOWN_STONE, destination, false, Color.WHITE)
+				"tree":
+					draw_texture_rect(TOWN_GRASS, destination, false, Color.WHITE)
+					draw_texture_rect(TOWN_TREE, destination, false, Color.WHITE)
+				_:
+					draw_texture_rect(TOWN_FLOWERS if (column + row * 3) % 9 == 0 else TOWN_GRASS, destination, false, Color.WHITE)
+	# Roofs are drawn after the grid, making each solid building legible in the play space.
+	draw_town_building(Vector2i(5, 2), Vector2i(4, 3), "PENSÃO DOS DEGRAUS")
+	draw_town_building(Vector2i(11, 2), Vector2i(5, 3), "MERCADO")
+	draw_town_building(Vector2i(20, 3), Vector2i(5, 3), "CASA DO FAROL")
+	# Fountain plaza and a small pier make the city navigable landmarks instead of floating labels.
+	draw_circle(TOWN_ORIGIN + Vector2(14.5 * TILE_SIZE, 7.5 * TILE_SIZE), 18, Color("6fb9c7"))
+	draw_circle(TOWN_ORIGIN + Vector2(14.5 * TILE_SIZE, 7.5 * TILE_SIZE), 10, Color("c8f1ed"))
+	for pier_x in range(3, 8):
+		var pier_position := TOWN_ORIGIN + Vector2(pier_x * TILE_SIZE, 11 * TILE_SIZE)
+		draw_rect(Rect2(pier_position, Vector2(TILE_SIZE, TILE_SIZE)), Color("704a35"))
+		draw_line(pier_position + Vector2(3, 8), pier_position + Vector2(29, 8), Color("c18a54"), 2.0)
+	draw_string(font, TOWN_ORIGIN + Vector2(55, 429), "CAIS DAS ONDAS", HORIZONTAL_ALIGNMENT_LEFT, -1, 12, Color("d9eff1"))
+
+func draw_town_building(origin: Vector2i, size: Vector2i, label: String) -> void:
+	for column in range(origin.x, origin.x + size.x):
+		var roof_position := TOWN_ORIGIN + Vector2(column * TILE_SIZE, origin.y * TILE_SIZE)
+		draw_texture_rect(TOWN_ROOF, Rect2(roof_position, Vector2(TILE_SIZE, TILE_SIZE)), false, Color.WHITE)
+	var label_position := TOWN_ORIGIN + Vector2((origin.x + size.x * 0.5) * TILE_SIZE, (origin.y + size.y) * TILE_SIZE + 15)
+	draw_rect(Rect2(label_position + Vector2(-43, -17), Vector2(86, 15)), Color(0.015, 0.03, 0.07, 0.82))
+	draw_string(ThemeDB.fallback_font, label_position + Vector2(-39, -5), label, HORIZONTAL_ALIGNMENT_CENTER, 78, 10, Color("fff0cf"))
+
 func draw_cistern(font: Font) -> void:
-	draw_texture_rect(CISTERN_BACKGROUND, Rect2(0, 0, 960, 540), false, Color.WHITE)
-	draw_rect(Rect2(0, 0, 960, 540), Color(0.01, 0.04, 0.09, 0.18))
+	draw_cistern_map()
 	for i in cistern_shard_positions.size():
 		if not cistern_shards[i]:
 			var shard: Vector2 = cistern_shard_positions[i]
@@ -493,7 +614,7 @@ func draw_cistern(font: Font) -> void:
 		draw_rect(Rect2(cistern_chest_position - Vector2(17, 12), Vector2(34, 24)), Color("7a4e2e"))
 		draw_rect(Rect2(cistern_chest_position - Vector2(17, 12), Vector2(34, 24)), Color("dfb55f"), false, 2.0)
 		draw_string(font, cistern_chest_position + Vector2(-28, 36), "BAÚ", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("ffe09b"))
-	draw_pixel_person(player, Color("55342f"), Color("bf4d55"))
+	draw_character(player, SPRITE_IVO)
 	draw_hud(font, "CISTERNA ESQUECIDA")
 	if notice_time > 0.0:
 		draw_string(font, Vector2(31, 514), notice, HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("fff0ad"))
@@ -508,6 +629,19 @@ func draw_cistern(font: Font) -> void:
 	else:
 		draw_controls(font)
 
+func draw_cistern_map() -> void:
+	for row in TOWN_ROWS:
+		for column in TOWN_COLUMNS:
+			var map_position := TOWN_ORIGIN + Vector2(column * TILE_SIZE, row * TILE_SIZE)
+			var destination := Rect2(map_position, Vector2(TILE_SIZE, TILE_SIZE))
+			if cistern_tile_kind(column, row) == "wall":
+				draw_texture_rect(DUNGEON_WALL, destination, false, Color.WHITE)
+			else:
+				draw_texture_rect(DUNGEON_FLOOR, destination, false, Color.WHITE)
+	for torch_position in [Vector2(208, 214), Vector2(592, 246), Vector2(784, 374)]:
+		draw_texture_rect(DUNGEON_TORCH, Rect2(torch_position - Vector2(16, 16), Vector2(32, 32)), false, Color.WHITE)
+		draw_circle(torch_position, 22, Color(1.0, 0.45, 0.14, 0.12))
+
 func draw_hud(font: Font, location: String) -> void:
 	draw_rect(Rect2(20, 16, 920, 56), Color(0.015, 0.03, 0.075, 0.92))
 	draw_rect(Rect2(20, 16, 920, 56), Color("7db8ca"), false, 1.5)
@@ -520,6 +654,17 @@ func draw_hud(font: Font, location: String) -> void:
 func draw_controls(font: Font) -> void:
 	draw_rect(Rect2(246, 501, 468, 25), Color(0.01, 0.02, 0.05, 0.78))
 	draw_string(font, Vector2(260, 519), "WASD mover  •  E interagir  •  I bolsa  •  J vínculos  •  F5 salvar", HORIZONTAL_ALIGNMENT_LEFT, -1, 13, Color("e3e8f3"))
+
+func draw_character(position: Vector2, sprite: Texture2D) -> void:
+	draw_sprite_shadow(position + Vector2(0, 11), Vector2(12, 4), Color(0.01, 0.02, 0.04, 0.35))
+	draw_texture_rect(sprite, Rect2(position - Vector2(16, 26), Vector2(32, 32)), false, Color.WHITE)
+
+func draw_sprite_shadow(center: Vector2, radii: Vector2, color: Color) -> void:
+	var points := PackedVector2Array()
+	for index in range(13):
+		var angle := TAU * float(index) / 12.0
+		points.append(center + Vector2(cos(angle) * radii.x, sin(angle) * radii.y))
+	draw_colored_polygon(points, color)
 
 func draw_pixel_person(position: Vector2, hair: Color, clothes: Color) -> void:
 	# Sprite procedural em grade de pixels: fácil de substituir por spritesheets finais sem mudar o gameplay.
@@ -544,14 +689,15 @@ func draw_title(font: Font) -> void:
 	draw_string(font, Vector2(65, 253), "O mar devolveu o que os deuses esconderam.", HORIZONTAL_ALIGNMENT_LEFT, -1, 18, Color("f6eed9"))
 	draw_string(font, Vector2(64, 408), "Ivo acorda sem nome, sem aliados e com uma marca que não lhe pertence.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("d8e0ec"))
 	draw_string(font, Vector2(64, 438), "Em Kallípolis, cada promessa deixa uma cicatriz.", HORIZONTAL_ALIGNMENT_LEFT, -1, 17, Color("d8e0ec"))
-	draw_string(font, Vector2(64, 497), "[E] Começar a jornada", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color("ffdf92"))
+	draw_string(font, Vector2(64, 485), "[E] continuar jornada", HORIZONTAL_ALIGNMENT_LEFT, -1, 20, Color("ffdf92"))
+	draw_string(font, Vector2(64, 514), "[R] novo jogo", HORIZONTAL_ALIGNMENT_LEFT, -1, 16, Color("d7e7f4"))
 
 func draw_gallery(font: Font) -> void:
 	var heroine: Dictionary = heroines[gallery_index]
 	draw_rect(Rect2(30, 32, 900, 476), Color(0.03, 0.04, 0.08, 0.98))
 	draw_rect(Rect2(30, 32, 900, 476), heroine["color"], false, 3.0)
 	draw_string(font, Vector2(62, 74), "VÍNCULOS DE ATLÂNTIDA", HORIZONTAL_ALIGNMENT_LEFT, -1, 24, Color("f5e7c9"))
-	draw_string(font, Vector2(63, 108), "Retratos, histórias e expressões serão liberados conforme a jornada avança.", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("cdd4e1"))
+	draw_string(font, Vector2(63, 108), "Arquivo de Vínculos: futuros encontros serão registrados aqui conforme a jornada avança.", HORIZONTAL_ALIGNMENT_LEFT, -1, 15, Color("cdd4e1"))
 	for i in heroines.size():
 		var candidate: Dictionary = heroines[i]
 		var y := 151 + i * 43
