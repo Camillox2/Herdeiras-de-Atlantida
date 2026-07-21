@@ -25,5 +25,5 @@ define gui.text_font = "DejaVuSans.ttf"
 define gui.name_text_font = "DejaVuSans.ttf"
 define gui.interface_text_font = "DejaVuSans.ttf"
 
-define gui.main_menu_background = "images/backgrounds/title_kallipolis.png"
-define gui.game_menu_background = "images/backgrounds/bg_kallipolis.png"
+define gui.main_menu_background = im.Scale("images/backgrounds/title_kallipolis.png", 1920, 1080)
+define gui.game_menu_background = im.Scale("images/backgrounds/bg_kallipolis.png", 1920, 1080)
