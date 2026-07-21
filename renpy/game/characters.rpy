@@ -7,12 +7,12 @@ define collector = Character("Coletor", color="#d8848f")
 define voice = Character("Voz", color="#7ce8ef")
 define thoughts = Character(None, what_prefix="{i}", what_suffix="{/i}", window_style="say_window")
 
-image bg title = "images/backgrounds/title_kallipolis.png"
-image bg kallipolis = "images/backgrounds/bg_kallipolis.png"
-image bg pensao = "images/backgrounds/bg_pensao.png"
-image bg agora = "images/backgrounds/bg_agora.png"
-image bg cisterna = "images/backgrounds/bg_cisterna.png"
-image bg nereu = "images/backgrounds/bg_nereu.png"
+image bg title = im.Scale("images/backgrounds/title_kallipolis.png", 1920, 1080)
+image bg kallipolis = im.Scale("images/backgrounds/bg_kallipolis.png", 1920, 1080)
+image bg pensao = im.Scale("images/backgrounds/bg_pensao.png", 1920, 1080)
+image bg agora = im.Scale("images/backgrounds/bg_agora.png", 1920, 1080)
+image bg cisterna = im.Scale("images/backgrounds/bg_cisterna.png", 1920, 1080)
+image bg nereu = im.Scale("images/backgrounds/bg_nereu.png", 1920, 1080)
 
 image ivo neutral = "images/characters/ivo.png"
 
