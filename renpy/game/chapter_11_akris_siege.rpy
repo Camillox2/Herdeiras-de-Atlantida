@@ -104,6 +104,9 @@ label chapter_11_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 12 — A Ilha do Espelho":
+            jump chapter_12_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_11_summary

@@ -26,6 +26,7 @@ image bg akris_fortress = Transform("images/backgrounds/bg_akris_fortress.png", 
 image bg nix_observatory = Transform("images/backgrounds/bg_nix_observatory.png", size=(1920, 1080))
 image bg sunken_hall = Transform("images/backgrounds/bg_sunken_hall.png", size=(1920, 1080))
 image bg kallipolis_storm = Transform("images/backgrounds/bg_kallipolis_storm.png", size=(1920, 1080))
+image bg mirror_island = Transform("images/backgrounds/bg_mirror_island.png", size=(1920, 1080))
 
 image ivo neutral = "images/characters/ivo.png"
 image ivo wary = "images/characters/ivo_wary.png"
