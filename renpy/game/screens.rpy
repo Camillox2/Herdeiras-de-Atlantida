@@ -331,7 +331,7 @@ screen cg_gallery():
                     use cg_card("Beijo Coletivo — Mélia", "Beijo Coletivo — Mélia", "cg collective_kiss_melia", "images/cgs/cg_collective_kiss_melia.png")
                     use cg_card("Beijo Coletivo — Lyra", "Beijo Coletivo — Lyra", "cg collective_kiss_lyra", "images/cgs/cg_collective_kiss_lyra.png")
                     use cg_card("Beijo Coletivo — Thalia", "Beijo Coletivo — Thalia", "cg collective_kiss_thalia", "images/cgs/cg_collective_kiss_thalia.png")
-                    use cg_card("Beijo Coletivo — Cássia", "Beijo Coletivo — Cássia", "cg collective_kiss_cassia", "images/cgs/cg_kiss_cassia.png")
+                    use cg_card("Beijo Coletivo — Cássia", "Beijo Coletivo — Cássia", "cg collective_kiss_cassia", "images/cgs/cg_collective_kiss_cassia.png")
                     use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony_v2.png")
                     use cg_card("Cássia — Estrelas", "Cássia — Estrelas", "cg cassia_stars", "images/cgs/cg_cassia_stars.png")
                     use cg_card("Ariane — Beijo", "Ariane — Beijo", "cg kiss_ariane", "images/cgs/cg_kiss_ariane.png")
