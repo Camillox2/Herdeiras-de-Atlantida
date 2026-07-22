@@ -16,6 +16,7 @@ define config.end_game_transition = Fade(0.5, 0.0, 0.5)
 define config.window = "auto"
 define config.window_show_transition = Dissolve(0.2)
 define config.window_hide_transition = Dissolve(0.2)
+define config.check_conflicting_properties = True
 
 define config.save_directory = "HerdeirasDeAtlantidaVN-2026"
 define config.default_music_volume = 0.65

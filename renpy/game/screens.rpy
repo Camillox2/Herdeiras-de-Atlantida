@@ -25,12 +25,58 @@ screen input(prompt):
 
 screen choice(items):
     style_prefix "choice"
+    modal True
+    zorder 250
 
-    vbox:
-        style "choice_vbox"
+    # Menus recebem também a pergunta como um item sem ação. Separá-la das
+    # opções impede que ela vire um botão e se misture visualmente à escolha.
+    add Solid("#06131ed9")
 
-        for item in items:
-            textbutton item.caption action item.action
+    frame:
+        style "choice_panel"
+        xalign 0.5
+        yalign 0.5
+
+        vbox:
+            spacing 22
+
+            for item in items:
+                if item.action:
+                    textbutton item.caption action item.action style "choice_button"
+                else:
+                    text item.caption style "choice_caption"
+
+style choice_panel is frame:
+    xsize 1360
+    background Solid("#0a2233f5")
+    padding (52, 42)
+
+style choice_caption is text:
+    font gui.interface_text_font
+    size 42
+    color "#ffe1a3"
+    xalign 0.5
+    text_align 0.5
+    layout "subtitle"
+    line_spacing 8
+
+style choice_button is button:
+    xfill True
+    yminimum 96
+    background Solid("#123653")
+    hover_background Solid("#1d6685")
+    selected_background Solid("#214b68")
+    padding (34, 22)
+
+style choice_button_text is text:
+    font gui.interface_text_font
+    size 32
+    color "#f3fbff"
+    hover_color "#ffffff"
+    xalign 0.5
+    text_align 0.5
+    layout "subtitle"
+    line_spacing 6
 
 screen quick_menu():
     zorder 100

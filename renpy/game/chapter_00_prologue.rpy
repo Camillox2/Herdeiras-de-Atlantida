@@ -13,13 +13,14 @@ label prologue_start:
     "Quando despertou, estava deitado entre redes molhadas no cais de Kallípolis."
     "A cidade subia em pedra branca sobre o porto, bela demais para alguém sem dinheiro, documentos ou explicação."
 
-    show ivo neutral at portrait_center
+    show ivo neutral at portrait_bust_center
     ivo "Sem navio. Sem bolsa. E com uma cicatriz nova."
 
     "No pulso esquerdo, linhas finas formavam um símbolo que lembrava três fios entrelaçados."
+    show ivo wary at portrait_bust_center
 
     menu:
-        "O que mais preocupa Ivo?":
+        "O que mais preocupa Ivo?"
 
         "Descobrir por que o mar o devolveu.":
             $ ivo_courage += 1
@@ -46,6 +47,9 @@ label prologue_start:
     scene bg pensao
     with dissolve
 
+    show lysandra neutral at portrait_enter_left
+    show ivo neutral at portrait_bust_enter_right
+
     "A Pensão dos Degraus cheirava a pão, azeite e madeira aquecida pelo sol."
     "Atrás do balcão, Lysandra observou as roupas encharcadas de Ivo e, depois, a marca em seu pulso."
 
@@ -56,12 +60,14 @@ label prologue_start:
 
     lysandra "Se soubesse, não diria a um desconhecido."
 
+    show lysandra skeptical at portrait_emphasis_left
+
     "Ela colocou uma tigela de caldo diante dele, mas não soltou a colher."
 
     lysandra "Nome, origem e motivo para eu não chamar a guarda."
 
     menu:
-        "Como Ivo conquista a confiança de Lysandra?":
+        "Como Ivo conquista a confiança de Lysandra?"
 
         "Contar tudo que consegue lembrar.":
             $ ivo_honesty += 2
@@ -101,6 +107,9 @@ label prologue_start:
     with dissolve
     play music "audio/music/agora_of_columns.wav" fadeout 0.8 fadein 1.2
 
+    show polemon neutral at portrait_enter_left
+    show ivo neutral at portrait_bust_enter_right
+
     "A Ágora das Colunas era um labirinto de tecidos azuis, bronze polido e vozes negociando futuros."
     "Pólemon aguardava junto a uma caixa pequena demais para justificar os dois guardas que fingiam não observá-la."
 
@@ -112,11 +121,13 @@ label prologue_start:
 
     "Pólemon empurrou a caixa pela mesa. No lacre, o mesmo desenho da marca de Ivo se repetia em bronze."
 
+    show polemon guarded at portrait_emphasis_left
+
     polemon "Leve-a até o cais velho. Sete moedas agora, sete na entrega."
     polemon "Não abra. Não entregue à guarda. E, acima de tudo, não escute se ela chamar seu nome."
 
     menu:
-        "O que Ivo exige antes de aceitar?":
+        "O que Ivo exige antes de aceitar?"
 
         "A verdade sobre a caixa.":
             $ ivo_honesty += 1
@@ -137,7 +148,7 @@ label prologue_start:
             ivo "Não vou carregar algo que sabe meu nome."
             "Ivo se afastou."
             "A marca queimou. De dentro da caixa, uma voz sussurrou uma palavra que ele ouvira durante o naufrágio."
-            voice "Ivo."
+            moira_voice "Ivo."
             menu:
                 "Voltar porque precisa entender.":
                     $ ivo_courage += 1
@@ -155,19 +166,21 @@ label prologue_start:
     with dissolve
     play music "audio/music/kallipolis_harbor.wav" fadeout 0.8 fadein 1.0
 
+    show ivo neutral at portrait_bust_left
+
     "No cais velho, o movimento da cidade parecia distante."
     "Cada passo fazia o símbolo da caixa responder à marca em seu pulso."
 
     if knows_mark_is_dangerous:
         thoughts "Lysandra tinha razão. A marca não estava apenas quente. Estava reconhecendo alguma coisa."
 
-    voice "Abra."
+    moira_voice "Abra."
 
     "A voz não vinha da caixa."
     "Vinha da lembrança do mar."
 
     menu:
-        "Diante do lacre, Ivo decide:":
+        "Diante do lacre, Ivo decide:"
 
         "Abrir a caixa por vontade própria.":
             $ opened_crate_willingly = True
@@ -199,12 +212,12 @@ label prologue_start:
     "Viu seis mulheres diante de um trono vazio."
     "E viu fios dourados partindo de seu próprio peito até os pulsos de cada uma delas."
 
-    voice "Encontre as herdeiras."
-    voice "Antes que Atlântida as encontre."
+    moira_voice "Encontre as herdeiras."
+    moira_voice "Antes que Atlântida as encontre."
 
     "A visão terminou com o som de uma lâmina sendo recolhida."
 
-    show ariane neutral at portrait_enter_right
+    show ariane neutral at portrait_bust_enter_right
     ariane "Você demorou mais do que eu esperava."
 
     ivo "Foi você quem abriu a caixa?"
@@ -226,11 +239,13 @@ label prologue_start:
 
     "Ela olhou para a marca, e o sarcasmo desapareceu de seu rosto."
 
+    show ariane concerned at portrait_bust_right
+
     ariane "Você carrega o Selo das Moiras. Isso deveria ser impossível."
     ariane "O último homem marcado desapareceu vinte anos atrás."
 
     menu:
-        "O que Ivo quer de Ariane?":
+        "O que Ivo quer de Ariane?"
 
         "A verdade, mesmo que seja perigosa.":
             $ ariane_affinity += 2
@@ -251,10 +266,13 @@ label prologue_start:
             $ ariane_affinity += 1
             $ ivo_humor += 2
             ivo "Tente explicar sem usar destino, sangue antigo ou 'você foi escolhido'."
-            show ariane embarrassed at portrait_right
+            show ariane embarrassed at portrait_bust_right
             ariane "Vou tentar limitar a tragédia a duas dessas opções."
 
-    show ariane neutral at portrait_right
+    show ariane neutral at portrait_bust_right
+
+    hide ivo
+    show collector neutral at portrait_enter_left
 
     collector "Afaste-se dele, Ariane."
 
@@ -264,10 +282,12 @@ label prologue_start:
     collector "Entregue a moeda e a garota."
     collector "O estrangeiro ainda pode sair daqui sem nome em uma lista."
 
+    show collector command at portrait_emphasis_left
+
     ariane "Ele já estava em uma lista antes de chegar."
 
     menu:
-        "Como Ivo reage ao ultimato?":
+        "Como Ivo reage ao ultimato?"
 
         "Confiar no plano de Ariane.":
             $ trusted_ariane = True
@@ -314,13 +334,15 @@ label prologue_start:
     with fade
     play music "audio/music/cistern_forgotten_echoes.wav" fadeout 1.0 fadein 1.5
 
+    show ivo neutral at portrait_bust_left
+
     "A Cisterna Esquecida não parecia construída."
     "Parecia lembrada."
 
     "Colunas surgiam da água escura. Símbolos azuis pulsavam nas paredes como veias."
     "Diante de uma porta de bronze, três fragmentos luminosos flutuavam sobre pedestais."
 
-    show ariane neutral at portrait_right
+    show ariane neutral at portrait_bust_right
 
     ariane "Ecos de Atlântida."
     ariane "Memórias arrancadas de pessoas que morreram sem conseguir esquecê-las."
@@ -332,17 +354,17 @@ label prologue_start:
     "O primeiro Eco mostrou o naufrágio por outro ângulo."
     "Nas profundezas, uma figura segurava Ivo enquanto o navio desaparecia acima."
 
-    voice "O portador voltou."
+    moira_voice "O portador voltou."
 
     menu:
-        "Ivo mantém contato com a lembrança?":
+        "Ivo mantém contato com a lembrança?"
 
         "Ouvir até o fim.":
             $ listened_to_echoes += 1
             $ ivo_courage += 1
             "A figura abriu os olhos."
             "Eram os olhos de Ivo, muitos anos mais velhos."
-            voice "Não confie no trono vazio."
+            moira_voice "Não confie no trono vazio."
 
         "Romper o contato antes que a visão o reconheça.":
             $ ivo_honesty += 1
@@ -354,10 +376,10 @@ label prologue_start:
     "Cada pulso carregava um símbolo diferente."
     "Uma delas usava a mesma fita vermelha amarrada no braço de Ariane."
 
-    voice "Seis juramentos. Seis herdeiras. Nenhuma rainha."
+    moira_voice "Seis juramentos. Seis herdeiras. Nenhuma rainha."
 
     menu:
-        "O que Ivo conta a Ariane?":
+        "O que Ivo conta a Ariane?"
 
         "Tudo, inclusive que ela é uma das seis.":
             $ listened_to_echoes += 1
@@ -382,11 +404,11 @@ label prologue_start:
     "Do outro lado, Kallípolis estava submersa."
     "Ariane permanecia diante da água, sozinha, enquanto uma voz ordenava que ela escolhesse quem salvar."
 
-    show ariane embarrassed at portrait_right
+    show ariane embarrassed at portrait_bust_right
     ariane "O que você viu?"
 
     menu:
-        "Como Ivo responde?":
+        "Como Ivo responde?"
 
         "Contar a visão e prometer que ela não estará sozinha.":
             $ promised_ariane = True
@@ -411,7 +433,7 @@ label prologue_start:
             ariane "Você mente olhando para a direita."
             $ ariane_affinity -= 1
 
-    show ariane neutral at portrait_right
+    show ariane neutral at portrait_bust_right
 
     "Os três Ecos se encaixaram nos círculos da porta."
     "O bronze não se abriu."
@@ -420,8 +442,8 @@ label prologue_start:
     "Uma rota ligava Kallípolis a Nereu."
     "No centro do mapa havia o mesmo símbolo negro usado pelo Coletor."
 
-    voice "A herdeira das marés guarda a primeira chave."
-    voice "O portador deve encontrá-la antes dos Coletores."
+    moira_voice "A herdeira das marés guarda a primeira chave."
+    moira_voice "O portador deve encontrá-la antes dos Coletores."
 
     ariane "Nereu."
     ariane "Se o Conselho de lá souber que a Marca voltou, fechará os portos e prenderá qualquer pessoa ligada a você."
@@ -461,6 +483,9 @@ label prologue_start:
 
     centered "{size=52}NEREU{/size}\n{size=30}A cidade das velas azuis{/size}"
 
+    show ivo neutral at portrait_bust_center
+    show ariane neutral at portrait_bust_right
+
     "Nereu surgiu do mar como se Atlântida tivesse se recusado a afundar por completo."
     "Canais atravessavam avenidas de mármore. Velas azuis escondiam arqueiros nas muralhas."
     "No porto, soldados revistavam passageiros antes mesmo que os barcos tocassem o cais."
@@ -489,7 +514,7 @@ label prologue_start:
     nerissa "Diga-me, Ivo: por que a cidade deveria permitir sua entrada?"
 
     menu:
-        "A primeira resposta a Nerissa:":
+        "A primeira resposta a Nerissa:"
 
         "Porque o mesmo inimigo está procurando nós dois.":
             $ nerissa_question = "inimigo"
@@ -583,7 +608,10 @@ label prologue_summary:
 
 label prologue_summary_menu:
     menu:
-        "O que deseja fazer?":
+        "O que deseja fazer?"
+
+        "Continuar para o Capítulo 1 — As Velas Azuis de Nereu":
+            jump chapter_01_start
 
         "Ver os vínculos":
             call screen relationships(close_action=Return())

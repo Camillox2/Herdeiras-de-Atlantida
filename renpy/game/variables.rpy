@@ -37,6 +37,34 @@ default hid_third_echo = False
 
 default nerissa_question = ""
 default prologue_completed = False
+default chapter_01_completed = False
+default chapter_02_completed = False
+default chapter_03_completed = False
+default chapter_04_completed = False
+default chapter_05_completed = False
+default chapter_06_completed = False
+default chapter_07_completed = False
+default chapter_08_completed = False
+default nereu_lead = ""
+default asterion_choice = ""
+default lyria_choice = ""
+default akris_choice = ""
+default nix_choice = ""
+default trusted_nerissa_with_coin = False
+default protected_ariane_in_nereu = False
+default heard_melia_name = False
+default trusted_lyra_song = False
+default protected_mikon = False
+default trusted_thalia_with_map = False
+default saved_akris_scouts = False
+default trusted_cassia_vision = False
+default kept_future_secret = False
+default first_arc_completed = False
+default assembly_choice = ""
+default arc_2_priority = ""
+default trusted_polemon_again = False
+default nereu_decision = ""
+default trusted_nerissa_command = False
 default unlocked_gallery = ["Ariane", "Nerissa"]
 
 init python:
@@ -83,7 +111,12 @@ init python:
         global listened_to_echoes, refused_first_echo
         global told_ariane_everything, hid_heirs_from_ariane
         global promised_ariane, warned_ariane, hid_third_echo
-        global nerissa_question, prologue_completed
+        global nerissa_question, prologue_completed, chapter_01_completed, chapter_02_completed, chapter_03_completed, chapter_04_completed, chapter_05_completed, chapter_06_completed, chapter_07_completed, chapter_08_completed
+        global nereu_lead, trusted_nerissa_with_coin, protected_ariane_in_nereu
+        global heard_melia_name, asterion_choice, lyria_choice, akris_choice, nix_choice
+        global trusted_lyra_song, protected_mikon, trusted_thalia_with_map, saved_akris_scouts
+        global trusted_cassia_vision, kept_future_secret, first_arc_completed, assembly_choice, arc_2_priority, trusted_polemon_again
+        global nereu_decision, trusted_nerissa_command
 
         ariane_affinity = 0
         nerissa_affinity = 0
@@ -120,3 +153,31 @@ init python:
 
         nerissa_question = ""
         prologue_completed = False
+        chapter_01_completed = False
+        chapter_02_completed = False
+        chapter_03_completed = False
+        chapter_04_completed = False
+        chapter_05_completed = False
+        chapter_06_completed = False
+        chapter_07_completed = False
+        chapter_08_completed = False
+        nereu_lead = ""
+        asterion_choice = ""
+        lyria_choice = ""
+        akris_choice = ""
+        nix_choice = ""
+        trusted_nerissa_with_coin = False
+        protected_ariane_in_nereu = False
+        heard_melia_name = False
+        trusted_lyra_song = False
+        protected_mikon = False
+        trusted_thalia_with_map = False
+        saved_akris_scouts = False
+        trusted_cassia_vision = False
+        kept_future_secret = False
+        first_arc_completed = False
+        assembly_choice = ""
+        arc_2_priority = ""
+        trusted_polemon_again = False
+        nereu_decision = ""
+        trusted_nerissa_command = False
