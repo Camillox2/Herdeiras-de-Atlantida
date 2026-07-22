@@ -11,7 +11,7 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
 
     steps:
       - name: Checkout repository
@@ -22,7 +22,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ${{ runner.temp }}/renpy-8.5.3-sdk
-          key: renpy-sdk-8.5.3-linux
+          key: renpy-sdk-8.5.3-linux-v2
 
       - name: Download Ren'Py 8.5.3 SDK
         if: steps.cache-renpy.outputs.cache-hit != 'true'
@@ -32,19 +32,27 @@ jobs:
           cd "${RUNNER_TEMP}"
           curl --fail --location --retry 3 \
             --output renpy-sdk.tar.bz2 \
-            https://www.renpy.org/dl/8.5.3/renpy-8.5.3-sdk.tar.bz2
+            https://www.renpy.org/dl/release/renpy-8.5.3-sdk.tar.bz2
           mkdir -p renpy-8.5.3-sdk
           tar -xjf renpy-sdk.tar.bz2 --strip-components=1 -C renpy-8.5.3-sdk
+          chmod +x renpy-8.5.3-sdk/renpy.sh
 
       - name: Run Ren'Py lint
         shell: bash
         run: |
-          set -euo pipefail
+          set +e
           "${RUNNER_TEMP}/renpy-8.5.3-sdk/renpy.sh" \
             "${GITHUB_WORKSPACE}/renpy" lint \
             "${GITHUB_WORKSPACE}/renpy-lint.txt" \
             --error-code
-          cat "${GITHUB_WORKSPACE}/renpy-lint.txt"
+          status=$?
+          echo "--- Ren'Py lint report ---"
+          if [ -f "${GITHUB_WORKSPACE}/renpy-lint.txt" ]; then
+            cat "${GITHUB_WORKSPACE}/renpy-lint.txt"
+          else
+            echo "Ren'Py did not produce a lint report."
+          fi
+          exit "$status"
 
       - name: Upload lint report
         if: always()
