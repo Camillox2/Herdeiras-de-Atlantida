@@ -329,39 +329,38 @@ screen cg_gallery():
                     text _("Cenas liberadas durante a jornada.") style "menu_subtitle"
                 textbutton _("Voltar") action Return() xalign 1.0
 
-            viewport:
+            vpgrid:
                 ysize 650
+                cols 3
+                spacing 28
                 draggable True
                 mousewheel True
                 scrollbars "vertical"
-
-                grid 3 6:
-                    spacing 28
-                    use cg_card("O Julgamento", "O Julgamento", "cg final_judgment", "images/cgs/cg_final_judgment.png")
-                    use cg_card("O Verão Escolhido", "O Verão Escolhido", "cg collective_thermal", "images/cgs/cg_collective_thermal.png")
-                    use cg_card("Beijo Coletivo — Ariane", "Beijo Coletivo — Ariane", "cg collective_kiss_ariane", "images/cgs/cg_collective_kiss_ariane.png")
-                    use cg_card("Beijo Coletivo — Nerissa", "Beijo Coletivo — Nerissa", "cg collective_kiss_nerissa", "images/cgs/cg_collective_kiss_nerissa.png")
-                    use cg_card("Beijo Coletivo — Mélia", "Beijo Coletivo — Mélia", "cg collective_kiss_melia", "images/cgs/cg_collective_kiss_melia.png")
-                    use cg_card("Beijo Coletivo — Lyra", "Beijo Coletivo — Lyra", "cg collective_kiss_lyra", "images/cgs/cg_collective_kiss_lyra.png")
-                    use cg_card("Beijo Coletivo — Thalia", "Beijo Coletivo — Thalia", "cg collective_kiss_thalia", "images/cgs/cg_collective_kiss_thalia.png")
-                    use cg_card("Beijo Coletivo — Cássia", "Beijo Coletivo — Cássia", "cg collective_kiss_cassia", "images/cgs/cg_collective_kiss_cassia.png")
-                    use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony_v2.png")
-                    use cg_card("Cássia — Estrelas", "Cássia — Estrelas", "cg cassia_stars", "images/cgs/cg_cassia_stars.png")
-                    use cg_card("Ariane — Beijo", "Ariane — Beijo", "cg kiss_ariane", "images/cgs/cg_kiss_ariane.png")
-                    use cg_card("Nerissa — Beijo", "Nerissa — Beijo", "cg kiss_nerissa", "images/cgs/cg_kiss_nerissa.png")
-                    use cg_card("Mélia — Beijo", "Mélia — Beijo", "cg kiss_melia", "images/cgs/cg_kiss_melia.png")
-                    use cg_card("Lyra — Beijo", "Lyra — Beijo", "cg kiss_lyra", "images/cgs/cg_kiss_lyra.png")
-                    use cg_card("Thalia — Beijo", "Thalia — Beijo", "cg kiss_thalia", "images/cgs/cg_kiss_thalia.png")
-                    use cg_card("Cássia — Beijo", "Cássia — Beijo", "cg kiss_cassia", "images/cgs/cg_kiss_cassia.png")
-                    use cg_card("A Chegada", "A Chegada", "cg arrival", "images/cgs/cg_arrival_v2.png")
-                    use cg_card("As Raízes", "As Raízes que Lembram", "cg asterion_roots", "images/cgs/cg_asterion_roots.png")
-                    use cg_card("O Cerco de Akris", "O Cerco de Akris", "cg akris_siege", "images/cgs/cg_akris_siege.png")
-                    use cg_card("Ariane — A Verdade", "Ariane — A Verdade", "cg crisis_ariane", "images/cgs/cg_crisis_ariane.png")
-                    use cg_card("Nerissa — A Quarentena", "Nerissa — A Quarentena", "cg crisis_nerissa", "images/cgs/cg_crisis_nerissa.png")
-                    use cg_card("Lyra — A Voz", "Lyra — A Voz", "cg crisis_lyra", "images/cgs/cg_crisis_lyra.png")
-                    use cg_card("Thalia — A Muralha", "Thalia — A Muralha", "cg crisis_thalia", "images/cgs/cg_crisis_thalia.png")
-                    use cg_card("Cássia — A Profecia", "Cássia — A Profecia", "cg crisis_cassia", "images/cgs/cg_crisis_cassia.png")
-                    use cg_card("Oryx — A Revelação", "Oryx — A Revelação", "cg oryx_revelation", "images/cgs/cg_oryx_revelation.png")
+                use cg_card("O Julgamento", "O Julgamento", "cg final_judgment", "images/cgs/cg_final_judgment.png")
+                use cg_card("O Verão Escolhido", "O Verão Escolhido", "cg collective_thermal", "images/cgs/cg_collective_thermal.png")
+                use cg_card("Beijo Coletivo — Ariane", "Beijo Coletivo — Ariane", "cg collective_kiss_ariane", "images/cgs/cg_collective_kiss_ariane.png")
+                use cg_card("Beijo Coletivo — Nerissa", "Beijo Coletivo — Nerissa", "cg collective_kiss_nerissa", "images/cgs/cg_collective_kiss_nerissa.png")
+                use cg_card("Beijo Coletivo — Mélia", "Beijo Coletivo — Mélia", "cg collective_kiss_melia", "images/cgs/cg_collective_kiss_melia.png")
+                use cg_card("Beijo Coletivo — Lyra", "Beijo Coletivo — Lyra", "cg collective_kiss_lyra", "images/cgs/cg_collective_kiss_lyra.png")
+                use cg_card("Beijo Coletivo — Thalia", "Beijo Coletivo — Thalia", "cg collective_kiss_thalia", "images/cgs/cg_collective_kiss_thalia.png")
+                use cg_card("Beijo Coletivo — Cássia", "Beijo Coletivo — Cássia", "cg collective_kiss_cassia", "images/cgs/cg_collective_kiss_cassia.png")
+                use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony_v2.png")
+                use cg_card("Cássia — Estrelas", "Cássia — Estrelas", "cg cassia_stars", "images/cgs/cg_cassia_stars.png")
+                use cg_card("Ariane — Beijo", "Ariane — Beijo", "cg kiss_ariane", "images/cgs/cg_kiss_ariane.png")
+                use cg_card("Nerissa — Beijo", "Nerissa — Beijo", "cg kiss_nerissa", "images/cgs/cg_kiss_nerissa.png")
+                use cg_card("Mélia — Beijo", "Mélia — Beijo", "cg kiss_melia", "images/cgs/cg_kiss_melia.png")
+                use cg_card("Lyra — Beijo", "Lyra — Beijo", "cg kiss_lyra", "images/cgs/cg_kiss_lyra.png")
+                use cg_card("Thalia — Beijo", "Thalia — Beijo", "cg kiss_thalia", "images/cgs/cg_kiss_thalia.png")
+                use cg_card("Cássia — Beijo", "Cássia — Beijo", "cg kiss_cassia", "images/cgs/cg_kiss_cassia.png")
+                use cg_card("A Chegada", "A Chegada", "cg arrival", "images/cgs/cg_arrival_v2.png")
+                use cg_card("As Raízes", "As Raízes que Lembram", "cg asterion_roots", "images/cgs/cg_asterion_roots.png")
+                use cg_card("O Cerco de Akris", "O Cerco de Akris", "cg akris_siege", "images/cgs/cg_akris_siege.png")
+                use cg_card("Ariane — A Verdade", "Ariane — A Verdade", "cg crisis_ariane", "images/cgs/cg_crisis_ariane.png")
+                use cg_card("Nerissa — A Quarentena", "Nerissa — A Quarentena", "cg crisis_nerissa", "images/cgs/cg_crisis_nerissa.png")
+                use cg_card("Lyra — A Voz", "Lyra — A Voz", "cg crisis_lyra", "images/cgs/cg_crisis_lyra.png")
+                use cg_card("Thalia — A Muralha", "Thalia — A Muralha", "cg crisis_thalia", "images/cgs/cg_crisis_thalia.png")
+                use cg_card("Cássia — A Profecia", "Cássia — A Profecia", "cg crisis_cassia", "images/cgs/cg_crisis_cassia.png")
+                use cg_card("Oryx — A Revelação", "Oryx — A Revelação", "cg oryx_revelation", "images/cgs/cg_oryx_revelation.png")
 
 screen cg_card(unlock_key, caption, cg, thumbnail):
     vbox:
