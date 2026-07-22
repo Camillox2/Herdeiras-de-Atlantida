@@ -28,6 +28,11 @@ image bg sunken_hall = Transform("images/backgrounds/bg_sunken_hall.png", size=(
 image bg kallipolis_storm = Transform("images/backgrounds/bg_kallipolis_storm.png", size=(1920, 1080))
 image bg mirror_island = Transform("images/backgrounds/bg_mirror_island.png", size=(1920, 1080))
 
+# CGs narrativos, compostos para preservar uma área de leitura na parte inferior.
+image cg final_judgment = Transform("images/cgs/cg_final_judgment.png", size=(1920, 1080))
+image cg ariane_balcony = Transform("images/cgs/cg_ariane_balcony.png", size=(1920, 1080))
+image cg cassia_stars = Transform("images/cgs/cg_cassia_stars.png", size=(1920, 1080))
+
 image ivo neutral = "images/characters/ivo.png"
 image ivo wary = "images/characters/ivo_wary.png"
 

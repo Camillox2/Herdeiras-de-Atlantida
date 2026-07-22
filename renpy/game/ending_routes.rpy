@@ -41,8 +41,12 @@ label ending_single_menu:
 label ending_ariane:
     scene bg kallipolis
     with dissolve
-    show ariane embarrassed at portrait_left
-    show ivo neutral at portrait_bust_right
+
+    if "Ariane — Varanda" not in unlocked_cgs:
+        $ unlocked_cgs.append("Ariane — Varanda")
+
+    scene cg ariane_balcony
+    with dissolve
 
     "Um ano depois, a praça de Kallípolis tinha crianças correndo ao redor da fonte e uma nova placa na porta da antiga pensão: CASA DAS CHEGADAS."
 
@@ -137,8 +141,12 @@ label ending_thalia:
 label ending_cassia:
     scene bg nix_observatory
     with dissolve
-    show cassia embarrassed at portrait_left
-    show ivo neutral at portrait_bust_right
+
+    if "Cássia — Estrelas" not in unlocked_cgs:
+        $ unlocked_cgs.append("Cássia — Estrelas")
+
+    scene cg cassia_stars
+    with dissolve
 
     "Na torre de Nix, Cássia tinha transformado a antiga sala de previsões em uma oficina para mapas incompletos. Havia estrelas nas paredes e espaços em branco deliberados entre elas."
 

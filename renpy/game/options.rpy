@@ -1,5 +1,5 @@
 define config.name = _("Herdeiras de Atlântida")
-define config.version = "0.2.0-prologo"
+define config.version = "0.3.0-primeira-temporada"
 define build.name = "HerdeirasDeAtlantidaVN"
 
 define config.has_sound = True

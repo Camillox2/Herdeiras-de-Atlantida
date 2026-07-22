@@ -87,6 +87,7 @@ default faced_future_ivo = False
 default ending_route = ""
 default ending_choice_complete = False
 default unlocked_gallery = ["Ariane", "Nerissa"]
+default unlocked_cgs = []
 
 init python:
     def bond_rank(points):
@@ -139,7 +140,7 @@ init python:
         global trusted_cassia_vision, kept_future_secret, first_arc_completed, assembly_choice, arc_2_priority, trusted_polemon_again
         global nereu_decision, trusted_nerissa_command, asterion_response, trusted_melia_seed, lyria_response, trusted_lyra_leadership
         global akris_siege_choice, trusted_thalia_council, mirror_choice, trusted_cassia_truth, abyss_choice, saved_herdades_at_abyss, oryx_choice, faced_future_ivo
-        global ending_route, ending_choice_complete
+        global ending_route, ending_choice_complete, unlocked_cgs
 
         ariane_affinity = 0
         nerissa_affinity = 0
@@ -225,3 +226,4 @@ init python:
         faced_future_ivo = False
         ending_route = ""
         ending_choice_complete = False
+        unlocked_cgs = []

@@ -115,6 +115,7 @@ screen navigation():
             textbutton _("Carregar") style "nav_button" action ShowMenu("load")
             textbutton _("Vínculos") style "nav_button" action Show("relationships")
 
+        textbutton _("Galeria") style "nav_button" action ShowMenu("cg_gallery")
         textbutton _("Preferências") style "nav_button" action ShowMenu("preferences")
         textbutton _("Sobre") style "nav_button" action ShowMenu("about")
 
@@ -129,21 +130,41 @@ screen main_menu():
     tag menu
 
     add gui.main_menu_background
+    add Solid("#0209128a")
 
     frame:
-        background Solid("#06131ec4")
-        xalign 0.08
+        style "main_menu_panel"
+        xalign 0.09
         yalign 0.5
-        padding (48, 44)
 
         vbox:
-            spacing 28
+            spacing 20
 
             text "Herdeiras de Atlântida" style "menu_title"
-            text "Segredos do passado. Destinos entrelaçados." style "menu_subtitle"
+            text "PRIMEIRA TEMPORADA" style "menu_kicker"
+            text "Seis herdeiras. Um juramento.\nNenhuma escolha sem consequência." style "menu_subtitle"
 
-            null height 16
+            null height 22
             use navigation
+
+    text "Uma visual novel de fantasia mediterrânea" style "menu_footer" xalign 0.95 yalign 0.95
+
+style main_menu_panel is frame:
+    xsize 700
+    background Solid("#071827e8")
+    padding (58, 56)
+
+style menu_kicker is text:
+    font gui.interface_text_font
+    size 22
+    color "#e9bd67"
+    kerning 4
+
+style menu_footer is text:
+    font gui.interface_text_font
+    size 20
+    color "#c8ddea"
+    outlines [(2, "#02101a", 0, 0)]
 
 screen history():
     tag menu
@@ -259,6 +280,92 @@ screen preferences():
             text _("Efeitos") style "say_label"
             bar value Preference("sound volume")
 
+            text _("Acessibilidade") style "say_label"
+            hbox:
+                spacing 18
+                textbutton _("Alternar auto") action Preference("auto-forward", "toggle")
+                textbutton _("Sem transições") action Preference("transitions", "none")
+
+screen cg_gallery():
+    tag menu
+    add gui.game_menu_background
+    add Solid("#020912b8")
+
+    frame:
+        style "panel"
+        xalign 0.5
+        yalign 0.5
+        xsize 1720
+        ysize 900
+
+        vbox:
+            spacing 26
+
+            hbox:
+                xfill True
+                vbox:
+                    text _("Galeria de Memórias") style "menu_title"
+                    text _("Cenas liberadas durante a jornada.") style "menu_subtitle"
+                textbutton _("Voltar") action Return() xalign 1.0
+
+            grid 3 1:
+                spacing 28
+
+                vbox:
+                    spacing 12
+                    if "O Julgamento" in unlocked_cgs:
+                        imagebutton:
+                            idle Transform("images/cgs/cg_final_judgment.png", size=(520, 292))
+                            hover Transform("images/cgs/cg_final_judgment.png", size=(540, 304))
+                            action Show("cg_viewer", cg="cg final_judgment")
+                        text _("O Julgamento") xalign 0.5
+                    else:
+                        frame:
+                            xsize 520
+                            ysize 292
+                            background Solid("#0b2334")
+                            text _("Memória bloqueada") xalign 0.5 yalign 0.5
+                        text _("???") xalign 0.5
+
+                vbox:
+                    spacing 12
+                    if "Ariane — Varanda" in unlocked_cgs:
+                        imagebutton:
+                            idle Transform("images/cgs/cg_ariane_balcony.png", size=(520, 292))
+                            hover Transform("images/cgs/cg_ariane_balcony.png", size=(540, 304))
+                            action Show("cg_viewer", cg="cg ariane_balcony")
+                        text _("Ariane — Varanda") xalign 0.5
+                    else:
+                        frame:
+                            xsize 520
+                            ysize 292
+                            background Solid("#0b2334")
+                            text _("Memória bloqueada") xalign 0.5 yalign 0.5
+                        text _("???") xalign 0.5
+
+                vbox:
+                    spacing 12
+                    if "Cássia — Estrelas" in unlocked_cgs:
+                        imagebutton:
+                            idle Transform("images/cgs/cg_cassia_stars.png", size=(520, 292))
+                            hover Transform("images/cgs/cg_cassia_stars.png", size=(540, 304))
+                            action Show("cg_viewer", cg="cg cassia_stars")
+                        text _("Cássia — Estrelas") xalign 0.5
+                    else:
+                        frame:
+                            xsize 520
+                            ysize 292
+                            background Solid("#0b2334")
+                            text _("Memória bloqueada") xalign 0.5 yalign 0.5
+                        text _("???") xalign 0.5
+
+screen cg_viewer(cg):
+    modal True
+    zorder 300
+    add Solid("#000000ef")
+    add cg
+    textbutton _("Fechar") action Hide("cg_viewer") xalign 0.96 yalign 0.05
+
 screen about():
     tag menu
     add gui.game_menu_background
@@ -280,9 +387,9 @@ screen about():
 
             text "[config.name!t]"
             text _("Versão [config.version!t]")
-            text _("Adaptação em visual novel do universo Herdeiras de Atlântida.")
-            text _("A branch principal do repositório preserva o RPG original em Godot.")
-            text _("Esta versão concentra-se em história, escolhas, vínculos e rotas narrativas.")
+            text _("Uma visual novel de fantasia mediterrânea sobre escolhas, memória e vínculos.")
+            text _("Esta temporada contém o prólogo, quinze capítulos e rotas de epílogo.")
+            text _("As rotas românticas dependem de afinidade e de escolhas feitas ao longo da jornada.")
 
 screen relationships(close_action=Hide("relationships")):
     modal True

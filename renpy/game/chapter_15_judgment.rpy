@@ -6,6 +6,12 @@ label chapter_15_start:
     with fade
     play music "audio/music/agora_of_columns.wav" fadeout 1.0 fadein 1.2
 
+    if "O Julgamento" not in unlocked_cgs:
+        $ unlocked_cgs.append("O Julgamento")
+
+    scene cg final_judgment
+    with dissolve
+
     centered "{size=52}CAPÍTULO 15{/size}\n{size=30}O Julgamento do Juramento{/size}"
 
     "Quando o Salão Afundado abriu pela última vez, não havia máscara, cadeira ou inimigo à espera. Havia apenas as seis cadeiras vazias, o círculo de luz no chão e a água quieta demais para ser mar."
