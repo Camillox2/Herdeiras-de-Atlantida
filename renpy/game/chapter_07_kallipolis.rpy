@@ -5,12 +5,13 @@ label chapter_07_start:
     scene bg kallipolis_storm
     with fade
     play music "audio/music/kallipolis_harbor.wav" fadeout 1.0 fadein 1.2
+    play ambience "audio/ambience/storm_city.wav" fadeout 0.8 fadein 1.0
 
     centered "{size=52}ARCO II — CAPÍTULO 7{/size}\n{size=30}A Cidade que Escolhe{/size}"
 
     call late_consequence_ch07
 
-    "Kallípolis recebera o Juramento antes dos viajantes. Rumores chegaram de barco, de pombos e de pessoas que juravam ter visto seis luzes sobre o mar. Quando Ivo voltou, encontrou o cais tomado por chuva, filas de famílias e uma maré que subia sem obedecer à lua."
+    "Kallípolis recebera o Juramento antes dos viajantes. Rumores vieram de barcos, pombos e bocas ansiosas por uma explicação. Quando Ivo retornou, encontrou o cais sob chuva, famílias em fila e uma maré que subia sem dever nada à lua."
 
     show lysandra neutral at portrait_left
     show ivo wary at portrait_bust_right

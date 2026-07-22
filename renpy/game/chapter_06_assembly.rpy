@@ -8,7 +8,7 @@ label chapter_06_start:
 
     centered "{size=52}CAPÍTULO 6{/size}\n{size=30}O Juramento das Moiras{/size}"
 
-    "O Salão Afundado não ficava sob o mar como uma ruína. Ficava dentro de uma pausa: a água curvava-se ao redor dos arcos e não atravessava a linha dourada desenhada no chão."
+    "O Salão Afundado não existia sob o mar como uma ruína. Existia dentro de uma pausa: a água curvava-se ao redor dos arcos e respeitava, contra toda lógica, a linha dourada no chão."
     "Seis cadeiras de mármore cercavam a mesa central. Nenhuma tinha nome. Cada uma guardava apenas um símbolo: onda, raiz, voz, muralha, estrela e chama."
 
     show ariane neutral at portrait_left

@@ -8,7 +8,7 @@ label chapter_04_start:
 
     centered "{size=52}CAPÍTULO 4{/size}\n{size=30}A Muralha que Escolhe{/size}"
 
-    "Akris apareceu depois de dois dias de subida como uma cidade que decidira transformar medo em pedra. Seus muros recortavam a montanha; as bandeiras vermelhas não celebravam vitória, apenas avisavam que alguém ainda estava de guarda."
+    "Depois de dois dias de subida, Akris apareceu como uma cidade que escolhera transformar medo em pedra. Os muros recortavam a montanha; as bandeiras vermelhas não celebravam vitória, apenas avisavam que alguém ainda permanecia de guarda."
     "Perto da ponte quebrada, três batedores encostavam um rapaz ferido contra um bloco de mármore. Acima deles, uma mulher de cabelo vermelho apontava uma espada para a única passagem segura."
 
     show thalia defensive at portrait_left

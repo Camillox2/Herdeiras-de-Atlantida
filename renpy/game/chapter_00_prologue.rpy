@@ -4,16 +4,18 @@ label prologue_start:
     scene bg kallipolis
     with fade
     play music "audio/music/kallipolis_harbor.wav" fadein 1.5
+    play ambience "audio/ambience/harbor_night.wav" fadein 1.0
 
     if "A Chegada" not in unlocked_cgs:
         $ unlocked_cgs.append("A Chegada")
 
     scene cg arrival
     with dissolve
+    play sound "audio/sfx/moiras_chime.wav"
 
     centered "{size=58}PRÓLOGO{/size}\n{size=34}A Marca das Moiras{/size}"
 
-    "A última lembrança de Ivo era o convés se partindo sob seus pés."
+    "A última lembrança de Ivo era o convés se partindo sob seus pés — e o instante seguinte, longo demais, em que o mar decidiu não devolvê-lo."
     "Depois vieram o frio, uma voz chamando seu nome de dentro do mar e a certeza impossível de que alguma coisa havia escolhido mantê-lo vivo."
 
     "Quando despertou, estava deitado entre redes molhadas no cais de Kallípolis."

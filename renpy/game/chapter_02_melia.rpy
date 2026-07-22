@@ -12,8 +12,8 @@ label chapter_02_start:
     show ivo neutral at portrait_bust_center
     show ariane neutral at portrait_bust_right
 
-    "Asterion não parecia uma cidade construída sobre a pedra, mas uma cidade que a pedra havia decidido proteger."
-    "Jardins subiam pelas encostas em degraus verdes. Água corria por aquedutos de bronze, e cada estufa guardava plantas que Ivo não saberia nomear nem em outro mundo."
+    "Asterion não parecia construída sobre a pedra; parecia uma cidade que a própria pedra resolvera proteger."
+    "Jardins subiam as encostas em degraus verdes. A água corria por aquedutos de bronze, e cada estufa guardava plantas que Ivo não saberia nomear nem na vida que deixara para trás."
 
     melia "Não toquem nas flores azuis. Elas reconhecem pensamentos insistentes."
     ivo "Elas mordem?"

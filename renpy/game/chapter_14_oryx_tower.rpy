@@ -5,8 +5,16 @@ label chapter_14_start:
     scene bg nix_observatory
     with fade
     play music "audio/music/agora_of_columns.wav" fadeout 1.0 fadein 1.2
+    play ambience "audio/ambience/observatory_stars.wav" fadeout 0.8 fadein 1.0
 
     centered "{size=52}CAPÍTULO 14{/size}\n{size=30}O Homem que Voltou Tarde Demais{/size}"
+
+    if "Oryx — A Revelação" not in unlocked_cgs:
+        $ unlocked_cgs.append("Oryx — A Revelação")
+    scene cg oryx_revelation
+    with dissolve
+    play sound "audio/sfx/moiras_chime.wav"
+    "A superfície negra entre as pedras devolve duas silhuetas que a mesma escolha poderia ter produzido. Ivo não olha para o reflexo por muito tempo."
 
     "A Torre de Oryx não tinha portas. Tinha uma escada que terminava em céu aberto, e no topo uma lente voltada para uma estrela que não existia. Cássia jurou que a torre não podia estar de pé; ainda assim, cada degrau reconhecia os passos de Ivo antes que ele os desse."
 

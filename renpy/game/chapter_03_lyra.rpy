@@ -11,8 +11,8 @@ label chapter_03_start:
     show lyra neutral at portrait_left
     show ivo wary at portrait_bust_right
 
-    "Lýria fora construída para que o mar pudesse ser escutado sem precisar ser enfrentado. Àquela hora, porém, as ondas abaixo dos penhascos pareciam bater no mesmo compasso de uma respiração presa."
-    "No centro do templo, uma jovem cantava para um círculo de água imóvel. Sua voz era baixa, quase íntima; ainda assim, fazia as chamas dos braseiros se inclinarem em direção a ela."
+    "Lýria fora construída para que o mar pudesse ser escutado sem precisar ser enfrentado. Naquela hora, porém, as ondas abaixo dos penhascos batiam no compasso insistente de uma respiração presa."
+    "No centro do templo, uma jovem cantava para um círculo de água imóvel. A voz era baixa, quase íntima; ainda assim, fazia as chamas dos braseiros se inclinarem para ela como quem escuta uma ordem."
 
     lyra "Não entrem no círculo."
     ivo "Essa é uma forma bastante direta de dar boas-vindas."

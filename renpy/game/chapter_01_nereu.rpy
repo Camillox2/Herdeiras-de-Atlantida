@@ -5,6 +5,7 @@ label chapter_01_start:
     scene bg nereu
     with fade
     play music "audio/music/nereu_blue_sails.wav" fadein 1.2
+    play ambience "audio/ambience/harbor_night.wav" fadein 0.8
 
     centered "{size=52}CAPÍTULO 1{/size}\n{size=30}As Velas Azuis de Nereu{/size}"
 
@@ -12,8 +13,8 @@ label chapter_01_start:
     show ivo neutral at portrait_bust_center
     show ariane neutral at portrait_bust_right
 
-    "Nereu recebia a madrugada como um navio recebe tempestade: sem apagar as luzes, sem admitir medo."
-    "Nas pontes de mármore, guardas trocavam turnos em silêncio. Nos canais, pequenas velas azuis marcavam os barcos autorizados a cruzar depois do sino."
+    "Nereu recebia a madrugada como um navio recebe tempestade: sem apagar as luzes e sem conceder ao medo a dignidade de um nome."
+    "Nas pontes de mármore, guardas trocavam turnos sem conversa. Nos canais, pequenas velas azuis marcavam os barcos autorizados a passar depois do sino — e os demais aprendiam a esperar."
 
     nerissa "Vocês têm até o próximo sino para explicar por que a moeda respondeu a mim."
     ariane "É generoso. Em Kallípolis, ele teria até a próxima faca."

@@ -2,8 +2,10 @@
 # apenas com afinidade. A decisão marca confiança, limites e o futuro da rota.
 
 label crisis_ariane:
-    scene bg kallipolis_storm
+    scene cg crisis_ariane
     with dissolve
+    if "Ariane — A Verdade" not in unlocked_cgs:
+        $ unlocked_cgs.append("Ariane — A Verdade")
     show ariane concerned at portrait_left
     show ivo wary at portrait_bust_right
 
@@ -44,8 +46,10 @@ label crisis_ariane:
 
 
 label crisis_nerissa:
-    scene bg nereu
+    scene cg crisis_nerissa
     with dissolve
+    if "Nerissa — A Quarentena" not in unlocked_cgs:
+        $ unlocked_cgs.append("Nerissa — A Quarentena")
     show nerissa neutral at portrait_left
     show ivo wary at portrait_bust_right
 
@@ -212,8 +216,10 @@ label crisis_thalia:
 
 
 label crisis_cassia:
-    scene bg nix_observatory
+    scene cg crisis_cassia
     with dissolve
+    if "Cássia — A Profecia" not in unlocked_cgs:
+        $ unlocked_cgs.append("Cássia — A Profecia")
     show cassia vision at portrait_left
     show ivo wary at portrait_bust_right
 

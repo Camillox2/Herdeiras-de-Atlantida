@@ -5,10 +5,11 @@ label chapter_05_start:
     scene bg nix_observatory
     with fade
     play music "audio/music/agora_of_columns.wav" fadeout 1.0 fadein 1.2
+    play ambience "audio/ambience/observatory_stars.wav" fadeout 0.8 fadein 1.0
 
     centered "{size=52}CAPÍTULO 5{/size}\n{size=30}O Céu que Não Promete{/size}"
 
-    "O Observatório de Nix não tinha teto. As constelações ocupavam a abóbada aberta como se o céu inteiro tivesse descido alguns metros para escutar. No chão, círculos de bronze giravam sozinhos sobre mosaicos roxos."
+    "O Observatório de Nix não tinha teto. Acima, as constelações pareciam baixas demais, como se o céu se inclinasse para ouvir; abaixo, círculos de bronze giravam sobre mosaicos roxos sem pedir licença a ninguém."
     "No centro de todos eles, uma mulher segurava um astrolábio contra o peito. Ela não olhou para os visitantes quando falou."
 
     show cassia vision at portrait_left
