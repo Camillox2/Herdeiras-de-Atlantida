@@ -101,6 +101,9 @@ label chapter_09_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 10 — A Voz que Não se Curva":
+            jump chapter_10_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_09_summary
