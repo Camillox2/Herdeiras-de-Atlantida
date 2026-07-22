@@ -61,6 +61,8 @@ label ending_ariane:
     scene cg kiss_ariane
     with dissolve
     "Ela encosta a testa na dele, espera a resposta no olhar e o beija sob a luz das lanternas. Não como uma promessa que resolve tudo, mas como uma escolha que ambos podem renovar."
+    if persistent.sensual_mode:
+        call sensual_ariane_bath
     "Eles seguem pela praça, sem profecia e sem testemunhas. Apenas com a promessa menos grandiosa — e mais difícil — que os dois poderiam fazer: voltar um para o outro amanhã."
     jump ending_credits
 

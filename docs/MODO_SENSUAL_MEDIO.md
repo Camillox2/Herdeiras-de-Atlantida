@@ -20,8 +20,9 @@ como erotização.
 
 ## Ordem recomendada de produção
 
-1. **Ariane — Varanda após a chuva:** diálogo sobre escolher ficar; manto,
-   lanternas, beijo mais demorado e fade para a manhã.
+1. **Ariane — Termas sob a lua:** biquíni mediterrâneo estilizado, coluna,
+   lanternas e conversa sobre escolher ficar; a cena encerra na intimidade
+   emocional, sem conteúdo explícito.
 2. **Nerissa — Cabine de mapa:** ela pede autorização antes de se aproximar;
    casaco naval abandonado, mar ao fundo e corte no toque de mãos.
 3. **Mélia — Estufa à noite:** intimidade calma, folhas luminosas e água de
