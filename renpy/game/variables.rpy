@@ -86,6 +86,8 @@ default oryx_choice = ""
 default faced_future_ivo = False
 default ending_route = ""
 default ending_choice_complete = False
+default ivo_integrity = 0
+default broken_oath = False
 default unlocked_gallery = ["Ariane", "Nerissa"]
 default unlocked_cgs = []
 
@@ -122,6 +124,13 @@ init python:
             return "{} e {}".format(leaders[0], leaders[1])
         return ", ".join(leaders[:-1]) + " e " + leaders[-1]
 
+    def integrity_rank(value):
+        if value <= -2:
+            return "Promessas quebradas"
+        if value == -1:
+            return "Confiança abalada"
+        return "Palavra preservada"
+
     def reset_prologue_state():
         global ariane_affinity, nerissa_affinity
         global ivo_courage, ivo_honesty, ivo_humor, ivo_compassion
@@ -140,7 +149,7 @@ init python:
         global trusted_cassia_vision, kept_future_secret, first_arc_completed, assembly_choice, arc_2_priority, trusted_polemon_again
         global nereu_decision, trusted_nerissa_command, asterion_response, trusted_melia_seed, lyria_response, trusted_lyra_leadership
         global akris_siege_choice, trusted_thalia_council, mirror_choice, trusted_cassia_truth, abyss_choice, saved_herdades_at_abyss, oryx_choice, faced_future_ivo
-        global ending_route, ending_choice_complete, unlocked_cgs
+        global ending_route, ending_choice_complete, ivo_integrity, broken_oath, unlocked_cgs
 
         ariane_affinity = 0
         nerissa_affinity = 0
@@ -226,4 +235,6 @@ init python:
         faced_future_ivo = False
         ending_route = ""
         ending_choice_complete = False
+        ivo_integrity = 0
+        broken_oath = False
         unlocked_cgs = []

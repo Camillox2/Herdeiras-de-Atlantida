@@ -414,6 +414,7 @@ screen relationships(close_action=Hide("relationships")):
 
             null height 16
             text _("Traço predominante de Ivo: [dominant_trait()]") style "say_label"
+            text _("Rastro do juramento: [integrity_rank(ivo_integrity)]") style "say_label"
 
 screen confirm(message, yes_action, no_action):
     modal True

@@ -49,6 +49,12 @@ label chapter_15_start:
             ivo "Quem dá uma ordem olha para quem vai pagar por ela. Se não consegue, não dá a ordem."
             "Thalia assentiu. Não como soldado diante de um comando, mas como alguém que reconhecia uma regra que teria mudado uma vida inteira."
 
+        "Alguém precisa escolher sozinho. Ivo toma o juramento para si.":
+            $ broken_oath = True
+            $ ivo_integrity -= 3
+            $ ending_route = "domínio"
+            jump ending_drowned
+
     "As memórias não desapareceram. Tornaram-se suportáveis. Ariane deixou a fita vermelha na cadeira da chama; Nerissa derramou água na da onda; Mélia colocou uma semente na da raiz; Lyra pousou uma corda da lira na da voz; Thalia deixou a máscara sobre a muralha; Cássia alinhou o astrolábio à estrela."
     "A Marca de Ivo se abriu em sete fios. Um para cada herdeira. O último ficou no próprio pulso, não como coroa, mas como lembrança de que estar no centro não significava estar acima."
 
@@ -71,6 +77,10 @@ label ending_selector:
     stop music fadeout 1.0
 
     centered "{size=54}EPÍLOGOS{/size}\n{size=30}Os vínculos construídos ao longo da jornada agora definem como Ivo segue em frente.{/size}"
+
+    if ivo_integrity <= -2:
+        "O salão devolve a Ivo cada silêncio usado como moeda. Algumas portas não se fecham por vingança: fecham porque confiar nelas deixou de ser seguro."
+        jump ending_exile
 
     menu:
         "Qual futuro Ivo escolhe?"

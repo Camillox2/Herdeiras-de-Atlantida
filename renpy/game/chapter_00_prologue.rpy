@@ -401,6 +401,7 @@ label prologue_start:
         "Dizer apenas que existem seis herdeiras.":
             $ hid_heirs_from_ariane = True
             $ ivo_courage += 1
+            $ ivo_integrity -= 1
             ivo "Falou de seis herdeiras e de um trono vazio."
             ariane "Você omitiu alguma coisa."
             ivo "Ainda estou decidindo se era memória ou isca."
@@ -435,6 +436,7 @@ label prologue_start:
         "Esconder a visão para não assustá-la.":
             $ hid_third_echo = True
             $ ivo_compassion += 1
+            $ ivo_integrity -= 1
             ivo "Vi a cidade. Nada que ajude agora."
             ariane "Você mente olhando para a direita."
             $ ariane_affinity -= 1

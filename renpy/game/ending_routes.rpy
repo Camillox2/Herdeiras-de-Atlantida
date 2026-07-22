@@ -222,6 +222,32 @@ label ending_alliance:
     jump ending_credits
 
 
+label ending_drowned:
+    scene bg sunken_hall
+    with fade
+    stop music fadeout 1.5
+
+    "Ivo alcança o centro do círculo antes que qualquer uma delas consiga segurá-lo. A Marca aceita a ordem que ele oferece — não porque ela seja justa, mas porque é simples."
+    ariane "Ivo, solta isso. Agora."
+    "Por um instante, ele vê todas as cidades como peças quietas num mapa. É a primeira vez que não sente medo. Também é a primeira vez que não reconhece a própria voz."
+    "A água sobe sem pressa. O juramento não o pune; apenas deixa que ele carregue sozinho o peso que insistiu em tomar. Quando a luz se apaga, não há rei, salvador ou resposta. Só o mar devolvendo o que não conseguiu possuir."
+    centered "{size=54}FINAL AMARGO{/size}\n{size=28}O Homem que Quis Ser a Resposta{/size}"
+    return
+
+
+label ending_exile:
+    scene bg kallipolis_storm
+    with fade
+    stop music fadeout 1.5
+
+    "Ivo sobrevive ao julgamento, mas não encontra a mão que esperava ao sair do salão. Ariane não o acusa; Nerissa não o prende; as outras não transformam a decepção em espetáculo. Elas apenas escolhem não construir o próximo mundo sobre promessas quebradas."
+    ivo "Eu achei que podia consertar depois."
+    ariane "Depois não é uma pessoa. Você tinha pessoas aqui."
+    "Ele parte de Kallípolis ao amanhecer, vivo e finalmente sem desculpas. O mar o deixa ir porque, desta vez, não há ninguém tentando chamá-lo de volta."
+    centered "{size=54}FINAL AMARGO{/size}\n{size=28}O Mar Não Devolve Duas Vezes{/size}"
+    return
+
+
 label ending_credits:
     scene bg title
     with fade
