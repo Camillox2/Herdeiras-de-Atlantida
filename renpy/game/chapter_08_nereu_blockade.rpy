@@ -52,6 +52,15 @@ label chapter_08_start:
             ivo "Kallípolis ensinou uma coisa: alguém quer que a multidão sinta medo antes de saber por quê."
             "Dentro do farol, Ivo encontrou um sino de bronze preso à lente. A inscrição não invocava maré; invocava suspeita. Cada toque fazia qualquer sussurro parecer confissão."
 
+    "No farol, os sinos respondem ao medo da praça. Uma corrente tenta se fechar sozinha sobre o único barco com civis."
+    call juramento_confronto("Sinos do bloqueio", 3, "Nerissa")
+    if combat_result == "won":
+        $ nerissa_affinity += 1
+        nerissa "Você não venceu para mim. Fez a cidade perceber que podia segurar a própria linha."
+    else:
+        $ ivo_integrity -= 1
+        nerissa "A corrente cedeu, mas o pânico encontrou espaço. Não deixe isso virar desculpa para mandar em todo mundo."
+
     "Um conselheiro surgiu na escada da torre trazendo uma carta lacrada. A proposta era simples: entregar Nerissa ao bloqueio e os navios entrariam sem inspeção."
     "A praça explodiu em vozes. Alguns pediam que ela aceitasse. Outros pediam guerra. Nenhum deles precisava estar na ponte quando a primeira flecha voasse."
     show nerissa embarrassed at portrait_emphasis_left

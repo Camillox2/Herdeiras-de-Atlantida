@@ -132,7 +132,9 @@ label crisis_melia:
 
 
 label crisis_lyra:
-    scene bg lyria_temple
+    if "Lyra — A Voz" not in unlocked_cgs:
+        $ unlocked_cgs.append("Lyra — A Voz")
+    scene cg crisis_lyra
     with dissolve
     show lyra worried at portrait_left
     show ivo wary at portrait_bust_right
@@ -174,7 +176,9 @@ label crisis_lyra:
 
 
 label crisis_thalia:
-    scene bg akris_fortress
+    if "Thalia — A Muralha" not in unlocked_cgs:
+        $ unlocked_cgs.append("Thalia — A Muralha")
+    scene cg crisis_thalia
     with dissolve
     show thalia defensive at portrait_left
     show ivo wary at portrait_bust_right

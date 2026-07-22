@@ -57,6 +57,8 @@ image cg asterion_roots = Transform("images/cgs/cg_asterion_roots.png", size=(19
 image cg akris_siege = Transform("images/cgs/cg_akris_siege.png", size=(1920, 1080))
 image cg crisis_ariane = Transform("images/cgs/cg_crisis_ariane.png", size=(1920, 1080))
 image cg crisis_nerissa = Transform("images/cgs/cg_crisis_nerissa.png", size=(1920, 1080))
+image cg crisis_lyra = Transform("images/cgs/cg_crisis_lyra.png", size=(1920, 1080))
+image cg crisis_thalia = Transform("images/cgs/cg_crisis_thalia.png", size=(1920, 1080))
 image cg crisis_cassia = Transform("images/cgs/cg_crisis_cassia.png", size=(1920, 1080))
 image cg oryx_revelation = Transform("images/cgs/cg_oryx_revelation.png", size=(1920, 1080))
 

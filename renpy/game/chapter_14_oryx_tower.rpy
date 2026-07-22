@@ -68,6 +68,15 @@ label chapter_14_start:
     ivo "E agora quer que eu faça o mesmo antes de descobrir outra saída."
     collector "Quero que você me prove errado."
 
+    "Um fragmento da máscara se desprende da lente e tenta repetir os gestos que fizeram o outro Ivo ceder. Cássia segura a respiração, esperando que desta vez a resposta seja escolha, não destino."
+    call juramento_confronto("Fragmento da Máscara", 4, "Cássia")
+    if combat_result == "won":
+        $ cassia_affinity += 1
+        cassia "Você acabou de transformar uma previsão em evidência. É bem diferente."
+    else:
+        $ ivo_integrity -= 1
+        cassia "A máscara quase encontrou uma brecha. Não se castigue por ela; apenas não a chame de inevitável."
+
     menu:
         "Ivo responde à versão que falhou:"
 

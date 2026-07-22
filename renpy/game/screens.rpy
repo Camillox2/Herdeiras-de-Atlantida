@@ -338,6 +338,8 @@ screen cg_gallery():
                     use cg_card("O Cerco de Akris", "O Cerco de Akris", "cg akris_siege", "images/cgs/cg_akris_siege.png")
                     use cg_card("Ariane — A Verdade", "Ariane — A Verdade", "cg crisis_ariane", "images/cgs/cg_crisis_ariane.png")
                     use cg_card("Nerissa — A Quarentena", "Nerissa — A Quarentena", "cg crisis_nerissa", "images/cgs/cg_crisis_nerissa.png")
+                    use cg_card("Lyra — A Voz", "Lyra — A Voz", "cg crisis_lyra", "images/cgs/cg_crisis_lyra.png")
+                    use cg_card("Thalia — A Muralha", "Thalia — A Muralha", "cg crisis_thalia", "images/cgs/cg_crisis_thalia.png")
                     use cg_card("Cássia — A Profecia", "Cássia — A Profecia", "cg crisis_cassia", "images/cgs/cg_crisis_cassia.png")
                     use cg_card("Oryx — A Revelação", "Oryx — A Revelação", "cg oryx_revelation", "images/cgs/cg_oryx_revelation.png")
 
