@@ -8,6 +8,8 @@ label chapter_12_start:
 
     centered "{size=52}CAPÍTULO 12{/size}\n{size=30}A Ilha do Espelho{/size}"
 
+    call late_consequence_ch12
+
     "A Ilha do Espelho não aparecia em mapas porque não estava sempre no mesmo lugar. À noite, a lagoa refletia um céu que Nix nunca tinha visto; ao amanhecer, cada ruína mostrava uma versão do visitante que fizera uma escolha diferente."
 
     show cassia vision at portrait_left

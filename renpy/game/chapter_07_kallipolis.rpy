@@ -8,6 +8,8 @@ label chapter_07_start:
 
     centered "{size=52}ARCO II — CAPÍTULO 7{/size}\n{size=30}A Cidade que Escolhe{/size}"
 
+    call late_consequence_ch07
+
     "Kallípolis recebera o Juramento antes dos viajantes. Rumores chegaram de barco, de pombos e de pessoas que juravam ter visto seis luzes sobre o mar. Quando Ivo voltou, encontrou o cais tomado por chuva, filas de famílias e uma maré que subia sem obedecer à lua."
 
     show lysandra neutral at portrait_left

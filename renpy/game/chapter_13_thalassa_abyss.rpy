@@ -8,6 +8,8 @@ label chapter_13_start:
 
     centered "{size=52}CAPÍTULO 13{/size}\n{size=30}O Abismo de Tálassa{/size}"
 
+    call late_consequence_ch13
+
     "Desta vez, o Salão Afundado não esperava vazio. A água fora dos arcos subia em espirais lentas, carregando pequenos sinos de bronze como se fossem peixes. Cada um tocava sem som."
     "As seis cadeiras continuavam vazias. No centro, porém, uma sétima cadeira havia surgido — feita de máscara derretida e raízes negras."
 

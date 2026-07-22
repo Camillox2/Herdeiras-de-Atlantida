@@ -131,6 +131,24 @@ init python:
             return "Confiança abalada"
         return "Palavra preservada"
 
+    def legacy_score():
+        positive = [
+            told_ariane_everything, trusted_nerissa_with_coin, trusted_lyra_song,
+            protected_mikon, saved_akris_scouts, trusted_thalia_with_map,
+            trusted_cassia_vision, trusted_cassia_truth, trusted_polemon_again,
+            trusted_nerissa_command, trusted_melia_seed, trusted_lyra_leadership,
+            trusted_thalia_council, saved_herdades_at_abyss, faced_future_ivo,
+        ]
+        negative = [hid_heirs_from_ariane, hid_third_echo, blamed_polemon, kept_future_secret]
+        return sum(1 for flag in positive if flag) - sum(1 for flag in negative if flag)
+
+    def legacy_rank(score):
+        if score >= 8:
+            return "Aliança conquistada"
+        if score <= 2:
+            return "Aliança frágil"
+        return "Aliança em construção"
+
     def reset_prologue_state():
         global ariane_affinity, nerissa_affinity
         global ivo_courage, ivo_honesty, ivo_humor, ivo_compassion

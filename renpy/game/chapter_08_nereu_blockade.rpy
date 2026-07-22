@@ -8,6 +8,8 @@ label chapter_08_start:
 
     centered "{size=52}CAPÍTULO 8{/size}\n{size=30}O Porto Fechado{/size}"
 
+    call late_consequence_ch08
+
     "Nereu cheirava a sal, corda molhada e pão que não chegaria a tempo. Três navios de abastecimento aguardavam fora das correntes da cidade, enquanto uma linha de embarcações sem bandeira bloqueava a entrada."
     "A capitã Nerissa acompanhava tudo da torre do cais. Não parecia assustada. Parecia alguém a quem o medo tinha dado trabalho demais para fazer."
 

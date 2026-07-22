@@ -8,6 +8,8 @@ label chapter_10_start:
 
     centered "{size=52}CAPÍTULO 10{/size}\n{size=30}A Voz que Não se Curva{/size}"
 
+    call late_consequence_ch10
+
     "Lýria não fora destruída. Isso teria sido mais simples. As ruas estavam cheias, as janelas abertas e os braseiros acesos — mas ninguém cantava. Até os vendedores aprendiam a anunciar seus peixes com gestos."
     "Nas colunas do Templo das Marés, placas de bronze declaravam que qualquer canção não autorizada seria tratada como traição."
 

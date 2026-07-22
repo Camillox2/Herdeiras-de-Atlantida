@@ -206,6 +206,8 @@ label ending_collective:
     ivo "Então só existe se todo mundo puder mudar de ideia."
     "As seis trocam olhares. Não há juramento mágico, nem posse escondida sob palavras bonitas. Há conversas difíceis, ciúmes que precisam ser nomeados, e uma vontade coletiva de aprender."
     "O vínculo entre eles não é um prêmio pelo fim da jornada. É uma nova jornada, escolhida devagar."
+    if legacy_score() >= 8:
+        "As pequenas escolhas que os trouxeram até ali não foram esquecidas. Eram precisamente o motivo de cada pessoa acreditar que podia continuar escolhendo."
     jump ending_credits
 
 
@@ -215,6 +217,10 @@ label ending_alliance:
     show ivo neutral at portrait_bust_center
 
     "Ivo permaneceu em Kallípolis, mas não escolheu transformar nenhum dos vínculos em romance."
+    if legacy_score() >= 8:
+        "A aliança não nasceu de uma vitória perfeita. Nasceu de todas as vezes em que alguém foi ouvido antes que o medo escolhesse por ela."
+    elif legacy_score() <= 2:
+        "A aliança sobrevive, mas exige trabalho diário. Algumas pontes ainda rangem sob o peso de coisas que Ivo demorou a dizer."
     "Ariane abriu a Casa das Chegadas; Nerissa renovou os pactos marítimos; Mélia plantou jardins em cidades feridas; Lyra ensinou canções novas; Thalia manteve os portões abertos; Cássia desenhou mapas que admitiam o desconhecido."
     "Eles continuaram próximos, não por falta de coragem para amar, mas por respeito ao momento em que cada um estava."
     ivo "Nem toda história precisa terminar com alguém pertencendo a alguém."
