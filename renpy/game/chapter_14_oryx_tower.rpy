@@ -115,6 +115,9 @@ label chapter_14_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 15 — O Julgamento do Juramento":
+            jump chapter_15_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_14_summary
