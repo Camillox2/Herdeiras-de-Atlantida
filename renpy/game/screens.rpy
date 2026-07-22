@@ -326,6 +326,12 @@ screen cg_gallery():
                     spacing 28
                     use cg_card("O Julgamento", "O Julgamento", "cg final_judgment", "images/cgs/cg_final_judgment.png")
                     use cg_card("O Verão Escolhido", "O Verão Escolhido", "cg collective_thermal", "images/cgs/cg_collective_thermal.png")
+                    use cg_card("Beijo Coletivo — Ariane", "Beijo Coletivo — Ariane", "cg collective_kiss_ariane", "images/cgs/cg_collective_kiss_ariane.png")
+                    use cg_card("Beijo Coletivo — Nerissa", "Beijo Coletivo — Nerissa", "cg collective_kiss_nerissa", "images/cgs/cg_collective_kiss_nerissa.png")
+                    use cg_card("Beijo Coletivo — Mélia", "Beijo Coletivo — Mélia", "cg collective_kiss_melia", "images/cgs/cg_collective_kiss_melia.png")
+                    use cg_card("Beijo Coletivo — Lyra", "Beijo Coletivo — Lyra", "cg collective_kiss_lyra", "images/cgs/cg_collective_kiss_lyra.png")
+                    use cg_card("Beijo Coletivo — Thalia", "Beijo Coletivo — Thalia", "cg collective_kiss_thalia", "images/cgs/cg_collective_kiss_thalia.png")
+                    use cg_card("Beijo Coletivo — Cássia", "Beijo Coletivo — Cássia", "cg collective_kiss_cassia", "images/cgs/cg_kiss_cassia.png")
                     use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony_v2.png")
                     use cg_card("Cássia — Estrelas", "Cássia — Estrelas", "cg cassia_stars", "images/cgs/cg_cassia_stars.png")
                     use cg_card("Ariane — Beijo", "Ariane — Beijo", "cg kiss_ariane", "images/cgs/cg_kiss_ariane.png")

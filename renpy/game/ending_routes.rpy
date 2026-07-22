@@ -223,10 +223,32 @@ label ending_collective:
 
     if "O Verão Escolhido" not in unlocked_cgs:
         $ unlocked_cgs.append("O Verão Escolhido")
+    $ collective_kiss_cgs = ["Beijo Coletivo — Ariane", "Beijo Coletivo — Nerissa", "Beijo Coletivo — Mélia", "Beijo Coletivo — Lyra", "Beijo Coletivo — Thalia", "Beijo Coletivo — Cássia"]
+    python:
+        for cg_name in collective_kiss_cgs:
+            if cg_name not in unlocked_cgs:
+                unlocked_cgs.append(cg_name)
     scene cg collective_thermal
     with dissolve
     "Semanas depois, a piscina termal da pensão recebe uma noite que ninguém tentou transformar em cerimônia. Há lanternas, água quente e espaço suficiente para que cada pessoa escolha onde ficar."
-    "Ariane beija Ivo primeiro, com a segurança tranquila de quem não precisa disputar atenção. Nerissa finge reclamar da demora antes de puxá-lo pela mão; Mélia ri contra os lábios dele; Lyra transforma o próprio beijo numa nota breve; Thalia o beija como se aceitasse uma vitória difícil; Cássia espera o silêncio certo e fecha os olhos quando ele chega."
+    scene cg collective_kiss_ariane
+    with dissolve
+    "Ariane beija Ivo primeiro, com a segurança tranquila de quem não precisa disputar atenção."
+    scene cg collective_kiss_nerissa
+    with dissolve
+    "Nerissa finge reclamar da demora antes de puxá-lo pela mão."
+    scene cg collective_kiss_melia
+    with dissolve
+    "Mélia ri contra os lábios dele e depois esconde o rosto por um instante, corada."
+    scene cg collective_kiss_lyra
+    with dissolve
+    "Lyra transforma o próprio beijo numa nota breve, escolhida e livre."
+    scene cg collective_kiss_thalia
+    with dissolve
+    "Thalia o beija como se aceitasse uma vitória difícil e depois encara o grupo, vermelha, desafiando qualquer comentário."
+    scene cg collective_kiss_cassia
+    with dissolve
+    "Cássia espera o silêncio certo e fecha os olhos quando ele chega."
     "As outras não são plateia nem prêmio. Entre provocações, sorrisos e uma vergonha doce que passa depressa, cada uma se aproxima porque quer. O futuro continua aberto — e é justamente por isso que parece deles."
     jump ending_credits
 

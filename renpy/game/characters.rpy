@@ -31,6 +31,12 @@ image bg mirror_island = Transform("images/backgrounds/bg_mirror_island.png", si
 # CGs narrativos, compostos para preservar uma área de leitura na parte inferior.
 image cg final_judgment = Transform("images/cgs/cg_final_judgment.png", size=(1920, 1080))
 image cg collective_thermal = Transform("images/cgs/cg_collective_thermal.png", size=(1920, 1080))
+image cg collective_kiss_ariane = Transform("images/cgs/cg_collective_kiss_ariane.png", size=(1920, 1080))
+image cg collective_kiss_nerissa = Transform("images/cgs/cg_collective_kiss_nerissa.png", size=(1920, 1080))
+image cg collective_kiss_melia = Transform("images/cgs/cg_collective_kiss_melia.png", size=(1920, 1080))
+image cg collective_kiss_lyra = Transform("images/cgs/cg_collective_kiss_lyra.png", size=(1920, 1080))
+image cg collective_kiss_thalia = Transform("images/cgs/cg_collective_kiss_thalia.png", size=(1920, 1080))
+image cg collective_kiss_cassia = Transform("images/cgs/cg_kiss_cassia.png", size=(1920, 1080))
 image cg ariane_balcony = Transform("images/cgs/cg_ariane_balcony_v2.png", size=(1920, 1080))
 image cg cassia_stars = Transform("images/cgs/cg_cassia_stars.png", size=(1920, 1080))
 image cg kiss_ariane = Transform("images/cgs/cg_kiss_ariane.png", size=(1920, 1080))
