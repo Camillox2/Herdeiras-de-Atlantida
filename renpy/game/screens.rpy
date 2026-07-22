@@ -280,6 +280,14 @@ screen preferences():
             text _("Efeitos") style "say_label"
             bar value Preference("sound volume")
 
+            text _("Conteúdo") style "say_label"
+            if persistent.sensual_mode:
+                textbutton _("Cenas sensuais: ATIVADAS") action ToggleField(persistent, "sensual_mode")
+                text _("Extensões românticas opcionais aparecem apenas em rotas com consentimento e vínculo alto.") style "menu_subtitle"
+            else:
+                textbutton _("Cenas sensuais: DESATIVADAS") action ToggleField(persistent, "sensual_mode")
+                text _("O jogo segue a versão romântica padrão, sem extensões sensuais.") style "menu_subtitle"
+
             text _("Acessibilidade") style "say_label"
             hbox:
                 spacing 18

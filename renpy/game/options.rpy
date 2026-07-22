@@ -1,5 +1,5 @@
 define config.name = _("Herdeiras de Atlântida")
-define config.version = "0.3.0-primeira-temporada"
+define config.version = "0.3.1-sensual-opcional"
 define build.name = "HerdeirasDeAtlantidaVN"
 
 define config.has_sound = True
@@ -24,6 +24,10 @@ define config.default_sfx_volume = 0.70
 
 default preferences.text_cps = 35
 default preferences.afm_time = 12
+
+# Preferência persistente e desligada por padrão. Ela nunca altera afinidade,
+# rotas ou requisitos de consentimento: apenas libera extensões sensuais.
+default persistent.sensual_mode = False
 
 init python:
     build.classify("**~", None)
