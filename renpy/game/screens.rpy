@@ -296,16 +296,16 @@ screen preferences():
                     spacing 14
 
                     text _("Velocidade do texto") style "say_label"
-                    bar value Preference("text speed") xsize 580
+                    bar value Preference("text speed") xsize 580 ysize 26
 
                     text _("Avanço automático") style "say_label"
-                    bar value Preference("auto-forward time") xsize 580
+                    bar value Preference("auto-forward time") xsize 580 ysize 26
 
                     text _("Música") style "say_label"
-                    bar value Preference("music volume") xsize 580
+                    bar value Preference("music volume") xsize 580 ysize 26
 
                     text _("Efeitos") style "say_label"
-                    bar value Preference("sound volume") xsize 580
+                    bar value Preference("sound volume") xsize 580 ysize 26
 
 screen cg_gallery():
     tag menu
