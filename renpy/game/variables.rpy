@@ -96,6 +96,10 @@ default thalia_crisis = ""
 default cassia_crisis = ""
 default unlocked_gallery = ["Ariane", "Nerissa"]
 default unlocked_cgs = []
+default combat_focus = 0
+default combat_enemy = 0
+default combat_companion = ""
+default combat_result = ""
 
 init python:
     def bond_rank(points):

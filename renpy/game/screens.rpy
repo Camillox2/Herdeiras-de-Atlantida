@@ -430,6 +430,24 @@ screen relationships(close_action=Hide("relationships")):
             text _("Legado das escolhas: [legacy_rank(legacy_score())]") style "say_label"
             text _("Rupturas de rota: [crisis_break_count()]") style "say_label"
 
+screen combat_hud(enemy_name):
+    zorder 180
+    frame:
+        xalign 0.5
+        yalign 0.04
+        xsize 900
+        background Solid("#071827e8")
+        padding (24, 14)
+        hbox:
+            xfill True
+            vbox:
+                text _("CONFRONTO DE JURAMENTO") style "menu_kicker"
+                text enemy_name style "say_label"
+            vbox:
+                xalign 1.0
+                text _("Foco: [combat_focus]/3") xalign 1.0
+                text _("Pressão inimiga: [combat_enemy]") xalign 1.0
+
 screen confirm(message, yes_action, no_action):
     modal True
     zorder 200
