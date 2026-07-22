@@ -61,6 +61,15 @@ label chapter_09_start:
     melia "Eu poderia queimar tudo. Seria rápido. Mas queimaria a memória das sementes, dos jardineiros, do que esta cidade cultivou antes de mim."
     ivo "Então não vamos chamar rapidez de solução."
 
+    "A raiz desperta e procura a lembrança mais dolorosa de cada pessoa na estufa. Mélia segura a seiva com as duas mãos; se ela soltar, o jardim inteiro aprende a atacar."
+    call juramento_confronto("Raiz de memória", 3, "Mélia", "roots")
+    if combat_result == "won":
+        $ melia_affinity += 1
+        melia "Você não venceu a raiz. Lembrou a ela que viver não é apertar tudo que se ama."
+    else:
+        $ ivo_integrity -= 1
+        melia "Nós a mantivemos de pé, mas algumas lembranças vão precisar de cuidado depois. Não esconda isso de ninguém."
+
     menu:
         "Mélia pede uma decisão. Ivo responde:"
 

@@ -56,7 +56,7 @@ label chapter_10_start:
     "O sacerdote Hieron não estava ali. Em seu lugar, uma comissão de cidadãos aguardava acima, pronta para exigir que Lyra se calasse para sempre ou cantasse sob controle. Duas formas diferentes de pedir que ela não fosse pessoa."
 
     "Sob as placas do templo, os sinos proibidos começam a vibrar. Eles não pedem uma canção; pedem que alguém decida quem tem direito a ser ouvido."
-    call juramento_confronto("Sinos do silêncio", 3, "Lyra")
+    call juramento_confronto("Sinos do silêncio", 3, "Lyra", "song")
     if combat_result == "won":
         $ lyra_affinity += 1
         lyra "Você não abafou o ruído. Deu a cada voz um lugar onde ela não precisava gritar."

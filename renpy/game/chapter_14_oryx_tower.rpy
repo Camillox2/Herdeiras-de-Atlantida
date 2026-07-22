@@ -69,7 +69,7 @@ label chapter_14_start:
     collector "Quero que você me prove errado."
 
     "Um fragmento da máscara se desprende da lente e tenta repetir os gestos que fizeram o outro Ivo ceder. Cássia segura a respiração, esperando que desta vez a resposta seja escolha, não destino."
-    call juramento_confronto("Fragmento da Máscara", 4, "Cássia")
+    call juramento_confronto("Fragmento da Máscara", 4, "Cássia", "stars")
     if combat_result == "won":
         $ cassia_affinity += 1
         cassia "Você acabou de transformar uma previsão em evidência. É bem diferente."

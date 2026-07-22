@@ -21,7 +21,7 @@ label chapter_11_start:
     "Akris não estava sob ataque de um exército; era isso que tornava tudo pior. As estradas permaneciam vazias, enquanto mensagens chegavam sem parar. Todas anunciavam uma cidade vizinha rendida e exigiam que Thalia fechasse os portões antes que o medo aprendesse a entrar."
 
     "Quando os sinos da muralha falham ao mesmo tempo, figuras de bronze surgem na névoa do vale. Não vieram conquistar Akris; vieram fazê-la escolher quem abandona primeiro."
-    call juramento_confronto("Arautos de bronze", 3, "Thalia")
+    call juramento_confronto("Arautos de bronze", 3, "Thalia", "fortress")
     if combat_result == "won":
         $ thalia_affinity += 1
         "Thalia vê a muralha permanecer aberta tempo suficiente para os últimos refugiados cruzarem. Ela não agradece; apenas fica ao lado de Ivo quando a fumaça baixa."

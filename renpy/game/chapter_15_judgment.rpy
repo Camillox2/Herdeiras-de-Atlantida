@@ -55,6 +55,14 @@ label chapter_15_start:
             $ ending_route = "domínio"
             jump ending_drowned
 
+    "A sétima cadeira se fecha em torno do círculo e tenta condensar todas as escolhas numa única ordem. O Salão não pede uma resposta bonita; pede que o grupo prove, sob pressão, que o juramento não pertence a Ivo sozinho."
+    call juramento_confronto("A Cadeira Sétima", 6, "As Seis Herdeiras", "final", 4)
+    if combat_result == "won":
+        "A cadeira se abre em sete fragmentos sem dono. Nenhuma mão recebe coroa; cada uma recebe uma parte do peso."
+    else:
+        $ ivo_integrity -= 1
+        "A cadeira racha, mas deixa uma cicatriz no mármore. A aliança sobrevive porque ninguém finge que a pressão não existiu."
+
     "As memórias não desapareceram. Tornaram-se suportáveis. Ariane deixou a fita vermelha na cadeira da chama; Nerissa derramou água na da onda; Mélia colocou uma semente na da raiz; Lyra pousou uma corda da lira na da voz; Thalia deixou a máscara sobre a muralha; Cássia alinhou o astrolábio à estrela."
     "A Marca de Ivo se abriu em sete fios. Um para cada herdeira. O último ficou no próprio pulso, não como coroa, mas como lembrança de que estar no centro não significava estar acima."
 

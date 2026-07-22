@@ -53,7 +53,7 @@ label chapter_08_start:
             "Dentro do farol, Ivo encontrou um sino de bronze preso à lente. A inscrição não invocava maré; invocava suspeita. Cada toque fazia qualquer sussurro parecer confissão."
 
     "No farol, os sinos respondem ao medo da praça. Uma corrente tenta se fechar sozinha sobre o único barco com civis."
-    call juramento_confronto("Sinos do bloqueio", 3, "Nerissa")
+    call juramento_confronto("Sinos do bloqueio", 3, "Nerissa", "naval")
     if combat_result == "won":
         $ nerissa_affinity += 1
         nerissa "Você não venceu para mim. Fez a cidade perceber que podia segurar a própria linha."

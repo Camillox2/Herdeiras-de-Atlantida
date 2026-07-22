@@ -97,11 +97,49 @@ default cassia_crisis = ""
 default unlocked_gallery = ["Ariane", "Nerissa"]
 default unlocked_cgs = []
 default combat_focus = 0
+default combat_focus_limit = 3
 default combat_enemy = 0
 default combat_companion = ""
 default combat_result = ""
+default combat_style = "base"
+default combat_phase = ""
+default combat_action_labels = []
+default combat_action_texts = []
 
 init python:
+    def combat_profile_for(style):
+        profiles = {
+            "naval": {
+                "labels": ["Ler as correntes — abrir uma rota sem expor os civis.", "Desafinar o sino — atingir o encanto na fonte.", "Segurar o convés — cobrir Nerissa enquanto ela manobra."],
+                "texts": ["Ivo segue a corrente menor e transforma pânico em passagem. A cidade vê uma saída que não exige sacrificar ninguém.", "A Marca encontra a vibração falsa no bronze. O golpe é preciso, mas cobra foco demais.", "Ivo toma a posição exposta e Nerissa ganha segundos para guiar o barco para fora da linha de fogo."],
+            },
+            "roots": {
+                "labels": ["Acalmar a seiva — separar memória de sentença.", "Cortar o nó de bronze — atacar o sino na raiz.", "Proteger as mudas — dar tempo para Mélia replantar."],
+                "texts": ["Ivo nomeia as lembranças em vez de expulsá-las. A seiva perde a necessidade de apertar quem sofre.", "A Marca encontra o bronze escondido dentro da raiz. O corte é eficaz, mas deixa o pulso de Ivo em brasa.", "Ivo segura as raízes que avançam enquanto Mélia transforma perigo em novas mudas."],
+            },
+            "song": {
+                "labels": ["Ouvir o contraponto — encontrar as vozes apagadas.", "Quebrar o compasso — atingir o ritmo dos sinos.", "Abrir espaço para Lyra — proteger uma nota sem dono."],
+                "texts": ["Ivo escuta as pausas entre os sinos; nelas, as vozes da praça voltam a existir.", "A Marca quebra o ritmo imposto ao templo. Funciona, mas quase deixa Ivo sem fôlego.", "Ivo sustenta o silêncio necessário para que Lyra escolha a própria nota, sem comando nem permissão."],
+            },
+            "fortress": {
+                "labels": ["Redistribuir a linha — dar uma função a cada vigia.", "Abrir a brecha — desmontar o padrão dos arautos.", "Ficar no portão — proteger Thalia e os refugiados."],
+                "texts": ["Ivo transforma soldados e civis em uma linha que protege sem fechar a cidade.", "A Marca localiza a falha na formação de bronze. O esforço deixa o campo aberto por um instante.", "Ivo fica entre a névoa e o portão; Thalia pode escolher uma rota sem abandonar quem chegou tarde."],
+            },
+            "stars": {
+                "labels": ["Fixar o presente — separar previsão de destino.", "Rasgar a repetição — atingir o gesto da máscara.", "Cobrir Cássia — guardar tempo para ela recalcular."],
+                "texts": ["Ivo recusa a imagem mais fácil do futuro. A previsão se torna apenas uma possibilidade entre muitas.", "A Marca corta o padrão que a máscara repete. É rápido e perigoso, como enfrentar a própria sombra.", "Ivo impede que o fragmento alcance Cássia enquanto ela encontra a única linha de futuro que não exige uma vítima."],
+            },
+            "final": {
+                "labels": ["Unir os fios — reafirmar que ninguém carrega o juramento sozinho.", "Expor a mentira — atacar a regra que exige uma vítima.", "Guardar uma cadeira — proteger o elo mais abalado do grupo."],
+                "texts": ["Ivo chama cada herdeira pelo que ela escolheu ser. Os fios se unem sem se amarrar uns aos outros.", "A Marca alcança a regra escondida na cadeira: eficiência não é justiça. O impacto cobra um preço.", "Ivo recusa deixar o elo mais frágil virar custo do grupo. A cadeira perde uma peça que achava garantida."],
+            },
+            "base": {
+                "labels": ["Ancorar o grupo — reduzir a pressão sem ferir ninguém.", "Ler a abertura — atacar o mecanismo por trás da ameaça.", "Proteger a companheira — trocar vantagem por segurança."],
+                "texts": ["Ivo recusa o ritmo que o inimigo impõe. A linha de defesa se fecha como promessa de que ninguém será deixado para trás.", "A Marca encontra o ponto onde o medo foi transformado em ordem. O golpe funciona, mas cobra concentração demais.", "Ivo escolhe a posição mais difícil e abre espaço para a companheira respirar. A formação não perde ninguém."],
+            },
+        }
+        return profiles.get(style, profiles["base"])
+
     def bond_rank(points):
         if points >= 7:
             return "Laço profundo"

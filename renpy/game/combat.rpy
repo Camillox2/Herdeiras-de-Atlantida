@@ -1,33 +1,44 @@
-# Confrontos de Juramento: combate tático curto que privilegia escolhas e
-# vínculos, em vez de grind. Cada ação tem custo, benefício e consequência.
+# Confrontos de Juramento: escolhas táticas curtas, cada uma adaptada ao lugar
+# e à herdeira presente. Não há grind, nem derrota automática.
 
-label juramento_confronto(enemy_name, enemy_resolve, companion_name):
-    $ combat_focus = 3
+label juramento_confronto(enemy_name, enemy_resolve, companion_name, style="base", focus_limit=3):
+    $ combat_focus_limit = focus_limit
+    $ combat_focus = focus_limit
     $ combat_enemy = enemy_resolve
     $ combat_companion = companion_name
+    $ combat_style = style
+    $ combat_phase = "Fase I — Resistir juntos" if style == "final" else ""
     $ combat_result = ""
+    $ profile = combat_profile_for(style)
+    $ combat_action_labels = profile["labels"]
+    $ combat_action_texts = profile["texts"]
     show screen combat_hud(enemy_name)
 
     while combat_focus > 0 and combat_enemy > 0:
         menu:
             "Confronto: qual é a próxima ação de Ivo?"
 
-            "Ancorar o grupo — reduzir a pressão sem ferir ninguém.":
+            "[combat_action_labels[0]]":
                 $ combat_enemy -= 1
                 $ ivo_compassion += 1
-                "Ivo recusa o ritmo que o inimigo impõe. A linha de defesa se fecha, não como muralha, mas como promessa de que ninguém será deixado para trás."
+                "[combat_action_texts[0]]"
 
-            "Ler a abertura — atacar o mecanismo por trás da ameaça.":
+            "[combat_action_labels[1]]":
                 $ combat_enemy -= 2
                 $ combat_focus -= 1
                 $ ivo_honesty += 1
-                "A Marca encontra o ponto onde o medo foi transformado em ordem. O golpe funciona, mas cobra concentração demais."
+                "[combat_action_texts[1]]"
 
-            "Proteger [combat_companion] — trocar vantagem por segurança.":
-                $ combat_focus += 1
+            "[combat_action_labels[2]]":
+                $ combat_focus = min(combat_focus_limit, combat_focus + 1)
                 $ combat_enemy -= 1
                 $ ivo_courage += 1
-                "Ivo escolhe a posição mais difícil e abre espaço para [combat_companion] respirar. A formação perde terreno, mas não perde ninguém."
+                "[combat_action_texts[2]]"
+
+        if combat_style == "final" and combat_enemy > 0 and combat_enemy <= 3 and combat_phase == "Fase I — Resistir juntos":
+            $ combat_phase = "Fase II — Recusar a cadeira"
+            $ combat_focus = min(combat_focus_limit, combat_focus + 1)
+            "A cadeira sétima muda de forma e oferece a Ivo uma vitória rápida em troca de uma ausência. As seis herdeiras respondem antes dele: ninguém será deixado como preço."
 
     hide screen combat_hud
     if combat_enemy <= 0:

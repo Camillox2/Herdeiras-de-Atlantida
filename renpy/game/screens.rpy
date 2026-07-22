@@ -447,7 +447,9 @@ screen combat_hud(enemy_name):
                 text enemy_name style "say_label"
             vbox:
                 xalign 1.0
-                text _("Foco: [combat_focus]/3") xalign 1.0
+                if combat_phase:
+                    text "[combat_phase]" style "menu_kicker" xalign 1.0
+                text _("Foco: [combat_focus]/[combat_focus_limit]") xalign 1.0
                 text _("Pressão inimiga: [combat_enemy]") xalign 1.0
 
 screen confirm(message, yes_action, no_action):
