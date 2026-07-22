@@ -1,5 +1,5 @@
 define config.name = _("Herdeiras de Atlântida")
-define config.version = "0.3.3-cenas-opcionais-ariane-nerissa"
+define config.version = "0.3.4-cenas-opcionais-ariane-nerissa-melia"
 define build.name = "HerdeirasDeAtlantidaVN"
 
 define config.has_sound = True

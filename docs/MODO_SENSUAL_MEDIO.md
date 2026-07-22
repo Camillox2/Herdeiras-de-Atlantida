@@ -25,8 +25,8 @@ como erotização.
    emocional, sem conteúdo explícito.
 2. **Nerissa — Termas de Nereu:** traje de banho naval azul, mar ao fundo e
    diálogo em que ela aprende a pedir companhia em vez de dar uma ordem.
-3. **Mélia — Estufa à noite:** intimidade calma, folhas luminosas e água de
-   chuva; foco em confiança, não em exposição.
+3. **Mélia — Nascente de Asterion:** traje de banho verde com bordados
+   botânicos, folhas luminosas e uma conversa calma sobre confiança.
 4. **Lyra — Sala de ensaio:** música e pausa; a cena se encerra quando ela
    decide silenciar a canção para ouvir Ivo.
 5. **Thalia — Quarto da muralha:** vulnerabilidade depois de tirar a armadura;

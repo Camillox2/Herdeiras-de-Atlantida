@@ -36,3 +36,21 @@ label sensual_nerissa_bath:
     ivo "Eu também. Podemos aprender devagar."
     "Quando os primeiros sinos do porto soam, ela não se apressa para vestir a armadura de comandante. Apenas segura a mão dele e olha o céu clarear."
     return
+
+
+label sensual_melia_spring:
+    if not persistent.sensual_mode:
+        return
+
+    scene cg sensual_melia_spring
+    with dissolve
+    play ambience "audio/ambience/observatory_stars.wav" fadeout 0.5 fadein 0.5
+
+    "Mélia encontra uma nascente escondida no jardim de Asterion, onde a água morna corre entre raízes luminosas. Ela diz que as plantas não contam segredos, mas sorri como quem espera que Ivo não teste a teoria."
+    melia "Trouxe uma flor. Não como presente. Ela fica melhor fora da terra por alguns minutos."
+    ivo "Então hoje somos os dois tentando ficar bem fora do lugar de costume."
+    "Mélia aceita a flor de volta e aproxima a mão da dele, esperando que ele feche a distância por escolha própria."
+    melia "Gosto quando você pergunta sem transformar tudo em obrigação."
+    ivo "Gosto quando você me deixa escolher onde ficar."
+    "A água reflete os dois entre folhas e lanternas. Por alguns minutos, nada precisa crescer depressa — nem a confiança, nem o futuro."
+    return

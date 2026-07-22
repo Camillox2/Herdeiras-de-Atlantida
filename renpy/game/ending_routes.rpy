@@ -113,6 +113,8 @@ label ending_melia:
     scene cg kiss_melia
     with dissolve
     "Mélia ri, molhada de chuva, e o beija entre as mudas recém-cobertas. Por um instante, crescer não parece uma ordem nem uma dívida."
+    if persistent.sensual_mode:
+        call sensual_melia_spring
     "Quando a chuva chega, os dois correm para cobrir as mudas e riem da inutilidade do gesto. Algumas coisas precisam molhar para crescer."
     jump ending_credits
 
