@@ -106,6 +106,9 @@ label chapter_08_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 9 — As Raízes que Lembram":
+            jump chapter_09_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_08_summary

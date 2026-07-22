@@ -45,6 +45,7 @@ default chapter_05_completed = False
 default chapter_06_completed = False
 default chapter_07_completed = False
 default chapter_08_completed = False
+default chapter_09_completed = False
 default nereu_lead = ""
 default asterion_choice = ""
 default lyria_choice = ""
@@ -65,6 +66,8 @@ default arc_2_priority = ""
 default trusted_polemon_again = False
 default nereu_decision = ""
 default trusted_nerissa_command = False
+default asterion_response = ""
+default trusted_melia_seed = False
 default unlocked_gallery = ["Ariane", "Nerissa"]
 
 init python:
@@ -111,12 +114,12 @@ init python:
         global listened_to_echoes, refused_first_echo
         global told_ariane_everything, hid_heirs_from_ariane
         global promised_ariane, warned_ariane, hid_third_echo
-        global nerissa_question, prologue_completed, chapter_01_completed, chapter_02_completed, chapter_03_completed, chapter_04_completed, chapter_05_completed, chapter_06_completed, chapter_07_completed, chapter_08_completed
+        global nerissa_question, prologue_completed, chapter_01_completed, chapter_02_completed, chapter_03_completed, chapter_04_completed, chapter_05_completed, chapter_06_completed, chapter_07_completed, chapter_08_completed, chapter_09_completed
         global nereu_lead, trusted_nerissa_with_coin, protected_ariane_in_nereu
         global heard_melia_name, asterion_choice, lyria_choice, akris_choice, nix_choice
         global trusted_lyra_song, protected_mikon, trusted_thalia_with_map, saved_akris_scouts
         global trusted_cassia_vision, kept_future_secret, first_arc_completed, assembly_choice, arc_2_priority, trusted_polemon_again
-        global nereu_decision, trusted_nerissa_command
+        global nereu_decision, trusted_nerissa_command, asterion_response, trusted_melia_seed
 
         ariane_affinity = 0
         nerissa_affinity = 0
@@ -161,6 +164,7 @@ init python:
         chapter_06_completed = False
         chapter_07_completed = False
         chapter_08_completed = False
+        chapter_09_completed = False
         nereu_lead = ""
         asterion_choice = ""
         lyria_choice = ""
@@ -181,3 +185,5 @@ init python:
         trusted_polemon_again = False
         nereu_decision = ""
         trusted_nerissa_command = False
+        asterion_response = ""
+        trusted_melia_seed = False
