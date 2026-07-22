@@ -56,6 +56,11 @@ label ending_ariane:
     "Ela tenta disfarçar o sorriso; falha com a mesma elegância com que falhara em disfarçar o medo na primeira noite."
     ivo "Ariane, eu não quero que você seja a razão de eu ficar. Quero que seja alguém que eu escolho todos os dias."
     ariane "Então escolha direito. E me deixe escolher também."
+    if "Ariane — Beijo" not in unlocked_cgs:
+        $ unlocked_cgs.append("Ariane — Beijo")
+    scene cg kiss_ariane
+    with dissolve
+    "Ela encosta a testa na dele, espera a resposta no olhar e o beija sob a luz das lanternas. Não como uma promessa que resolve tudo, mas como uma escolha que ambos podem renovar."
     "Eles seguem pela praça, sem profecia e sem testemunhas. Apenas com a promessa menos grandiosa — e mais difícil — que os dois poderiam fazer: voltar um para o outro amanhã."
     jump ending_credits
 
@@ -75,6 +80,11 @@ label ending_nerissa:
     "Nerissa olha o mar. A mão dela encontra a de Ivo sobre a mesa, sem puxá-lo, sem decidir por ele."
     nerissa "Só se você me disser quando eu estiver confundindo cuidado com controle."
     ivo "Só se você me disser quando eu estiver confundindo medo com prudência."
+    if "Nerissa — Beijo" not in unlocked_cgs:
+        $ unlocked_cgs.append("Nerissa — Beijo")
+    scene cg kiss_nerissa
+    with dissolve
+    "Nerissa deixa o chapéu de lado. Antes do primeiro navio sair, ela o beija com a delicadeza de quem aprendeu que proximidade não é comando."
     "A primeira embarcação da manhã parte. Nenhum dos dois a comanda. Ainda assim, os dois ficam."
     jump ending_credits
 
@@ -94,6 +104,11 @@ label ending_melia:
     melia "Eu passei tempo demais achando que precisar de alguém era o mesmo que usar alguém. Com você... eu quero aprender a diferença."
     ivo "A diferença é que eu posso dizer sim. E também posso dizer não."
     melia "Então fica porque quer. Hoje basta."
+    if "Mélia — Beijo" not in unlocked_cgs:
+        $ unlocked_cgs.append("Mélia — Beijo")
+    scene cg kiss_melia
+    with dissolve
+    "Mélia ri, molhada de chuva, e o beija entre as mudas recém-cobertas. Por um instante, crescer não parece uma ordem nem uma dívida."
     "Quando a chuva chega, os dois correm para cobrir as mudas e riem da inutilidade do gesto. Algumas coisas precisam molhar para crescer."
     jump ending_credits
 
@@ -114,6 +129,11 @@ label ending_lyra:
     ivo "Posso ouvir?"
     lyra "Pode. Mas não precisa entender tudo."
     "A melodia vem baixa, imperfeita e viva. No fim, Ivo não aplaude de imediato; apenas segura a mão dela, para que a música tenha onde pousar."
+    if "Lyra — Beijo" not in unlocked_cgs:
+        $ unlocked_cgs.append("Lyra — Beijo")
+    scene cg kiss_lyra
+    with dissolve
+    "Quando a última nota se perde na escadaria, Lyra se aproxima e o beija. Não há plateia, só o som distante de vozes que já não precisam pedir licença para existir."
     jump ending_credits
 
 
@@ -134,6 +154,11 @@ label ending_thalia:
     "Thalia respira fundo, depois ri — curto, surpresa, verdadeiro."
     thalia "Não me faça prometer que vou ficar fácil."
     ivo "Não. Só que vai ficar honesta."
+    if "Thalia — Beijo" not in unlocked_cgs:
+        $ unlocked_cgs.append("Thalia — Beijo")
+    scene cg kiss_thalia
+    with dissolve
+    "Thalia o puxa pela gola, para de hesitar no meio do gesto e o beija diante do portão aberto. Depois, olha para os lados como se a própria cidade pudesse julgá-la — e sorri quando ninguém o faz."
     "Eles atravessam o portão lado a lado, não como uma vitória, mas como uma passagem escolhida."
     jump ending_credits
 
@@ -158,6 +183,11 @@ label ending_cassia:
     ivo "Nem eu."
     cassia "E ainda assim você está aqui."
     ivo "Porque hoje eu quero estar."
+    if "Cássia — Beijo" not in unlocked_cgs:
+        $ unlocked_cgs.append("Cássia — Beijo")
+    scene cg kiss_cassia
+    with dissolve
+    "Cássia fecha o livro, deixa o futuro sem cálculo por uma noite e o beija sob as constelações. Nenhuma equação teria previsto a tranquilidade daquele instante."
     "Cássia guarda o livro e oferece a mão. Pela primeira vez, ela não chama aquilo de previsão. Chama de encontro."
     jump ending_credits
 

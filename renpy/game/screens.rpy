@@ -308,56 +308,40 @@ screen cg_gallery():
                     text _("Cenas liberadas durante a jornada.") style "menu_subtitle"
                 textbutton _("Voltar") action Return() xalign 1.0
 
-            grid 3 1:
-                spacing 28
+            viewport:
+                ysize 650
+                draggable True
+                mousewheel True
+                scrollbars "vertical"
 
-                vbox:
-                    spacing 12
-                    if "O Julgamento" in unlocked_cgs:
-                        imagebutton:
-                            idle Transform("images/cgs/cg_final_judgment.png", size=(520, 292))
-                            hover Transform("images/cgs/cg_final_judgment.png", size=(540, 304))
-                            action Show("cg_viewer", cg="cg final_judgment")
-                        text _("O Julgamento") xalign 0.5
-                    else:
-                        frame:
-                            xsize 520
-                            ysize 292
-                            background Solid("#0b2334")
-                            text _("Memória bloqueada") xalign 0.5 yalign 0.5
-                        text _("???") xalign 0.5
+                grid 3 3:
+                    spacing 28
+                    use cg_card("O Julgamento", "O Julgamento", "cg final_judgment", "images/cgs/cg_final_judgment.png")
+                    use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony.png")
+                    use cg_card("Cássia — Estrelas", "Cássia — Estrelas", "cg cassia_stars", "images/cgs/cg_cassia_stars.png")
+                    use cg_card("Ariane — Beijo", "Ariane — Beijo", "cg kiss_ariane", "images/cgs/cg_kiss_ariane.png")
+                    use cg_card("Nerissa — Beijo", "Nerissa — Beijo", "cg kiss_nerissa", "images/cgs/cg_kiss_nerissa.png")
+                    use cg_card("Mélia — Beijo", "Mélia — Beijo", "cg kiss_melia", "images/cgs/cg_kiss_melia.png")
+                    use cg_card("Lyra — Beijo", "Lyra — Beijo", "cg kiss_lyra", "images/cgs/cg_kiss_lyra.png")
+                    use cg_card("Thalia — Beijo", "Thalia — Beijo", "cg kiss_thalia", "images/cgs/cg_kiss_thalia.png")
+                    use cg_card("Cássia — Beijo", "Cássia — Beijo", "cg kiss_cassia", "images/cgs/cg_kiss_cassia.png")
 
-                vbox:
-                    spacing 12
-                    if "Ariane — Varanda" in unlocked_cgs:
-                        imagebutton:
-                            idle Transform("images/cgs/cg_ariane_balcony.png", size=(520, 292))
-                            hover Transform("images/cgs/cg_ariane_balcony.png", size=(540, 304))
-                            action Show("cg_viewer", cg="cg ariane_balcony")
-                        text _("Ariane — Varanda") xalign 0.5
-                    else:
-                        frame:
-                            xsize 520
-                            ysize 292
-                            background Solid("#0b2334")
-                            text _("Memória bloqueada") xalign 0.5 yalign 0.5
-                        text _("???") xalign 0.5
-
-                vbox:
-                    spacing 12
-                    if "Cássia — Estrelas" in unlocked_cgs:
-                        imagebutton:
-                            idle Transform("images/cgs/cg_cassia_stars.png", size=(520, 292))
-                            hover Transform("images/cgs/cg_cassia_stars.png", size=(540, 304))
-                            action Show("cg_viewer", cg="cg cassia_stars")
-                        text _("Cássia — Estrelas") xalign 0.5
-                    else:
-                        frame:
-                            xsize 520
-                            ysize 292
-                            background Solid("#0b2334")
-                            text _("Memória bloqueada") xalign 0.5 yalign 0.5
-                        text _("???") xalign 0.5
+screen cg_card(unlock_key, caption, cg, thumbnail):
+    vbox:
+        spacing 12
+        if unlock_key in unlocked_cgs:
+            imagebutton:
+                idle Transform(thumbnail, size=(500, 281))
+                hover Transform(thumbnail, size=(520, 292))
+                action Show("cg_viewer", cg=cg)
+            text caption xalign 0.5
+        else:
+            frame:
+                xsize 500
+                ysize 281
+                background Solid("#0b2334")
+                text _("Memória bloqueada") xalign 0.5 yalign 0.5
+            text _("???") xalign 0.5
 
 screen cg_viewer(cg):
     modal True

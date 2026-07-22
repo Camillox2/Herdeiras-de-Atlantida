@@ -32,6 +32,12 @@ image bg mirror_island = Transform("images/backgrounds/bg_mirror_island.png", si
 image cg final_judgment = Transform("images/cgs/cg_final_judgment.png", size=(1920, 1080))
 image cg ariane_balcony = Transform("images/cgs/cg_ariane_balcony.png", size=(1920, 1080))
 image cg cassia_stars = Transform("images/cgs/cg_cassia_stars.png", size=(1920, 1080))
+image cg kiss_ariane = Transform("images/cgs/cg_kiss_ariane.png", size=(1920, 1080))
+image cg kiss_nerissa = Transform("images/cgs/cg_kiss_nerissa.png", size=(1920, 1080))
+image cg kiss_melia = Transform("images/cgs/cg_kiss_melia.png", size=(1920, 1080))
+image cg kiss_lyra = Transform("images/cgs/cg_kiss_lyra.png", size=(1920, 1080))
+image cg kiss_thalia = Transform("images/cgs/cg_kiss_thalia.png", size=(1920, 1080))
+image cg kiss_cassia = Transform("images/cgs/cg_kiss_cassia.png", size=(1920, 1080))
 
 image ivo neutral = "images/characters/ivo.png"
 image ivo wary = "images/characters/ivo_wary.png"
