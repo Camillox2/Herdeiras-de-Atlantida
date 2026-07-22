@@ -325,6 +325,7 @@ screen cg_gallery():
                 grid 3 6:
                     spacing 28
                     use cg_card("O Julgamento", "O Julgamento", "cg final_judgment", "images/cgs/cg_final_judgment.png")
+                    use cg_card("O Verão Escolhido", "O Verão Escolhido", "cg collective_thermal", "images/cgs/cg_collective_thermal.png")
                     use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony_v2.png")
                     use cg_card("Cássia — Estrelas", "Cássia — Estrelas", "cg cassia_stars", "images/cgs/cg_cassia_stars.png")
                     use cg_card("Ariane — Beijo", "Ariane — Beijo", "cg kiss_ariane", "images/cgs/cg_kiss_ariane.png")

@@ -220,6 +220,14 @@ label ending_collective:
     "O vínculo entre eles não é um prêmio pelo fim da jornada. É uma nova jornada, escolhida devagar."
     if legacy_score() >= 8:
         "As pequenas escolhas que os trouxeram até ali não foram esquecidas. Eram precisamente o motivo de cada pessoa acreditar que podia continuar escolhendo."
+
+    if "O Verão Escolhido" not in unlocked_cgs:
+        $ unlocked_cgs.append("O Verão Escolhido")
+    scene cg collective_thermal
+    with dissolve
+    "Semanas depois, a piscina termal da pensão recebe uma noite que ninguém tentou transformar em cerimônia. Há lanternas, água quente e espaço suficiente para que cada pessoa escolha onde ficar."
+    "Ariane beija Ivo primeiro, com a segurança tranquila de quem não precisa disputar atenção. Nerissa finge reclamar da demora antes de puxá-lo pela mão; Mélia ri contra os lábios dele; Lyra transforma o próprio beijo numa nota breve; Thalia o beija como se aceitasse uma vitória difícil; Cássia espera o silêncio certo e fecha os olhos quando ele chega."
+    "As outras não são plateia nem prêmio. Entre provocações, sorrisos e uma vergonha doce que passa depressa, cada uma se aproxima porque quer. O futuro continua aberto — e é justamente por isso que parece deles."
     jump ending_credits
 
 
