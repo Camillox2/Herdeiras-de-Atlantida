@@ -11,53 +11,60 @@ on:
 jobs:
   lint:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Cache Ren'Py SDK
-        id: cache-renpy
-        uses: actions/cache@v4
-        with:
-          path: ${{ runner.temp }}/renpy-8.5.3-sdk
-          key: renpy-sdk-8.5.3-linux-v2
-
-      - name: Download Ren'Py 8.5.3 SDK
-        if: steps.cache-renpy.outputs.cache-hit != 'true'
+      - name: Prepare diagnostic files
         shell: bash
         run: |
-          set -euo pipefail
+          : > "${GITHUB_WORKSPACE}/renpy-lint.txt"
+          : > "${GITHUB_WORKSPACE}/renpy-ci-debug.txt"
+
+      - name: Download SDK and run Ren'Py lint
+        id: renpy_lint
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -o pipefail
+          exec > >(tee -a "${GITHUB_WORKSPACE}/renpy-ci-debug.txt") 2>&1
+
+          echo "Downloading Ren'Py 8.5.3..."
           cd "${RUNNER_TEMP}"
-          curl --fail --location --retry 3 \
+          curl --fail --location --retry 3 --retry-delay 2 \
             --output renpy-sdk.tar.bz2 \
             https://www.renpy.org/dl/release/renpy-8.5.3-sdk.tar.bz2
+
+          echo "Extracting SDK..."
+          rm -rf renpy-8.5.3-sdk
           mkdir -p renpy-8.5.3-sdk
           tar -xjf renpy-sdk.tar.bz2 --strip-components=1 -C renpy-8.5.3-sdk
           chmod +x renpy-8.5.3-sdk/renpy.sh
 
-      - name: Run Ren'Py lint
-        shell: bash
-        run: |
-          set +e
+          echo "Running lint..."
           "${RUNNER_TEMP}/renpy-8.5.3-sdk/renpy.sh" \
             "${GITHUB_WORKSPACE}/renpy" lint \
             "${GITHUB_WORKSPACE}/renpy-lint.txt" \
             --error-code
-          status=$?
-          echo "--- Ren'Py lint report ---"
-          if [ -f "${GITHUB_WORKSPACE}/renpy-lint.txt" ]; then
-            cat "${GITHUB_WORKSPACE}/renpy-lint.txt"
-          else
-            echo "Ren'Py did not produce a lint report."
-          fi
-          exit "$status"
+          lint_status=$?
 
-      - name: Upload lint report
+          echo "--- Ren'Py lint report ---"
+          cat "${GITHUB_WORKSPACE}/renpy-lint.txt"
+          exit "$lint_status"
+
+      - name: Upload lint diagnostics
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: renpy-lint-report
-          path: renpy-lint.txt
-          if-no-files-found: warn
+          name: renpy-lint-diagnostics
+          path: |
+            renpy-lint.txt
+            renpy-ci-debug.txt
+          if-no-files-found: error
+
+      - name: Fail when lint failed
+        if: steps.renpy_lint.outcome == 'failure'
+        shell: bash
+        run: exit 1
