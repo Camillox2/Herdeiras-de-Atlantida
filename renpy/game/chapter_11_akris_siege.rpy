@@ -18,7 +18,7 @@ label chapter_11_start:
         call crisis_lyra
     call late_consequence_ch11
 
-    "Akris não estava sob ataque de um exército. Isso era o que tornava tudo pior. As estradas ao redor da fortaleza estavam vazias; eram as mensagens que chegavam sem parar. Cada uma dizia que a cidade vizinha havia se rendido. Cada uma exigia que Thalia fechasse os portões antes que o medo entrasse."
+    "Akris não estava sob ataque de um exército; era isso que tornava tudo pior. As estradas permaneciam vazias, enquanto mensagens chegavam sem parar. Todas anunciavam uma cidade vizinha rendida e exigiam que Thalia fechasse os portões antes que o medo aprendesse a entrar."
 
     show thalia defensive at portrait_left
     show ivo wary at portrait_bust_right

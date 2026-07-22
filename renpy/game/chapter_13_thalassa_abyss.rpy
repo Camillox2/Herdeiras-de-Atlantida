@@ -12,7 +12,7 @@ label chapter_13_start:
         call crisis_cassia
     call late_consequence_ch13
 
-    "Desta vez, o Salão Afundado não esperava vazio. A água fora dos arcos subia em espirais lentas, carregando pequenos sinos de bronze como se fossem peixes. Cada um tocava sem som."
+    "Desta vez, o Salão Afundado não aguardava vazio. A água além dos arcos subia em espirais lentas, levando pequenos sinos de bronze como peixes sem vida. Todos tocavam sem produzir som."
     "As seis cadeiras continuavam vazias. No centro, porém, uma sétima cadeira havia surgido — feita de máscara derretida e raízes negras."
 
     show cassia vision at portrait_left

@@ -18,7 +18,7 @@ label chapter_09_start:
         call crisis_nerissa
     call late_consequence_ch09
 
-    "Asterion não estava em silêncio. As raízes sob os terraços falavam pela pedra, fazendo portas se abrirem sozinhas e oliveiras deixarem cair frutos salgados. Quem dormia perto dos jardins acordava lembrando da pior coisa que já tinha perdido."
+    "Asterion não estava em silêncio. As raízes falavam através da pedra, abriam portas sem mãos e faziam oliveiras largarem frutos salgados. Quem dormia junto aos jardins acordava carregando a pior perda como se ela tivesse acontecido naquela manhã."
 
     show melia neutral at portrait_left
     show ivo wary at portrait_bust_right

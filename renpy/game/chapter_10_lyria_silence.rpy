@@ -12,7 +12,7 @@ label chapter_10_start:
         call crisis_melia
     call late_consequence_ch10
 
-    "Lýria não fora destruída. Isso teria sido mais simples. As ruas estavam cheias, as janelas abertas e os braseiros acesos — mas ninguém cantava. Até os vendedores aprendiam a anunciar seus peixes com gestos."
+    "Lýria não fora destruída; isso teria sido mais simples. As ruas estavam cheias, janelas abertas e braseiros acesos — mas ninguém cantava. Até os vendedores anunciavam peixe com gestos, como se a própria voz pudesse denunciá-los."
     "Nas colunas do Templo das Marés, placas de bronze declaravam que qualquer canção não autorizada seria tratada como traição."
 
     show lyra worried at portrait_left

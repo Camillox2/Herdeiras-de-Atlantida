@@ -14,7 +14,7 @@ label chapter_15_start:
 
     centered "{size=52}CAPÍTULO 15{/size}\n{size=30}O Julgamento do Juramento{/size}"
 
-    "Quando o Salão Afundado abriu pela última vez, não havia máscara, cadeira ou inimigo à espera. Havia apenas as seis cadeiras vazias, o círculo de luz no chão e a água quieta demais para ser mar."
+    "Quando o Salão Afundado abriu pela última vez, não havia máscara, cadeira central ou inimigo à espera. Restavam as seis cadeiras vazias, o círculo de luz no chão e uma água quieta demais para merecer o nome de mar."
     "Cássia explicou que o juramento não julgava inocência. Julgava disposição: se cada pessoa continuaria tratando as outras como alguém inteiro quando a escolha se tornasse dolorosa."
 
     show ariane neutral at portrait_left

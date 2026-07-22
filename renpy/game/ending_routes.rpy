@@ -140,6 +140,8 @@ label ending_lyra:
     scene cg kiss_lyra
     with dissolve
     "Quando a última nota se perde na escadaria, Lyra se aproxima e o beija. Não há plateia, só o som distante de vozes que já não precisam pedir licença para existir."
+    if persistent.sensual_mode:
+        call sensual_lyra_pavilion
     jump ending_credits
 
 
@@ -165,6 +167,8 @@ label ending_thalia:
     scene cg kiss_thalia
     with dissolve
     "Thalia o puxa pela gola, para de hesitar no meio do gesto e o beija diante do portão aberto. Depois, olha para os lados como se a própria cidade pudesse julgá-la — e sorri quando ninguém o faz."
+    if persistent.sensual_mode:
+        call sensual_thalia_pool
     "Eles atravessam o portão lado a lado, não como uma vitória, mas como uma passagem escolhida."
     jump ending_credits
 
@@ -194,6 +198,8 @@ label ending_cassia:
     scene cg kiss_cassia
     with dissolve
     "Cássia fecha o livro, deixa o futuro sem cálculo por uma noite e o beija sob as constelações. Nenhuma equação teria previsto a tranquilidade daquele instante."
+    if persistent.sensual_mode:
+        call sensual_cassia_observatory
     "Cássia guarda o livro e oferece a mão. Pela primeira vez, ela não chama aquilo de previsão. Chama de encontro."
     jump ending_credits
 

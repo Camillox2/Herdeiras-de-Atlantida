@@ -27,12 +27,11 @@ como erotização.
    diálogo em que ela aprende a pedir companhia em vez de dar uma ordem.
 3. **Mélia — Nascente de Asterion:** traje de banho verde com bordados
    botânicos, folhas luminosas e uma conversa calma sobre confiança.
-4. **Lyra — Sala de ensaio:** música e pausa; a cena se encerra quando ela
-   decide silenciar a canção para ouvir Ivo.
-5. **Thalia — Quarto da muralha:** vulnerabilidade depois de tirar a armadura;
-   um convite direto, respeitado sem insistência.
-6. **Cássia — Observatório:** constelações apagadas por uma noite; desejo de
-   viver o presente sem calculá-lo.
+4. **Lyra — Pavilhão lunar:** traje azul-índigo, lira e uma pausa escolhida.
+5. **Thalia — Pátio de Akris:** traje grafite e vermelho, espada deixada de
+   lado e vulnerabilidade sem pressão.
+6. **Cássia — Observatório:** traje azul-noite, constelações refletidas na
+   água e desejo de viver o presente sem calculá-lo.
 
 ## Critério visual
 

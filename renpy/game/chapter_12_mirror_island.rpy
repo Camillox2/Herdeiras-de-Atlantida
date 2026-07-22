@@ -12,7 +12,7 @@ label chapter_12_start:
         call crisis_thalia
     call late_consequence_ch12
 
-    "A Ilha do Espelho não aparecia em mapas porque não estava sempre no mesmo lugar. À noite, a lagoa refletia um céu que Nix nunca tinha visto; ao amanhecer, cada ruína mostrava uma versão do visitante que fizera uma escolha diferente."
+    "A Ilha do Espelho não aparecia em mapas porque se recusava a permanecer no mesmo lugar. À noite, a lagoa refletia um céu que Nix nunca conhecera; ao amanhecer, cada ruína devolvia uma versão de quem tinha escolhido diferente."
 
     show cassia vision at portrait_left
     show ivo wary at portrait_bust_right

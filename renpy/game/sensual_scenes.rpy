@@ -54,3 +54,39 @@ label sensual_melia_spring:
     ivo "Gosto quando você me deixa escolher onde ficar."
     "A água reflete os dois entre folhas e lanternas. Por alguns minutos, nada precisa crescer depressa — nem a confiança, nem o futuro."
     return
+
+
+label sensual_lyra_pavilion:
+    if not persistent.sensual_mode:
+        return
+    scene cg sensual_lyra_pavilion
+    with dissolve
+    "Lyra escolhe o pavilhão vazio depois que a cidade adormece. A lira fica entre os dois, mas nenhuma canção precisa preencher o silêncio."
+    lyra "Eu costumava achar que, se parasse de cantar, alguém iria embora."
+    ivo "Eu fico mesmo quando você só quer respirar."
+    "Ela sorri, encosta a mão na dele e deixa uma única nota atravessar a água. Desta vez, é uma escolha pequena — e inteiramente sua."
+    return
+
+
+label sensual_thalia_pool:
+    if not persistent.sensual_mode:
+        return
+    scene cg sensual_thalia_pool
+    with dissolve
+    "No pátio silencioso de Akris, Thalia deixa espada e botas de lado antes de entrar na água. O gesto parece mais corajoso do que qualquer batalha."
+    thalia "Não comenta que estou relaxando. Tenho reputação."
+    ivo "Seu segredo está seguro."
+    "Ela aceita a toalha com um meio sorriso e fica perto sem procurar uma desculpa estratégica para isso."
+    return
+
+
+label sensual_cassia_observatory:
+    if not persistent.sensual_mode:
+        return
+    scene cg sensual_cassia_observatory
+    with dissolve
+    "Cássia mergulha o astrolábio na água do observatório e as constelações se quebram em linhas brilhantes ao redor dos dois."
+    cassia "Por uma noite, eu gostaria de não calcular a próxima coisa que vai acontecer."
+    ivo "Então não calcula. Fica aqui comigo agora."
+    "Ela solta o astrolábio, segura a mão dele e permite que o céu permaneça sem resposta."
+    return

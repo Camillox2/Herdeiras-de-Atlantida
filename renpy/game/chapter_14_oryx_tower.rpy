@@ -16,7 +16,7 @@ label chapter_14_start:
     play sound "audio/sfx/moiras_chime.wav"
     "A superfície negra entre as pedras devolve duas silhuetas que a mesma escolha poderia ter produzido. Ivo não olha para o reflexo por muito tempo."
 
-    "A Torre de Oryx não tinha portas. Tinha uma escada que terminava em céu aberto, e no topo uma lente voltada para uma estrela que não existia. Cássia jurou que a torre não podia estar de pé; ainda assim, cada degrau reconhecia os passos de Ivo antes que ele os desse."
+    "A Torre de Oryx não tinha portas. Tinha uma escada que terminava em céu aberto e, no topo, uma lente voltada para uma estrela inexistente. Cássia jurou que a torre não podia estar de pé; ainda assim, cada degrau reconhecia os passos de Ivo antes que ele os desse."
 
     show cassia vision at portrait_left
     show ivo wary at portrait_bust_right

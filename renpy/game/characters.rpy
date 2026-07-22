@@ -36,6 +36,17 @@ image cg kiss_ariane = Transform("images/cgs/cg_kiss_ariane.png", size=(1920, 10
 image cg sensual_ariane_bath = Transform("images/cgs/cg_sensual_ariane_bath.png", size=(1920, 1080))
 image cg sensual_nerissa_bath = Transform("images/cgs/cg_sensual_nerissa_bath.png", size=(1920, 1080))
 image cg sensual_melia_spring = Transform("images/cgs/cg_sensual_melia_spring.png", size=(1920, 1080))
+image cg sensual_lyra_pavilion = Transform("images/cgs/cg_sensual_lyra_pavilion.png", size=(1920, 1080))
+image cg sensual_thalia_pool = Transform("images/cgs/cg_sensual_thalia_pool.png", size=(1920, 1080))
+image cg sensual_cassia_observatory = Transform("images/cgs/cg_sensual_cassia_observatory.png", size=(1920, 1080))
+
+# Pequena respiração visual nos retratos de diálogo, para que o elenco não
+# pareça completamente imóvel durante conversas longas.
+transform portrait_breath:
+    yoffset 0
+    linear 1.7 yoffset -3
+    linear 1.7 yoffset 0
+    repeat
 image cg kiss_nerissa = Transform("images/cgs/cg_kiss_nerissa.png", size=(1920, 1080))
 image cg kiss_melia = Transform("images/cgs/cg_kiss_melia.png", size=(1920, 1080))
 image cg kiss_lyra = Transform("images/cgs/cg_kiss_lyra.png", size=(1920, 1080))
