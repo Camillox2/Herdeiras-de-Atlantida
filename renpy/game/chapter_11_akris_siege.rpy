@@ -6,6 +6,12 @@ label chapter_11_start:
     with fade
     play music "audio/music/agora_of_columns.wav" fadeout 1.0 fadein 1.2
 
+    if "O Cerco de Akris" not in unlocked_cgs:
+        $ unlocked_cgs.append("O Cerco de Akris")
+
+    scene cg akris_siege
+    with dissolve
+
     centered "{size=52}CAPÍTULO 11{/size}\n{size=30}A Muralha e o Cerco{/size}"
 
     "Akris não estava sob ataque de um exército. Isso era o que tornava tudo pior. As estradas ao redor da fortaleza estavam vazias; eram as mensagens que chegavam sem parar. Cada uma dizia que a cidade vizinha havia se rendido. Cada uma exigia que Thalia fechasse os portões antes que o medo entrasse."
@@ -84,7 +90,7 @@ label chapter_11_start:
     ivo "O que acontece agora?"
     thalia "Agora perguntamos quem está produzindo os sinos. E por que toda estrada leva para o mesmo ponto."
 
-    "No mapa, um quarto lugar brilhou entre as cidades: uma ilha que não constava em rota alguma, coberta pelo mesmo símbolo da coroa partida. Cassia reconheceu a marca em uma carta enviada por pombo."
+    "No mapa, um quarto lugar brilhou entre as cidades: uma ilha que não constava em rota alguma, coberta pelo mesmo símbolo da coroa partida. Cássia reconheceu a marca em uma carta enviada por pombo."
     thalia "Ela chama de Ilha do Espelho. Diz que o Coletor está procurando algo lá antes de nós."
 
     $ chapter_11_completed = True
@@ -99,7 +105,7 @@ label chapter_11_summary:
     centered "{size=54}FIM DO CAPÍTULO 11{/size}\n\n{size=30}Akris abriu os portões sem se render ao medo.{/size}"
 
     "Vínculo com Thalia: [bond_rank(thalia_affinity)]."
-    "A próxima rota aponta para Cassia e a Ilha do Espelho."
+    "A próxima rota aponta para Cássia e a Ilha do Espelho."
 
     menu:
         "O que deseja fazer?"

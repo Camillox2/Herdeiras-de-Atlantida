@@ -66,7 +66,7 @@ label chapter_04_start:
 
     "Thalia abriu uma gaveta e retirou um pequeno mapa de cobre. O mesmo desenho de três fios cruzava uma torre no extremo norte."
     thalia "Meu pai guardava isto como segredo militar. Depois que ele morreu, descobri que era uma rota para o Observatório de Nix."
-    lyra "Cassia procura respostas em observatórios. Se ela está lá, não será coincidência."
+    lyra "Cássia procura respostas em observatórios. Se ela está lá, não será coincidência."
 
     menu:
         "O que Ivo pede a Thalia?"
@@ -145,7 +145,7 @@ label chapter_04_start:
 
     "O mapa de cobre se abriu sozinho sobre a mesa. A torre de Nix brilhava, e um novo traço surgiu ao lado dela: uma constelação partida em duas."
     moira_voice "A observadora vê aquilo que os outros escolhem esquecer."
-    lyra "Cassia."
+    lyra "Cássia."
     thalia "Então vamos buscá-la antes que alguém transforme a visão dela numa arma."
 
     $ chapter_04_completed = True
@@ -162,7 +162,7 @@ label chapter_04_summary:
     centered "{size=54}FIM DO CAPÍTULO 4{/size}\n\n{size=30}Uma muralha não precisa ser uma prisão.{/size}"
 
     "Vínculo com Thalia: [bond_rank(thalia_affinity)]."
-    "A próxima rota aponta para Cassia e o Observatório de Nix."
+    "A próxima rota aponta para Cássia e o Observatório de Nix."
 
     menu:
         "O que deseja fazer?"

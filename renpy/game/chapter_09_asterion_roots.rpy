@@ -6,6 +6,12 @@ label chapter_09_start:
     with fade
     play music "audio/music/agora_of_columns.wav" fadeout 1.0 fadein 1.2
 
+    if "As Raízes" not in unlocked_cgs:
+        $ unlocked_cgs.append("As Raízes")
+
+    scene cg asterion_roots
+    with dissolve
+
     centered "{size=52}CAPÍTULO 9{/size}\n{size=30}As Raízes que Lembram{/size}"
 
     "Asterion não estava em silêncio. As raízes sob os terraços falavam pela pedra, fazendo portas se abrirem sozinhas e oliveiras deixarem cair frutos salgados. Quem dormia perto dos jardins acordava lembrando da pior coisa que já tinha perdido."

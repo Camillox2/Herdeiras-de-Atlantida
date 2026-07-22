@@ -15,7 +15,7 @@ label chapter_15_start:
     centered "{size=52}CAPÍTULO 15{/size}\n{size=30}O Julgamento do Juramento{/size}"
 
     "Quando o Salão Afundado abriu pela última vez, não havia máscara, cadeira ou inimigo à espera. Havia apenas as seis cadeiras vazias, o círculo de luz no chão e a água quieta demais para ser mar."
-    "Cassia explicou que o juramento não julgava inocência. Julgava disposição: se cada pessoa continuaria tratando as outras como alguém inteiro quando a escolha se tornasse dolorosa."
+    "Cássia explicou que o juramento não julgava inocência. Julgava disposição: se cada pessoa continuaria tratando as outras como alguém inteiro quando a escolha se tornasse dolorosa."
 
     show ariane neutral at portrait_left
     show ivo neutral at portrait_bust_center
@@ -26,7 +26,7 @@ label chapter_15_start:
     ivo "E se a resposta for ruim?"
     cassia "Então ela ainda é uma resposta. O perigo começa quando alguém tenta escondê-la em nome de todos."
 
-    "O círculo acendeu. Cada cadeira mostrou uma memória, não como punição, mas como porta. Ariane viu a família que não conseguiu salvar. Nerissa, os portões fechados. Mélia, a primeira semente enterrada por medo. Lyra, uma voz proibida. Thalia, a ponte. Cassia, a versão de si mesma sozinha."
+    "O círculo acendeu. Cada cadeira mostrou uma memória, não como punição, mas como porta. Ariane viu a família que não conseguiu salvar. Nerissa, os portões fechados. Mélia, a primeira semente enterrada por medo. Lyra, uma voz proibida. Thalia, a ponte. Cássia, a versão de si mesma sozinha."
 
     menu:
         "O juramento pede a Ivo uma regra para o grupo. Ele escolhe:"
@@ -49,7 +49,7 @@ label chapter_15_start:
             ivo "Quem dá uma ordem olha para quem vai pagar por ela. Se não consegue, não dá a ordem."
             "Thalia assentiu. Não como soldado diante de um comando, mas como alguém que reconhecia uma regra que teria mudado uma vida inteira."
 
-    "As memórias não desapareceram. Tornaram-se suportáveis. Ariane deixou a fita vermelha na cadeira da chama; Nerissa derramou água na da onda; Mélia colocou uma semente na da raiz; Lyra pousou uma corda da lira na da voz; Thalia deixou a máscara sobre a muralha; Cassia alinhou o astrolábio à estrela."
+    "As memórias não desapareceram. Tornaram-se suportáveis. Ariane deixou a fita vermelha na cadeira da chama; Nerissa derramou água na da onda; Mélia colocou uma semente na da raiz; Lyra pousou uma corda da lira na da voz; Thalia deixou a máscara sobre a muralha; Cássia alinhou o astrolábio à estrela."
     "A Marca de Ivo se abriu em sete fios. Um para cada herdeira. O último ficou no próprio pulso, não como coroa, mas como lembrança de que estar no centro não significava estar acima."
 
     show lyra neutral at portrait_left

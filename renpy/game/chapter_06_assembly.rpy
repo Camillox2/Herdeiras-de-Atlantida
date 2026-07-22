@@ -21,7 +21,7 @@ label chapter_06_start:
     ivo "Essa função parece muito disputada."
     ariane "Você não imagina."
 
-    "A porta de água se abriu mais uma vez. Mélia entrou carregando uma raiz enrolada em pano úmido; Lyra, com a mão sobre a lira; Thalia, sem a máscara no rosto; e Cassia, com o astrolábio apagado pela primeira vez."
+    "A porta de água se abriu mais uma vez. Mélia entrou carregando uma raiz enrolada em pano úmido; Lyra, com a mão sobre a lira; Thalia, sem a máscara no rosto; e Cássia, com o astrolábio apagado pela primeira vez."
     hide nerissa
     show melia neutral at portrait_left
     show lyra neutral at portrait_center
@@ -73,7 +73,7 @@ label chapter_06_start:
             thalia "Também é uma boa forma de descobrir quem fica."
 
     "A Marca de Ivo tocou a mesa. As seis cadeiras responderam, não com correntes, mas com memórias."
-    "Ariane viu a noite em que escolhera uma família para salvar e outra para abandonar. Nerissa viu o porto fechado por ordem do pai. Mélia viu sementes guardadas no lugar de pessoas. Lyra ouviu todas as últimas palavras que tentara esquecer. Thalia viu o irmão na ponte. Cassia viu versões de si mesma fugindo antes de conhecer qualquer uma delas."
+    "Ariane viu a noite em que escolhera uma família para salvar e outra para abandonar. Nerissa viu o porto fechado por ordem do pai. Mélia viu sementes guardadas no lugar de pessoas. Lyra ouviu todas as últimas palavras que tentara esquecer. Thalia viu o irmão na ponte. Cássia viu versões de si mesma fugindo antes de conhecer qualquer uma delas."
     "E Ivo viu a cidade de onde viera antes do mar. Uma rua comum, luzes de carros no asfalto molhado, um quarto pequeno e a sensação terrível de que ele já não cabia naquela vida sem negar todas as pessoas que agora o olhavam."
 
     show ariane embarrassed at portrait_left
@@ -97,7 +97,7 @@ label chapter_06_start:
             $ melia_affinity += 1
             $ lyra_affinity += 1
             ivo "Não existe uma guardiã. Existem seis pessoas que podem dizer não."
-            "Mélia pousou a raiz no centro; Lyra cantou uma nota livre; Thalia colocou a máscara na mesa; Cassia girou o astrolábio; Nerissa derramou uma gota do mar de Nereu; Ariane cortou a própria fita vermelha em seis partes."
+            "Mélia pousou a raiz no centro; Lyra cantou uma nota livre; Thalia colocou a máscara na mesa; Cássia girou o astrolábio; Nerissa derramou uma gota do mar de Nereu; Ariane cortou a própria fita vermelha em seis partes."
 
         "Usar a Marca como âncora, mas sem escolher uma herdeira.":
             $ first_arc_completed = True

@@ -8,7 +8,7 @@ label chapter_14_start:
 
     centered "{size=52}CAPÍTULO 14{/size}\n{size=30}O Homem que Voltou Tarde Demais{/size}"
 
-    "A Torre de Oryx não tinha portas. Tinha uma escada que terminava em céu aberto, e no topo uma lente voltada para uma estrela que não existia. Cassia jurou que a torre não podia estar de pé; ainda assim, cada degrau reconhecia os passos de Ivo antes que ele os desse."
+    "A Torre de Oryx não tinha portas. Tinha uma escada que terminava em céu aberto, e no topo uma lente voltada para uma estrela que não existia. Cássia jurou que a torre não podia estar de pé; ainda assim, cada degrau reconhecia os passos de Ivo antes que ele os desse."
 
     show cassia vision at portrait_left
     show ivo wary at portrait_bust_right
@@ -84,7 +84,7 @@ label chapter_14_start:
             ivo "Você ficou sozinho e chamou isso de necessidade. Nós não vamos."
             "Ao redor de Ivo, as seis luzes do juramento apareceram. Não eram armas. Eram presenças que a máscara não conseguia converter em cadeira."
 
-    "Por um instante, o homem mais velho pareceu livre da máscara. Ele olhou para o pulso de Ivo, depois para Ariane e Cassia."
+    "Por um instante, o homem mais velho pareceu livre da máscara. Ele olhou para o pulso de Ivo, depois para Ariane e Cássia."
     collector "A torre está segurando a porta entre os mundos. Se ela cair, você pode voltar."
     ivo "E você?"
     collector "Eu fico onde as minhas escolhas terminaram."
@@ -93,7 +93,7 @@ label chapter_14_start:
     collector "Você sempre foi mais difícil do que eu previa."
 
     "A torre começou a se desfazer. O fragmento da máscara não tentou atacar. Tentou alcançar a mão de Ivo, como se pedisse que ele aceitasse a solução rápida mais uma vez."
-    "Ivo fechou os dedos, não para segurá-lo, mas para deixá-lo cair. Ariane cortou o fragmento com a fita vermelha; Cassia prendeu a poeira resultante num anel do astrolábio."
+    "Ivo fechou os dedos, não para segurá-lo, mas para deixá-lo cair. Ariane cortou o fragmento com a fita vermelha; Cássia prendeu a poeira resultante num anel do astrolábio."
     "O futuro de Ivo não desapareceu. Apenas deixou de ocupar a cadeira do presente."
 
     collector "O Salão Afundado vai abrir uma última vez. Quando abrir, o juramento vai exigir não uma cidade — mas a verdade que cada um de vocês esconde de si mesma."

@@ -4,7 +4,7 @@ define nerissa = Character("Nerissa", color="#9ed6ec", image="nerissa")
 define melia = Character("Mélia", color="#87d492", image="melia")
 define lyra = Character("Lyra", color="#f0c76d", image="lyra")
 define thalia = Character("Thalia", color="#ef8d82", image="thalia")
-define cassia = Character("Cassia", color="#bba0df", image="cassia")
+define cassia = Character("Cássia", color="#bba0df", image="cassia")
 define lysandra = Character("Lysandra", color="#dfb48a", image="lysandra")
 define polemon = Character("Pólemon", color="#e2c06f", image="polemon")
 define collector = Character("Coletor", color="#d8848f", image="collector")
@@ -38,6 +38,9 @@ image cg kiss_melia = Transform("images/cgs/cg_kiss_melia.png", size=(1920, 1080
 image cg kiss_lyra = Transform("images/cgs/cg_kiss_lyra.png", size=(1920, 1080))
 image cg kiss_thalia = Transform("images/cgs/cg_kiss_thalia.png", size=(1920, 1080))
 image cg kiss_cassia = Transform("images/cgs/cg_kiss_cassia.png", size=(1920, 1080))
+image cg arrival = Transform("images/cgs/cg_arrival.png", size=(1920, 1080))
+image cg asterion_roots = Transform("images/cgs/cg_asterion_roots.png", size=(1920, 1080))
+image cg akris_siege = Transform("images/cgs/cg_akris_siege.png", size=(1920, 1080))
 
 image ivo neutral = "images/characters/ivo.png"
 image ivo wary = "images/characters/ivo_wary.png"

@@ -20,17 +20,17 @@ label chapter_05_start:
     "Ela ergueu os olhos. Havia medo neles, mas não o medo de quem esperava ser atacada. Era o medo de quem já vira o golpe acontecer."
 
     show thalia neutral at portrait_center
-    thalia "Cassia de Nix. A mulher que o meu pai chamava quando queria que uma previsão dissesse o que ele já tinha decidido fazer."
+    thalia "Cássia de Nix. A mulher que o meu pai chamava quando queria que uma previsão dissesse o que ele já tinha decidido fazer."
     cassia "Seu pai odiava minhas previsões. Elas nunca concordavam com ele."
     thalia "Por isso mesmo."
 
-    "O astrolábio de Cassia girou e projetou seis constelações sobre o chão. Uma era uma onda. Outra, uma raiz. Outra, uma muralha. As três últimas tremiam, incompletas, mas Ivo reconheceu o fio que ligava todas à Marca em seu pulso."
+    "O astrolábio de Cássia girou e projetou seis constelações sobre o chão. Uma era uma onda. Outra, uma raiz. Outra, uma muralha. As três últimas tremiam, incompletas, mas Ivo reconheceu o fio que ligava todas à Marca em seu pulso."
     cassia "A marca não trouxe você para cá. Ela impediu que você morresse em outro lugar."
     ivo "Isso deveria me tranquilizar?"
     cassia "Não. Eu não trabalho com tranquilidade."
 
     menu:
-        "O que Ivo pergunta primeiro a Cassia?"
+        "O que Ivo pergunta primeiro a Cássia?"
 
         "Por que ela não procurou as outras herdeiras antes.":
             $ nix_choice = "isolamento"
@@ -54,7 +54,7 @@ label chapter_05_start:
 
     hide thalia
     show cassia neutral at portrait_left
-    "Cassia levou o grupo até uma lente de cristal suspensa no ar. Dentro dela, Ivo viu uma versão da sala sem ninguém de pé. As constelações haviam caído sobre as pedras como cinzas."
+    "Cássia levou o grupo até uma lente de cristal suspensa no ar. Dentro dela, Ivo viu uma versão da sala sem ninguém de pé. As constelações haviam caído sobre as pedras como cinzas."
     cassia "Esta é a visão que me fez parar de procurar vocês. Não é o futuro. É uma rota possível quando alguém acredita que a escolha já foi feita."
     ivo "E você acredita nisso?"
     cassia "Acredito que previsões são covardes. Elas mostram uma estrada e depois fingem que construíram o mundo."
@@ -67,19 +67,19 @@ label chapter_05_start:
     menu:
         "Diante da visão, Ivo escolhe:"
 
-        "Pedir que Cassia mostre tudo, inclusive o pior.":
+        "Pedir que Cássia mostre tudo, inclusive o pior.":
             $ trusted_cassia_vision = True
             $ cassia_affinity += 2
             $ ivo_honesty += 2
             ivo "Se ela pode nos ferir, eu prefiro conhecê-la inteira. Mas você não precisa carregar isso sozinha."
-            "Cassia inclinou a lente. A visão revelou uma sombra com a máscara do Coletor diante de uma mesa de seis cadeiras. Em uma delas, havia uma faixa vermelha. Em outra, o mapa de cobre de Thalia."
+            "Cássia inclinou a lente. A visão revelou uma sombra com a máscara do Coletor diante de uma mesa de seis cadeiras. Em uma delas, havia uma faixa vermelha. Em outra, o mapa de cobre de Thalia."
             cassia "Ele não quer matar as herdeiras. Quer fazer uma de nós escolher as outras."
 
         "Destruir a lente antes que ela prenda todos à visão.":
             $ ivo_courage += 2
             $ cassia_affinity += 1
             ivo "Uma máquina que só mostra derrotas não merece ser altar."
-            "Ivo ergueu a mão, mas Cassia segurou seu pulso. Não o impediu — apenas fez com que ele enxergasse as fissuras no cristal antes de quebrá-lo."
+            "Ivo ergueu a mão, mas Cássia segurou seu pulso. Não o impediu — apenas fez com que ele enxergasse as fissuras no cristal antes de quebrá-lo."
             cassia "Destrua se quiser. Só saiba que as respostas não vão desaparecer junto."
             "Ivo golpeou a borda. A lente se abriu em rachaduras luminosas, e as constelações enfim deixaram de obedecer ao desenho imposto."
 
@@ -88,7 +88,7 @@ label chapter_05_start:
             $ thalia_affinity += 1
             $ cassia_affinity += 1
             ivo "Ninguém olha sozinho. Se a visão tentar escolher um de nós, ela vai ter que encarar todos."
-            "Ariane ficou à direita de Cassia; Thalia, à esquerda. Três mulheres que haviam passado a vida sendo tratadas como símbolos recusaram, em silêncio, a posição de peça."
+            "Ariane ficou à direita de Cássia; Thalia, à esquerda. Três mulheres que haviam passado a vida sendo tratadas como símbolos recusaram, em silêncio, a posição de peça."
 
     "As engrenagens do observatório pararam. Então voltaram a girar na direção errada. Uma estrela desenhada no teto se apagou, depois outra."
     moira_voice "A sexta cadeira observa."
@@ -104,7 +104,7 @@ label chapter_05_start:
             $ kept_future_secret = False
             $ ivo_compassion += 2
             ivo "Você oferece escolhas falsas e chama isso de liberdade. Não vamos dar nomes ao seu mecanismo."
-            "A sombra sorriu sem boca. Cassia apertou o astrolábio, e uma das estrelas apagadas voltou a acender."
+            "A sombra sorriu sem boca. Cássia apertou o astrolábio, e uma das estrelas apagadas voltou a acender."
 
         "Aceitar ir ao Salão, mas não as regras dele.":
             $ kept_future_secret = True
@@ -113,7 +113,7 @@ label chapter_05_start:
             collector "Todos dizem isso antes de perder algo."
             ivo "Então você vai aprender uma coisa nova."
 
-        "Pedir a Cassia que esconda a visão mais perigosa por enquanto.":
+        "Pedir a Cássia que esconda a visão mais perigosa por enquanto.":
             $ kept_future_secret = True
             $ cassia_affinity += 1
             ivo "Não precisamos despejar cada medo sobre o grupo no mesmo minuto. Guarda o que ainda não conseguimos carregar."
@@ -129,12 +129,12 @@ label chapter_05_start:
     show cassia embarrassed at portrait_emphasis_left
     cassia "Eu disse que não trabalho com tranquilidade. Mas posso trabalhar com companhia."
 
-    "Cassia guardou o astrolábio, não como alguém que esconde uma arma, mas como quem finalmente admite que uma ferramenta pode ser compartilhada."
+    "Cássia guardou o astrolábio, não como alguém que esconde uma arma, mas como quem finalmente admite que uma ferramenta pode ser compartilhada."
     "Nas paredes abertas do observatório, a primeira luz do amanhecer alcançou a constelação da coroa partida. Pela primeira vez, ela não parecia uma previsão de queda. Parecia uma pergunta esperando seis respostas."
 
     $ chapter_05_completed = True
-    if "Cassia" not in unlocked_gallery:
-        $ unlocked_gallery.append("Cassia")
+    if "Cássia" not in unlocked_gallery:
+        $ unlocked_gallery.append("Cássia")
     jump chapter_05_summary
 
 
@@ -145,7 +145,7 @@ label chapter_05_summary:
 
     centered "{size=54}FIM DO CAPÍTULO 5{/size}\n\n{size=30}O futuro foi visto. Não foi aceito.{/size}"
 
-    "Vínculo com Cassia: [bond_rank(cassia_affinity)]."
+    "Vínculo com Cássia: [bond_rank(cassia_affinity)]."
     "As seis herdeiras agora têm uma rota comum: o Salão Afundado."
 
     menu:

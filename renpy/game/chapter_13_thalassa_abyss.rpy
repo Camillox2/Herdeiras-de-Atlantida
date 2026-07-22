@@ -41,21 +41,21 @@ label chapter_13_start:
             $ thalia_affinity += 1
             $ cassia_affinity += 1
             ivo "Cada cidade importa. Ninguém espera uma ordem para ser salvo."
-            "Ariane cortou as cordas de luz, Nerissa guiou as correntes, Mélia acalmou as raízes escuras, Lyra cantou para as bolhas, Thalia segurou os arcos e Cassia encontrou o ponto em que o tempo da água desacelerava."
+            "Ariane cortou as cordas de luz, Nerissa guiou as correntes, Mélia acalmou as raízes escuras, Lyra cantou para as bolhas, Thalia segurou os arcos e Cássia encontrou o ponto em que o tempo da água desacelerava."
 
         "Atacar a cadeira antes que ela transforme os reféns em escolha.":
             $ abyss_choice = "cadeira"
             $ ivo_courage += 2
             ivo "Se a máquina continua falando, cada resgate vira chantagem. Eu paro a máquina."
-            "Ivo avançou. A Marca ardeu, mas Cassia e Ariane seguraram seus braços antes que a cadeira pudesse se fechar em torno dele. O golpe abriu uma fissura, e as bolhas começaram a cair."
+            "Ivo avançou. A Marca ardeu, mas Cássia e Ariane seguraram seus braços antes que a cadeira pudesse se fechar em torno dele. O golpe abriu uma fissura, e as bolhas começaram a cair."
 
-        "Pedir que Cassia revele a rota menos destrutiva.":
+        "Pedir que Cássia revele a rota menos destrutiva.":
             $ abyss_choice = "rota"
             $ trusted_cassia_truth = True
             $ cassia_affinity += 2
             $ ivo_honesty += 1
             ivo "Você não precisa decidir por nós. Só mostra onde a máscara está mentindo."
-            "Cassia girou o astrolábio. A visão mostrou que uma das bolhas era falsa — um espelho criado para fazer o grupo perder tempo enquanto a cadeira tomava a Marca."
+            "Cássia girou o astrolábio. A visão mostrou que uma das bolhas era falsa — um espelho criado para fazer o grupo perder tempo enquanto a cadeira tomava a Marca."
 
     "Quando os últimos reféns tocaram chão seco, a cadeira central rachou. Em vez de desabar, ela projetou uma memória: o primeiro portador da Marca, ajoelhado diante de uma cidade inundada, recusando-se a escolher."
     "Ao redor dele, seis herdeiras da antiga Atlântida tinham dividido a Marca em fragmentos, para que nenhuma pessoa voltasse a carregar a decisão sozinha."
@@ -85,7 +85,7 @@ label chapter_13_start:
         "Perguntar à máscara quem a está usando agora.":
             $ ivo_honesty += 2
             ivo "Você continua falando como ideia. Quem lucra quando esta máscara vence?"
-            "Por um instante, a superfície refletiu uma figura humana no topo de uma torre distante: alguém sem máscara, segurando uma das partes do juramento. A imagem se apagou antes que Cassia reconhecesse o rosto."
+            "Por um instante, a superfície refletiu uma figura humana no topo de uma torre distante: alguém sem máscara, segurando uma das partes do juramento. A imagem se apagou antes que Cássia reconhecesse o rosto."
 
     "A máscara perdeu a cadeira, mas não desapareceu. Um fragmento escuro escapou pela corrente e atravessou o arco exterior, rumo à superfície."
     nerissa "Ele fugiu."

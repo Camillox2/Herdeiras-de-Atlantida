@@ -23,7 +23,7 @@ label chapter_12_start:
     ivo "Uma versão de mim com menos problemas."
     ariane "Parece claramente uma armadilha."
 
-    "Cassia conduziu o grupo até uma coluna quebrada. Dentro dela havia uma máscara de bronze, menor que a do Coletor, coberta de inscrições que mudavam sempre que alguém tentava lê-las."
+    "Cássia conduziu o grupo até uma coluna quebrada. Dentro dela havia uma máscara de bronze, menor que a do Coletor, coberta de inscrições que mudavam sempre que alguém tentava lê-las."
     cassia "O primeiro Coletor não era uma pessoa. Era um cargo. Um guardião criado para preservar cidades escolhendo qual delas podia ser sacrificada."
     ivo "E alguém decidiu que isso era uma boa ideia?"
     cassia "Alguém com medo suficiente para chamar crueldade de matemática."
@@ -31,7 +31,7 @@ label chapter_12_start:
     menu:
         "Como Ivo reage ao segredo da máscara?"
 
-        "Perguntar por que Cassia nunca contou isso.":
+        "Perguntar por que Cássia nunca contou isso.":
             $ mirror_choice = "verdade"
             $ cassia_affinity += 2
             $ ivo_honesty += 1
@@ -50,7 +50,7 @@ label chapter_12_start:
             $ cassia_affinity += 1
             $ ivo_compassion += 2
             ivo "A ilha se alimenta do que a gente esconde. Então não vamos dar isso de graça."
-            "Ariane falou primeiro. Thalia falou por último. Cassia demorou, mas contou que vira a si mesma governando todas as cidades porque não confiava em ninguém mais para ver o futuro."
+            "Ariane falou primeiro. Thalia falou por último. Cássia demorou, mas contou que vira a si mesma governando todas as cidades porque não confiava em ninguém mais para ver o futuro."
 
     "A máscara rachou. De dentro dela não saiu fumaça, mas uma sala antiga: seis pessoas sentadas ao redor de uma mesa, discutindo uma enchente que não podiam deter. Uma voz dizia que uma cidade precisava ser salva; outra respondia que nenhuma cidade valia uma criança deixada do lado de fora."
     "A figura que venceu não usava máscara. Usava a Marca que agora estava no pulso de Ivo."
@@ -64,14 +64,14 @@ label chapter_12_start:
     cassia "Esta é a visão que eu escondi. Não porque ela seja inevitável. Porque eu tinha medo de que ela parecesse conveniente para alguém."
 
     menu:
-        "Diante da pior visão, Ivo responde a Cassia:"
+        "Diante da pior visão, Ivo responde a Cássia:"
 
         "Obrigado por mostrar antes que ela virasse segredo.":
             $ trusted_cassia_truth = True
             $ cassia_affinity += 2
             $ ivo_compassion += 1
             ivo "Ter medo não torna você a máscara. Esconder para sempre talvez tornasse. Você mostrou. Isso muda tudo."
-            "Cassia segurou o astrolábio com menos força. O reflexo de Ivo na lagoa deixou de usar coroa."
+            "Cássia segurou o astrolábio com menos força. O reflexo de Ivo na lagoa deixou de usar coroa."
 
         "Vamos destruir a cadeira antes que alguém possa sentar nela.":
             $ trusted_cassia_truth = True
@@ -109,7 +109,7 @@ label chapter_12_summary:
 
     centered "{size=54}FIM DO CAPÍTULO 12{/size}\n\n{size=30}A máscara não prevê o futuro. Ela tenta convencer alguém a repeti-lo.{/size}"
 
-    "Vínculo com Cassia: [bond_rank(cassia_affinity)]."
+    "Vínculo com Cássia: [bond_rank(cassia_affinity)]."
     "A próxima rota leva ao Abismo de Tálassa, onde o Coletor prepara sua escolha final."
 
     menu:

@@ -5,6 +5,12 @@ label prologue_start:
     with fade
     play music "audio/music/kallipolis_harbor.wav" fadein 1.5
 
+    if "A Chegada" not in unlocked_cgs:
+        $ unlocked_cgs.append("A Chegada")
+
+    scene cg arrival
+    with dissolve
+
     centered "{size=58}PRÓLOGO{/size}\n{size=34}A Marca das Moiras{/size}"
 
     "A última lembrança de Ivo era o convés se partindo sob seus pés."

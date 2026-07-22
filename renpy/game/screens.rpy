@@ -314,7 +314,7 @@ screen cg_gallery():
                 mousewheel True
                 scrollbars "vertical"
 
-                grid 3 3:
+                grid 3 4:
                     spacing 28
                     use cg_card("O Julgamento", "O Julgamento", "cg final_judgment", "images/cgs/cg_final_judgment.png")
                     use cg_card("Ariane — Varanda", "Ariane — Varanda", "cg ariane_balcony", "images/cgs/cg_ariane_balcony.png")
@@ -325,6 +325,9 @@ screen cg_gallery():
                     use cg_card("Lyra — Beijo", "Lyra — Beijo", "cg kiss_lyra", "images/cgs/cg_kiss_lyra.png")
                     use cg_card("Thalia — Beijo", "Thalia — Beijo", "cg kiss_thalia", "images/cgs/cg_kiss_thalia.png")
                     use cg_card("Cássia — Beijo", "Cássia — Beijo", "cg kiss_cassia", "images/cgs/cg_kiss_cassia.png")
+                    use cg_card("A Chegada", "A Chegada", "cg arrival", "images/cgs/cg_arrival.png")
+                    use cg_card("As Raízes", "As Raízes que Lembram", "cg asterion_roots", "images/cgs/cg_asterion_roots.png")
+                    use cg_card("O Cerco de Akris", "O Cerco de Akris", "cg akris_siege", "images/cgs/cg_akris_siege.png")
 
 screen cg_card(unlock_key, caption, cg, thumbnail):
     vbox:
@@ -402,7 +405,7 @@ screen relationships(close_action=Hide("relationships")):
                 ("Mélia", melia_affinity),
                 ("Lyra", lyra_affinity),
                 ("Thalia", thalia_affinity),
-                ("Cassia", cassia_affinity),
+                ("Cássia", cassia_affinity),
             ]:
                 hbox:
                     xfill True
