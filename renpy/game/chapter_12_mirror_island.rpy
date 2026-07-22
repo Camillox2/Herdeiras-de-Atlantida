@@ -115,6 +115,9 @@ label chapter_12_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 13 — O Abismo de Tálassa":
+            jump chapter_13_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_12_summary
