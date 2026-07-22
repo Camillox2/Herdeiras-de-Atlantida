@@ -60,7 +60,9 @@ screen navigation():
         spacing 16
 
         if main_menu:
+            textbutton _("Continuar") style "nav_button" action Continue()
             textbutton _("Começar") style "nav_button" action Start()
+            textbutton _("Carregar") style "nav_button" action ShowMenu("load")
         else:
             textbutton _("Histórico") style "nav_button" action ShowMenu("history")
             textbutton _("Salvar") style "nav_button" action ShowMenu("save")
