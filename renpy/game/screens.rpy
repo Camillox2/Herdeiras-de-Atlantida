@@ -255,44 +255,57 @@ screen preferences():
         ysize 820
 
         vbox:
-            spacing 30
+            spacing 20
 
             hbox:
                 xfill True
                 text _("Preferências") style "menu_title"
                 textbutton _("Voltar") action Return() xalign 1.0
 
-            text _("Exibição") style "say_label"
             hbox:
-                spacing 18
-                textbutton _("Janela") action Preference("display", "window")
-                textbutton _("Tela cheia") action Preference("display", "fullscreen")
+                spacing 48
 
-            text _("Velocidade do texto") style "say_label"
-            bar value Preference("text speed")
+                vbox:
+                    xsize 660
+                    spacing 16
 
-            text _("Avanço automático") style "say_label"
-            bar value Preference("auto-forward time")
+                    text _("Conteúdo") style "say_label"
+                    if persistent.sensual_mode:
+                        textbutton _("CENAS SENSUAIS: ATIVADAS") action ToggleField(persistent, "sensual_mode") xsize 620
+                        text _("Clique para desativar. As extensões românticas aparecem somente em rotas com vínculo e consentimento.") style "menu_subtitle"
+                    else:
+                        textbutton _("CENAS SENSUAIS: DESATIVADAS") action ToggleField(persistent, "sensual_mode") xsize 620
+                        text _("Clique para ativar as extensões românticas opcionais. A história e os requisitos de rota não mudam.") style "menu_subtitle"
 
-            text _("Música") style "say_label"
-            bar value Preference("music volume")
+                    null height 8
+                    text _("Exibição") style "say_label"
+                    hbox:
+                        spacing 18
+                        textbutton _("Janela") action Preference("display", "window")
+                        textbutton _("Tela cheia") action Preference("display", "fullscreen")
 
-            text _("Efeitos") style "say_label"
-            bar value Preference("sound volume")
+                    null height 8
+                    text _("Acessibilidade") style "say_label"
+                    hbox:
+                        spacing 18
+                        textbutton _("Alternar auto") action Preference("auto-forward", "toggle")
+                        textbutton _("Sem transições") action Preference("transitions", "none")
 
-            text _("Conteúdo") style "say_label"
-            if persistent.sensual_mode:
-                textbutton _("Cenas sensuais: ATIVADAS") action ToggleField(persistent, "sensual_mode")
-                text _("Extensões românticas opcionais aparecem apenas em rotas com consentimento e vínculo alto.") style "menu_subtitle"
-            else:
-                textbutton _("Cenas sensuais: DESATIVADAS") action ToggleField(persistent, "sensual_mode")
-                text _("O jogo segue a versão romântica padrão, sem extensões sensuais.") style "menu_subtitle"
+                vbox:
+                    xsize 620
+                    spacing 14
 
-            text _("Acessibilidade") style "say_label"
-            hbox:
-                spacing 18
-                textbutton _("Alternar auto") action Preference("auto-forward", "toggle")
-                textbutton _("Sem transições") action Preference("transitions", "none")
+                    text _("Velocidade do texto") style "say_label"
+                    bar value Preference("text speed") xsize 580
+
+                    text _("Avanço automático") style "say_label"
+                    bar value Preference("auto-forward time") xsize 580
+
+                    text _("Música") style "say_label"
+                    bar value Preference("music volume") xsize 580
+
+                    text _("Efeitos") style "say_label"
+                    bar value Preference("sound volume") xsize 580
 
 screen cg_gallery():
     tag menu
