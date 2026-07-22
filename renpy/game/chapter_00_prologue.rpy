@@ -1,309 +1,459 @@
 label prologue_start:
+    $ reset_prologue_state()
+
     scene bg kallipolis
     with fade
     play music "audio/music/kallipolis_harbor.wav" fadein 1.5
 
     centered "{size=58}PRÓLOGO{/size}\n{size=34}A Marca das Moiras{/size}"
 
-    "O mar devolveu Ivo a Kallípolis sem cerimônia."
-    "Quando abriu os olhos, o sal ardia em seus lábios, sua bolsa estava quase vazia e a cidade branca subia diante dele como uma promessa feita a outra pessoa."
-    "Navios rangiam contra o cais. Gaivotas disputavam restos de peixe. No alto, bandeiras azuis tremulavam entre colunas gastas pelo vento."
+    "A última lembrança de Ivo era o convés se partindo sob seus pés."
+    "Depois vieram o frio, uma voz chamando seu nome de dentro do mar e a certeza impossível de que alguma coisa havia escolhido mantê-lo vivo."
+
+    "Quando despertou, estava deitado entre redes molhadas no cais de Kallípolis."
+    "A cidade subia em pedra branca sobre o porto, bela demais para alguém sem dinheiro, documentos ou explicação."
 
     show ivo neutral at portrait_center
-    ivo "Sem dinheiro. Sem destino. Pelo menos o mar teve a educação de me deixar perto de uma cidade."
+    ivo "Sem navio. Sem bolsa. E com uma cicatriz nova."
+
+    "No pulso esquerdo, linhas finas formavam um símbolo que lembrava três fios entrelaçados."
 
     menu:
-        "Qual foi o primeiro pensamento de Ivo?":
+        "O que mais preocupa Ivo?":
 
-        "Preciso descobrir por que sobrevivi.":
+        "Descobrir por que o mar o devolveu.":
             $ ivo_courage += 1
             $ ivo_honesty += 1
-            thoughts "O medo ainda estava ali, mas agora tinha uma pergunta para enfrentar."
+            $ prologue_priority = "verdade"
+            thoughts "Sobreviver sem entender parecia apenas uma forma mais lenta de se perder."
 
-        "Preciso encontrar comida antes de respostas.":
-            $ ivo_honesty += 1
+        "Encontrar comida e um teto antes do anoitecer.":
             $ ivo_compassion += 1
-            thoughts "Mistérios eram importantes. Pão, naquele instante, era mais."
+            $ ivo_honesty += 1
+            $ prologue_priority = "sobrevivencia"
+            thoughts "Mistérios não aqueciam o corpo nem enchiam o estômago."
 
-        "Ótimo. Mais uma cidade pronta para se arrepender de me conhecer.":
+        "Fingir que tudo fazia parte de um plano.":
             $ ivo_humor += 2
-            thoughts "A piada não melhorou sua situação. Melhorou um pouco sua respiração."
+            $ prologue_priority = "humor"
+            thoughts "Se o mundo insistia em ser absurdo, ele podia ao menos escolher a piada."
 
     hide ivo
-    "Uma placa pintada com uma escada e uma ânfora apontava para a Pensão dos Degraus."
+
+    "Uma mulher descarregando cestos indicou uma pensão perto das escadarias."
+    "— Lysandra não confia em estranhos — avisou. — Mas confia menos ainda em cadáveres no cais."
 
     scene bg pensao
     with dissolve
 
-    "O cheiro de pão, azeite e madeira antiga afastou parte do frio."
-    "Atrás do balcão, uma mulher observava Ivo com a paciência de quem já vira dezenas de náufragos jurarem que estavam apenas de passagem."
+    "A Pensão dos Degraus cheirava a pão, azeite e madeira aquecida pelo sol."
+    "Atrás do balcão, Lysandra observou as roupas encharcadas de Ivo e, depois, a marca em seu pulso."
 
-    lysandra "Você dormiu no cais. Isso explica o cheiro e a expressão."
-    lysandra "Kallípolis não é gentil com quem chega sem nome, moedas ou amigos."
-    lysandra "Vai continuar fingindo que sabe aonde vai?"
+    lysandra "Você não é o primeiro homem que o mar cospe aqui."
+    lysandra "É apenas o primeiro que ele devolve marcado."
+
+    ivo "Sabe o que significa?"
+
+    lysandra "Se soubesse, não diria a um desconhecido."
+
+    "Ela colocou uma tigela de caldo diante dele, mas não soltou a colher."
+
+    lysandra "Nome, origem e motivo para eu não chamar a guarda."
 
     menu:
-        "Como Ivo responde?":
+        "Como Ivo conquista a confiança de Lysandra?":
 
-        "Dizer a verdade: estou perdido.":
+        "Contar tudo que consegue lembrar.":
             $ ivo_honesty += 2
-            $ ivo_compassion += 1
-            lysandra "Bom. A verdade não compra cama, mas evita que você durma em lugar pior."
+            $ lysandra_trust += 2
+            ivo "Meu nome é Ivo. Meu navio afundou. Acordei no cais e não sei quem desenhou isto em mim."
+            lysandra "Uma verdade incompleta ainda é melhor que uma mentira completa."
 
-        "Fingir que só procura trabalho.":
+        "Dizer apenas que procura trabalho.":
             $ ivo_courage += 1
-            lysandra "Todo mundo procura trabalho. Pouca gente admite que procura uma chance."
+            $ lysandra_trust += 1
+            ivo "Não tenho respostas. Tenho duas mãos e preciso trabalhar."
+            lysandra "Kallípolis tem trabalho suficiente para matar homens mais preparados."
 
-        "Fazer uma piada e mudar de assunto.":
+        "Usar humor para desarmar a situação.":
             $ ivo_humor += 2
-            lysandra "Humor é uma casa sem janela. Um dia você vai precisar sair dela."
+            $ lysandra_trust += 1
+            ivo "Se chamar a guarda, peça que tragam pão. Quero ser preso de estômago cheio."
+            lysandra "Você usa piadas como outros usam armadura."
+            lysandra "Armaduras também afundam."
 
-    lysandra "Pólemon contrata carregadores na Ágora. Procure as colunas com tecidos azuis."
-    lysandra "E não aceite nada que ele chame de simples."
+    "Lysandra soltou a colher."
+
+    lysandra "Pólemon compra serviços discretos na Ágora."
+    lysandra "Se ele oferecer uma caixa selada, recuse."
+
+    ivo "Isso foi estranhamente específico."
+
+    lysandra "Porque ninguém segue conselhos vagos."
+
+    if lysandra_trust >= 2:
+        lysandra "E Ivo... se a marca aquecer, não deixe ninguém perceber."
+        $ knows_mark_is_dangerous = True
+    else:
+        lysandra "Volte antes de escurecer. Ou não volte. Só não traga problemas para minha porta."
 
     scene bg agora
     with dissolve
     play music "audio/music/agora_of_columns.wav" fadeout 0.8 fadein 1.2
 
-    "A Ágora das Colunas parecia vender tudo: azeite, mapas, promessas, informações e silêncios."
-    "Pólemon esperava junto a uma caixa selada com bronze, sorrindo como alguém que já havia calculado o preço da necessidade de Ivo."
+    "A Ágora das Colunas era um labirinto de tecidos azuis, bronze polido e vozes negociando futuros."
+    "Pólemon aguardava junto a uma caixa pequena demais para justificar os dois guardas que fingiam não observá-la."
 
-    polemon "Você tem cara de quem perdeu tudo antes do almoço."
-    polemon "Leve esta caixa ao cais e eu pago sete moedas. Não abra."
+    polemon "Lysandra ainda envia náufragos para fazer o trabalho que seus filhos recusariam?"
+
+    ivo "Ela mandou recusar uma caixa selada."
+
+    polemon "Então já discutimos a parte mais cansativa."
+
+    "Pólemon empurrou a caixa pela mesa. No lacre, o mesmo desenho da marca de Ivo se repetia em bronze."
+
+    polemon "Leve-a até o cais velho. Sete moedas agora, sete na entrega."
+    polemon "Não abra. Não entregue à guarda. E, acima de tudo, não escute se ela chamar seu nome."
 
     menu:
-        "O que Ivo faz?":
+        "O que Ivo exige antes de aceitar?":
 
-        "Aceitar sem fazer perguntas.":
-            $ ivo_courage += 1
-            polemon "Bom senso é raro. Leve a caixa até a marca no cais."
-
-        "Perguntar o que há dentro.":
+        "A verdade sobre a caixa.":
             $ ivo_honesty += 1
-            $ ivo_courage += 1
-            polemon "Dentro? Problema. E problema paga melhor que pão."
+            $ polemon_respect += 2
+            ivo "Diga o que estou carregando ou encontre outro desesperado."
+            polemon "Uma relíquia retirada de ruínas que oficialmente não existem."
+            polemon "Homens ricos pagam para possuir o passado. Homens sábios pagam para mantê-lo enterrado."
 
-        "Recusar e ir embora.":
+        "Pagamento dobrado pelo risco.":
+            $ ivo_courage += 1
+            $ ivo_humor += 1
+            $ polemon_respect += 1
+            ivo "Quatorze moedas não compram silêncio, mas compram uma tentativa."
+            polemon "Sobreviva e discutiremos matemática."
+
+        "Recusar o serviço.":
             $ ivo_honesty += 1
-            polemon "Claro. Você é livre para passar fome por princípios."
-            "Ivo deu dois passos."
-            "A marca antiga em seu pulso queimou pela primeira vez."
-            thoughts "A caixa estava chamando por ele — ou algo dentro dela estava."
+            ivo "Não vou carregar algo que sabe meu nome."
+            "Ivo se afastou."
+            "A marca queimou. De dentro da caixa, uma voz sussurrou uma palavra que ele ouvira durante o naufrágio."
+            voice "Ivo."
             menu:
-                "Voltar e aceitar o trabalho":
+                "Voltar porque precisa entender.":
                     $ ivo_courage += 1
-                    polemon "Sabia que sua consciência teria bom senso."
-                "Exigir o dobro":
-                    $ ivo_humor += 1
-                    $ ivo_courage += 1
-                    polemon "Sete agora. O resto se você sobreviver à curiosidade."
+                    $ accepted_for_answers = True
+                    ivo "Mudei de ideia. Mas agora faço perguntas."
+                    polemon "Agora você faz parte da resposta."
+
+                "Voltar apenas para impedir que outro a leve.":
+                    $ ivo_compassion += 2
+                    $ accepted_to_protect = True
+                    ivo "Se isso é perigoso, não vou deixar nas mãos de alguém que não ouviu o aviso."
+                    polemon "Uma intenção nobre. As relíquias adoram esse tipo."
 
     scene bg kallipolis
     with dissolve
     play music "audio/music/kallipolis_harbor.wav" fadeout 0.8 fadein 1.0
 
-    "No cais, a caixa pareceu ficar mais pesada."
-    "O símbolo em seu lacre repetia as linhas da cicatriz no pulso de Ivo."
+    "No cais velho, o movimento da cidade parecia distante."
+    "Cada passo fazia o símbolo da caixa responder à marca em seu pulso."
+
+    if knows_mark_is_dangerous:
+        thoughts "Lysandra tinha razão. A marca não estava apenas quente. Estava reconhecendo alguma coisa."
+
+    voice "Abra."
+
+    "A voz não vinha da caixa."
+    "Vinha da lembrança do mar."
 
     menu:
-        "A caixa deveria permanecer fechada.":
+        "Diante do lacre, Ivo decide:":
 
         "Abrir a caixa por vontade própria.":
             $ opened_crate_willingly = True
             $ ivo_courage += 2
-            "Ivo rompeu o selo."
-            "Dentro havia uma moeda azul, fria como água profunda."
-            "Quando seus dedos tocaram o metal, a Marca das Moiras despertou."
+            "Ivo rompeu o lacre antes que o medo pudesse decidir por ele."
+            "Uma moeda azul ergueu-se do interior e pairou sobre sua palma."
 
-        "Tentar cumprir o acordo.":
+        "Resistir e cumprir o acordo.":
+            $ resisted_crate = True
             $ ivo_honesty += 2
-            "Ivo afastou a mão."
-            "A madeira estalou sozinha."
-            "Uma fissura azul percorreu o selo, e a moeda saltou para sua palma como se tivesse esperado anos por aquele contato."
-            "A Marca das Moiras despertou."
+            "Ivo fechou os dedos e se afastou."
+            "O bronze se partiu sozinho."
+            "A moeda atravessou a madeira como luz através da água e pousou em sua mão."
 
-        "Procurar alguém antes de decidir.":
+        "Procurar ajuda antes de tocar na relíquia.":
+            $ sought_help = True
             $ ivo_compassion += 1
             $ ivo_honesty += 1
-            "Antes que pudesse chamar um guarda, uma sombra atravessou os telhados."
-            "Uma pequena lâmina atingiu o selo. A caixa se abriu, revelando a moeda azul."
-            "A Marca das Moiras despertou."
+            "Ivo chamou pelo vigia do cais."
+            "Antes que a voz saísse por completo, uma lâmina lançada do alto cortou o lacre."
+            "A moeda azul saltou da caixa diretamente para sua palma."
 
-    "Por um instante, o cais desapareceu."
-    "Ivo viu uma cidade submersa, seis silhuetas diante de um trono vazio e fios dourados ligando destinos que ainda não haviam se encontrado."
+    "A dor veio primeiro."
+    "Três linhas luminosas correram pelo pulso de Ivo e se fecharam ao redor da moeda."
+
+    "Kallípolis desapareceu."
+
+    "Ele viu uma cidade afundada sob um céu sem sol."
+    "Viu seis mulheres diante de um trono vazio."
+    "E viu fios dourados partindo de seu próprio peito até os pulsos de cada uma delas."
+
+    voice "Encontre as herdeiras."
+    voice "Antes que Atlântida as encontre."
+
+    "A visão terminou com o som de uma lâmina sendo recolhida."
 
     show ariane neutral at portrait_enter_right
-    ariane "Você está olhando para o telhado errado."
-    ariane "Ou isso é coragem demais, ou falta de prática."
+    ariane "Você demorou mais do que eu esperava."
 
     ivo "Foi você quem abriu a caixa?"
 
-    ariane "Você tocou a moeda. Essa foi a escolha que importou."
-    ariane "Podia vendê-la e desaparecer. Por que ainda está aqui?"
+    ariane "Eu impedi que a guarda chegasse primeiro."
+    ariane "A caixa abriu porque reconheceu você."
+
+    if opened_crate_willingly:
+        ariane "E porque você não hesitou."
+    elif resisted_crate:
+        ariane "Mesmo quando tentou recusar."
+    else:
+        ariane "Mesmo quando tentou dividir a decisão com outra pessoa."
+
+    ivo "Quem é você?"
+
+    ariane "Ariane. Mensageira quando preciso ser respeitável."
+    ariane "Ladra quando preciso ser honesta."
+
+    "Ela olhou para a marca, e o sarcasmo desapareceu de seu rosto."
+
+    ariane "Você carrega o Selo das Moiras. Isso deveria ser impossível."
+    ariane "O último homem marcado desapareceu vinte anos atrás."
 
     menu:
-        "Responder a Ariane":
+        "O que Ivo quer de Ariane?":
 
-        "Porque não quero ser a pessoa que foge.":
+        "A verdade, mesmo que seja perigosa.":
             $ ariane_affinity += 2
-            $ ivo_courage += 1
-            ariane "Então tente não morrer antes de provar isso."
-
-        "Porque preciso entender a Marca.":
-            $ ariane_affinity += 1
             $ ivo_honesty += 1
-            ariane "Uma resposta honesta. Quase suspeita, vindo de você."
+            $ asked_ariane_for_truth = True
+            ivo "Não quero proteção. Quero saber o que aconteceu comigo."
+            ariane "Então comece aceitando que algumas respostas vão tentar usar você."
 
-        "Porque você claramente sentiria minha falta.":
-            $ ivo_humor += 2
+        "Ajuda para impedir que outros sejam feridos.":
+            $ ariane_affinity += 2
+            $ ivo_compassion += 1
+            $ asked_ariane_for_help = True
+            ivo "Se a guarda procura isso, alguém mais pode se machucar."
+            ariane "Você acabou de sobreviver ao mar e já está preocupado com desconhecidos."
+            ariane "Isso é admirável ou muito inconveniente."
+
+        "Uma explicação que não comece com profecias.":
             $ ariane_affinity += 1
+            $ ivo_humor += 2
+            ivo "Tente explicar sem usar destino, sangue antigo ou 'você foi escolhido'."
             show ariane embarrassed at portrait_right
-            ariane "Não abuse da sorte, estrangeiro."
+            ariane "Vou tentar limitar a tragédia a duas dessas opções."
 
     show ariane neutral at portrait_right
-    ariane "Meu nome é Ariane. E o homem vindo pela ponte não negocia."
 
-    collector "Entregue a moeda. Cidadãos sem registro não carregam relíquias."
+    collector "Afaste-se dele, Ariane."
 
-    "O Coletor avançou com dois guardas. Ariane já procurava uma rota entre cordas, barcos e caixas."
+    "O Coletor surgiu na entrada do cais com dois homens armados."
+    "Seu uniforme não trazia o símbolo da cidade, apenas um círculo negro atravessado por seis riscos."
+
+    collector "Entregue a moeda e a garota."
+    collector "O estrangeiro ainda pode sair daqui sem nome em uma lista."
+
+    ariane "Ele já estava em uma lista antes de chegar."
 
     menu:
-        "Como escapar do Coletor?":
+        "Como Ivo reage ao ultimato?":
 
         "Confiar no plano de Ariane.":
             $ trusted_ariane = True
             $ ariane_affinity += 2
-            ariane "Quando eu disser agora, pule."
-            ivo "Pular para onde?"
-            ariane "Esse é o tipo de pergunta que estraga um plano."
-            "Ariane cortou uma amarra. Uma vela despencou entre eles e os guardas."
-            "Ivo saltou para o barco inferior no instante em que ela gritou."
+            ariane "Quando eu disser agora, pule para o barco abaixo."
+            ivo "Existe um barco abaixo?"
+            ariane "Essa dúvida é sua última chance de voltar atrás."
+            "Ariane cortou uma amarra. Uma vela despencou entre eles e os homens do Coletor."
+            "Ivo saltou quando ela gritou e encontrou o convés um instante antes da água."
 
-        "Distrair os guardas para proteger Ariane.":
+        "Assumir a culpa para proteger Ariane.":
             $ protected_ariane = True
             $ ariane_affinity += 2
             $ ivo_courage += 2
-            ivo "A moeda está comigo. Ela não tem nada a ver com isso."
-            ariane "Ivo..."
-            "O Coletor voltou toda a atenção para ele."
-            "Ariane aproveitou o segundo roubado, derrubou uma pilha de ânforas e puxou Ivo pela mão."
+            ivo "A moeda me escolheu. Ela só tentou impedir que vocês a roubassem."
+            ariane "Você não sabe nem quem eu sou."
+            ivo "Então considere um investimento em respostas."
+            "O Coletor voltou a arma para Ivo."
+            "Ariane usou o segundo roubado para derrubar ânforas, agarrar sua mão e arrastá-lo por uma passagem lateral."
 
-        "Blefar dizendo que a moeda foi entregue a Pólemon.":
+        "Usar Pólemon como distração.":
+            $ blamed_polemon = True
             $ ivo_humor += 1
             $ ivo_courage += 1
-            ivo "Chegou tarde. Pólemon já levou a relíquia."
+            ivo "Chegou tarde. Pólemon já vendeu a relíquia para alguém no mercado."
             collector "Pólemon não tocaria em algo que canta."
-            ariane "Foi um blefe ruim."
-            ivo "Mas você ganhou tempo."
+            ivo "Então você o conhece melhor do que deveria."
+            "O olhar do Coletor vacilou."
+            ariane "Blefe perigoso."
+            ivo "Funcionou?"
+            ariane "Pergunte enquanto corre."
             $ ariane_affinity += 1
-            "Ariane sorriu contra a vontade antes de abrir uma passagem entre as redes."
 
     hide ariane
-    "Eles escaparam por uma porta de ferro escondida sob o cais."
-    "Os degraus desciam para um lugar que Kallípolis havia decidido esquecer."
+
+    "A passagem terminava em uma porta de ferro sob o cais."
+    "Ariane abriu três fechaduras sem diminuir o passo."
+
+    ariane "A moeda veio da Cisterna Esquecida."
+    ariane "Se existe uma resposta, está lá embaixo."
+    ariane "Se existe uma armadilha, também."
 
     scene bg cisterna
     with fade
     play music "audio/music/cistern_forgotten_echoes.wav" fadeout 1.0 fadein 1.5
 
-    "A Cisterna Esquecida respirava água e memória."
-    "Três luzes azuis pulsavam entre colunas partidas. Ao fundo, uma porta de bronze aguardava com três círculos vazios."
+    "A Cisterna Esquecida não parecia construída."
+    "Parecia lembrada."
+
+    "Colunas surgiam da água escura. Símbolos azuis pulsavam nas paredes como veias."
+    "Diante de uma porta de bronze, três fragmentos luminosos flutuavam sobre pedestais."
 
     show ariane neutral at portrait_right
-    ariane "Esses são Ecos de Atlântida."
-    ariane "Não são objetos. São lembranças que perderam seus donos."
-    ariane "Se ouvir alguma voz, não prometa nada."
 
-    "O primeiro Eco mostrou Ivo ainda criança diante de um mar negro."
-    voice "Você sempre soube que voltaria."
+    ariane "Ecos de Atlântida."
+    ariane "Memórias arrancadas de pessoas que morreram sem conseguir esquecê-las."
+
+    ivo "E precisamos tocar neles."
+
+    ariane "Precisamos é uma palavra otimista."
+
+    "O primeiro Eco mostrou o naufrágio por outro ângulo."
+    "Nas profundezas, uma figura segurava Ivo enquanto o navio desaparecia acima."
+
+    voice "O portador voltou."
 
     menu:
-        "Como reagir ao primeiro Eco?":
+        "Ivo mantém contato com a lembrança?":
 
         "Ouvir até o fim.":
             $ listened_to_echoes += 1
             $ ivo_courage += 1
-            "A lembrança deixou uma palavra em sua mente: herdeiras."
+            "A figura abriu os olhos."
+            "Eram os olhos de Ivo, muitos anos mais velhos."
+            voice "Não confie no trono vazio."
 
-        "Romper o contato.":
+        "Romper o contato antes que a visão o reconheça.":
             $ ivo_honesty += 1
-            "Ivo soltou o fragmento antes que a visão criasse raízes."
+            $ refused_first_echo = True
+            "Ivo soltou o fragmento."
+            "A visão continuou por um segundo dentro de sua própria sombra."
 
-    "O segundo Eco revelou seis mãos sobre uma mesa de pedra, cada uma marcada por um símbolo diferente."
-    voice "Nenhuma delas herdará Atlântida sozinha."
+    "O segundo Eco revelou seis mãos sobre uma mesa de pedra."
+    "Cada pulso carregava um símbolo diferente."
+    "Uma delas usava a mesma fita vermelha amarrada no braço de Ariane."
+
+    voice "Seis juramentos. Seis herdeiras. Nenhuma rainha."
 
     menu:
-        "Contar a Ariane exatamente o que viu.":
+        "O que Ivo conta a Ariane?":
+
+        "Tudo, inclusive que ela é uma das seis.":
             $ listened_to_echoes += 1
-            $ ariane_affinity += 1
-            $ ivo_honesty += 1
-            ariane "Seis herdeiras... Então os registros estavam incompletos."
-
-        "Esconder a parte sobre as seis mulheres.":
-            $ ivo_courage += 1
-            thoughts "Ainda não sabia se a visão era profecia, ameaça ou armadilha."
-
-    "O terceiro Eco não mostrou ruínas."
-    "Mostrou Ariane diante da porta de bronze, sozinha, enquanto a cidade desabava atrás dela."
-
-    menu:
-        "O que Ivo faz?":
-
-        "Segurar a mão de Ariane.":
+            $ told_ariane_everything = True
             $ ariane_affinity += 2
-            $ ivo_compassion += 2
-            show ariane embarrassed at portrait_right
-            ivo "Desta vez você não vai atravessar sozinha."
-            ariane "Você não sabe o que existe do outro lado."
-            ivo "Você também não."
+            $ ivo_honesty += 1
+            ivo "Uma das mãos era sua. A fita, a cicatriz no dedo... você é uma das seis."
+            ariane "Não."
+            ivo "Você reconheceu a mesa."
+            ariane "Reconheci uma história usada para condenar minha família."
+            ivo "Então me conte antes que outra pessoa conte por você."
 
-        "Avisá-la sobre a visão.":
-            $ ariane_affinity += 1
-            $ ivo_honesty += 2
-            ivo "O Eco mostrou você aqui. Sozinha."
-            ariane "E você pretende impedir uma memória de se repetir?"
-            ivo "Pretendo dar a ela uma escolha diferente."
-
-        "Guardar a visão por enquanto.":
+        "Dizer apenas que existem seis herdeiras.":
+            $ hid_heirs_from_ariane = True
             $ ivo_courage += 1
-            thoughts "Algumas verdades precisavam de um momento em que não parecessem ameaças."
+            ivo "Falou de seis herdeiras e de um trono vazio."
+            ariane "Você omitiu alguma coisa."
+            ivo "Ainda estou decidindo se era memória ou isca."
+            $ ariane_affinity -= 1
 
-    show ariane neutral at portrait_right
-    "Os três Ecos ocuparam os círculos da porta."
-    "O bronze se abriu sem ruído, revelando água suspensa no ar como um espelho vertical."
+    "O terceiro Eco mostrou a porta aberta."
+    "Do outro lado, Kallípolis estava submersa."
+    "Ariane permanecia diante da água, sozinha, enquanto uma voz ordenava que ela escolhesse quem salvar."
 
-    voice "Aquele que carrega a Marca encontrará as seis."
-    voice "Quando o último juramento for quebrado, escolherá entre restaurar Atlântida ou libertar suas herdeiras."
-
-    ariane "Isso não é poder, Ivo."
-    ariane "É responsabilidade."
+    show ariane embarrassed at portrait_right
+    ariane "O que você viu?"
 
     menu:
-        "A escolha que encerra o prólogo":
+        "Como Ivo responde?":
 
-        "Prometer seguir ao lado de Ariane.":
+        "Contar a visão e prometer que ela não estará sozinha.":
             $ promised_ariane = True
             $ ariane_affinity += 2
+            $ ivo_compassion += 2
+            ivo "Vi você diante desta porta, escolhendo sozinha quem viveria."
+            ivo "Não sei impedir uma profecia. Mas sei dividir uma escolha."
+            ariane "Promessas feitas a pessoas que você acabou de conhecer são perigosas."
+            ivo "Então não trate como promessa. Trate como plano."
+
+        "Contar apenas o perigo imediato.":
+            $ warned_ariane = True
+            $ ariane_affinity += 1
+            $ ivo_honesty += 1
+            ivo "A porta mostrou Kallípolis sob a água. Não devemos abri-la sem saber como fechar."
+            ariane "Cautela. Finalmente algo sensato em você."
+
+        "Esconder a visão para não assustá-la.":
+            $ hid_third_echo = True
             $ ivo_compassion += 1
-            show ariane embarrassed at portrait_right
-            ivo "Então não carregue essa responsabilidade sozinha."
-            ariane "Promessas feitas em ruínas costumam cobrar juros."
-            ivo "Pode cobrar."
+            ivo "Vi a cidade. Nada que ajude agora."
+            ariane "Você mente olhando para a direita."
+            $ ariane_affinity -= 1
 
-        "Pedir tempo para entender a Marca.":
-            $ ivo_honesty += 2
-            ivo "Não vou prometer algo que ainda não entendo."
-            ariane "Ótimo."
-            ariane "Eu desconfiaria mais se você prometesse."
+    show ariane neutral at portrait_right
 
-        "Dizer que encontrará as seis, custe o que custar.":
-            $ ivo_courage += 2
-            ivo "Se existem seis pessoas presas a isso, vou encontrá-las."
-            ariane "Só não transforme destino em desculpa para decidir por elas."
+    "Os três Ecos se encaixaram nos círculos da porta."
+    "O bronze não se abriu."
+    "Em vez disso, a Marca das Moiras projetou um mapa sobre a água."
+
+    "Uma rota ligava Kallípolis a Nereu."
+    "No centro do mapa havia o mesmo símbolo negro usado pelo Coletor."
+
+    voice "A herdeira das marés guarda a primeira chave."
+    voice "O portador deve encontrá-la antes dos Coletores."
+
+    ariane "Nereu."
+    ariane "Se o Conselho de lá souber que a Marca voltou, fechará os portos e prenderá qualquer pessoa ligada a você."
+
+    ivo "Incluindo você."
+
+    ariane "Principalmente eu."
+
+    if told_ariane_everything:
+        ariane "Você me contou o que viu mesmo quando isso podia me afastar."
+        ariane "Vou levá-lo até Nereu."
+    elif trusted_ariane or protected_ariane:
+        ariane "Você confiou em mim quando tinha poucos motivos."
+        ariane "Vou retribuir levando você até Nereu."
+    elif ariane_affinity >= 3:
+        ariane "Ainda não decidi se você é corajoso ou apenas desorientado."
+        ariane "Descobrirei no caminho para Nereu."
+    else:
+        ariane "Não confio em você."
+        ariane "Mas confio menos ainda em quem enviou o Coletor."
+        ariane "Por enquanto, isso basta."
 
     hide ariane
-    "Atrás do espelho, uma rota marítima surgiu gravada na pedra."
-    "O primeiro destino era Nereu."
+
+    "Eles deixaram a Cisterna antes do amanhecer."
+    "Pólemon providenciou um barco sem fazer perguntas — talvez porque Ivo já tivesse respondido demais."
+
+    if blamed_polemon:
+        "Antes de soltarem as amarras, Pólemon entregou a Ivo uma bolsa vazia."
+        polemon "Para guardar o pagamento que você não receberá depois de usar meu nome como isca."
+        ivo "Então estamos quites?"
+        polemon "Nem de longe."
 
     scene bg nereu
     with fade
@@ -311,44 +461,82 @@ label prologue_start:
 
     centered "{size=52}NEREU{/size}\n{size=30}A cidade das velas azuis{/size}"
 
-    "A travessia terminou entre muralhas brancas, canais luminosos e navios de velas azuis."
-    "Kallípolis cheirava a sobrevivência."
-    "Nereu cheirava a poder bem administrado — o que talvez fosse mais perigoso."
+    "Nereu surgiu do mar como se Atlântida tivesse se recusado a afundar por completo."
+    "Canais atravessavam avenidas de mármore. Velas azuis escondiam arqueiros nas muralhas."
+    "No porto, soldados revistavam passageiros antes mesmo que os barcos tocassem o cais."
+
+    ariane "Não mostre a marca."
+    ariane "E, se alguém perguntar, você é meu assistente."
+
+    ivo "Assistente de quê?"
+
+    ariane "Ainda estou escolhendo uma profissão respeitável."
+
+    "Uma mulher de uniforme azul aguardava no fim da passarela."
+    "Ela não olhou para Ariane."
+    "Olhou diretamente para o pulso coberto de Ivo."
 
     show nerissa neutral at portrait_enter_left
-    nerissa "Então você é o estrangeiro que fez Kallípolis lembrar do que enterrou."
-    nerissa "Em Nereu, memórias são catalogadas, armadas e lançadas ao mar."
-    nerissa "Se veio por respostas, aprenda a reconhecer uma pergunta perigosa."
+
+    nerissa "Capitã Nerissa Vael, guarda das marés de Nereu."
+    nerissa "O Conselho recebeu notícias de um naufrágio, uma relíquia roubada e um estrangeiro que sobreviveu ao impossível."
+
+    ariane "As notícias viajam rápido."
+
+    nerissa "Mentiras viajam rápido."
+    nerissa "Verdades chegam antes."
+
+    nerissa "Diga-me, Ivo: por que a cidade deveria permitir sua entrada?"
 
     menu:
-        "A primeira resposta a Nerissa":
+        "A primeira resposta a Nerissa:":
 
-        "Perguntar diretamente sobre Atlântida.":
-            $ nerissa_question = "Atlantida"
+        "Porque o mesmo inimigo está procurando nós dois.":
+            $ nerissa_question = "inimigo"
+            $ nerissa_affinity += 2
+            $ ivo_honesty += 1
+            ivo "O Coletor carregava um símbolo ligado a Nereu. Se ele procura a Marca, seu problema já chegou antes de mim."
+            nerissa "Você negocia informação como alguém que aprendeu rápido."
+
+        "Porque preciso encontrar a herdeira das marés.":
+            $ nerissa_question = "herdeira"
             $ nerissa_affinity += 1
             $ ivo_courage += 1
-            nerissa "Direto. Isso pode ser coragem ou uma vida muito curta."
+            ivo "Uma memória me enviou até a herdeira das marés."
+            nerissa "Então começamos com blasfêmia pública."
+            nerissa "É uma entrada memorável."
 
-        "Dizer que procura Ariane.":
-            $ nerissa_question = "Ariane"
-            $ nerissa_affinity += 1
-            $ ivo_honesty += 1
-            show nerissa embarrassed at portrait_left
-            nerissa "Interessante. Ela costuma ser a pessoa que desaparece, não a procurada."
-
-        "Admitir que ainda não sabe o que procura.":
-            $ nerissa_question = "Incerteza"
+        "Porque não sei em quem confiar — e prefiro admitir isso.":
+            $ nerissa_question = "incerteza"
             $ nerissa_affinity += 2
             $ ivo_honesty += 2
-            nerissa "A resposta mais perigosa costuma ser a verdadeira."
+            ivo "Não sei quem me marcou, quem enviou o Coletor ou por que seu Conselho sabia que eu viria."
+            ivo "Mas fingir certeza agora seria entregar vantagem a todos eles."
+            nerissa "Uma resposta rara em Nereu."
 
     show nerissa neutral at portrait_left
-    nerissa "Entre na cidade, Ivo."
-    nerissa "Nereu já sabia seu nome antes de você chegar."
+
+    if promised_ariane:
+        nerissa "E você, Ariane? Já está fazendo promessas a náufragos?"
+        ariane "Só as que pretendo cobrar."
+    elif hid_heirs_from_ariane or hid_third_echo:
+        nerissa "Há algo que vocês não contaram um ao outro."
+        nerissa "Excelente. A cidade aprecia relações construídas sobre fundações instáveis."
+    else:
+        nerissa "Vocês chegaram juntos. Isso não significa que sairão daqui do mesmo lado."
+
+    nerissa "Podem entrar."
+    nerissa "Mas não confundam permissão com liberdade."
+
+    "Quando Nerissa se virou, a moeda sob a roupa de Ivo respondeu à presença dela."
+    "Por um instante, um segundo símbolo brilhou sob a luva da capitã."
+
+    thoughts "A herdeira das marés não estava escondida em Nereu."
+    thoughts "Ela havia acabado de permitir sua entrada."
 
     hide nerissa
-    $ prologue_completed = True
 
+    $ prologue_completed = True
     jump prologue_summary
 
 
@@ -361,53 +549,48 @@ label prologue_summary:
     $ second_bond = bond_rank(nerissa_affinity)
     $ trait = dominant_trait()
 
-    centered "{size=56}FIM DO PRÓLOGO{/size}\n\n{size=32}A Marca das Moiras despertou.{/size}"
+    centered "{size=56}FIM DO PRÓLOGO{/size}\n\n{size=32}Duas herdeiras cruzaram o caminho da Marca.{/size}"
 
     "Perfil de Ivo: [trait]."
     "Vínculo com Ariane: [main_bond]."
     "Primeira impressão de Nerissa: [second_bond]."
 
-    if promised_ariane:
-        "Ariane guardará a promessa feita diante da porta de bronze."
-    elif ariane_affinity >= 4:
-        "Ariane ainda não chama isso de confiança, mas já não trata Ivo como um estranho."
+    if told_ariane_everything and promised_ariane:
+        "Ivo e Ariane chegaram a Nereu ligados por uma verdade compartilhada e uma promessa que nenhum dos dois considera pequena."
+    elif trusted_ariane or protected_ariane:
+        "Ariane ainda guarda segredos, mas agora reconhece Ivo como alguém capaz de caminhar ao seu lado."
+    elif ariane_affinity >= 3:
+        "A curiosidade venceu a desconfiança. Ariane decidiu permanecer por perto."
     else:
-        "Ariane permanece cautelosa. O destino os uniu antes que a confiança pudesse fazê-lo."
+        "Ariane o acompanha por necessidade. Uma única mentira poderá separá-los."
 
     if nerissa_affinity >= 2:
-        "A sinceridade de Ivo despertou a curiosidade de Nerissa."
+        "Nerissa percebeu que Ivo pode ser útil — ou perigoso demais para perder de vista."
     else:
-        "Nerissa observará cada passo do estrangeiro em sua cidade."
+        "Nerissa permitiu sua entrada, mas colocou olhos do Conselho em cada passo do estrangeiro."
+
+    if opened_crate_willingly:
+        "Ivo escolheu tocar o desconhecido antes que o desconhecido escolhesse por ele."
+    elif resisted_crate:
+        "Ivo tentou honrar sua palavra, mesmo quando a relíquia recusou sua decisão."
+    else:
+        "Ivo procurou dividir o peso da escolha, mas a Marca o encontrou assim mesmo."
 
     "Continua no Capítulo 1 — As Velas Azuis de Nereu."
 
+    jump prologue_summary_menu
+
+
+label prologue_summary_menu:
     menu:
         "O que deseja fazer?":
 
         "Ver os vínculos":
             call screen relationships(close_action=Return())
+            jump prologue_summary_menu
+
+        "Recomeçar o prólogo":
+            jump prologue_start
 
         "Voltar ao menu principal":
             return
-
-        "Recomeçar o prólogo":
-            jump restart_prologue
-
-    return
-
-
-label restart_prologue:
-    $ ariane_affinity = 0
-    $ nerissa_affinity = 0
-    $ ivo_courage = 0
-    $ ivo_honesty = 0
-    $ ivo_humor = 0
-    $ ivo_compassion = 0
-    $ opened_crate_willingly = False
-    $ trusted_ariane = False
-    $ protected_ariane = False
-    $ listened_to_echoes = 0
-    $ promised_ariane = False
-    $ nerissa_question = ""
-    $ prologue_completed = False
-    jump prologue_start
