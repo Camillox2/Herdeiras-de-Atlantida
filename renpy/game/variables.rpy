@@ -73,38 +73,50 @@ init python:
         return ", ".join(leaders[:-1]) + " e " + leaders[-1]
 
     def reset_prologue_state():
-        store.ariane_affinity = 0
-        store.nerissa_affinity = 0
+        global ariane_affinity, nerissa_affinity
+        global ivo_courage, ivo_honesty, ivo_humor, ivo_compassion
+        global prologue_priority, lysandra_trust, polemon_respect
+        global knows_mark_is_dangerous, accepted_for_answers, accepted_to_protect
+        global opened_crate_willingly, resisted_crate, sought_help
+        global asked_ariane_for_truth, asked_ariane_for_help
+        global trusted_ariane, protected_ariane, blamed_polemon
+        global listened_to_echoes, refused_first_echo
+        global told_ariane_everything, hid_heirs_from_ariane
+        global promised_ariane, warned_ariane, hid_third_echo
+        global nerissa_question, prologue_completed
 
-        store.ivo_courage = 0
-        store.ivo_honesty = 0
-        store.ivo_humor = 0
-        store.ivo_compassion = 0
+        ariane_affinity = 0
+        nerissa_affinity = 0
 
-        store.prologue_priority = ""
-        store.lysandra_trust = 0
-        store.polemon_respect = 0
-        store.knows_mark_is_dangerous = False
-        store.accepted_for_answers = False
-        store.accepted_to_protect = False
+        ivo_courage = 0
+        ivo_honesty = 0
+        ivo_humor = 0
+        ivo_compassion = 0
 
-        store.opened_crate_willingly = False
-        store.resisted_crate = False
-        store.sought_help = False
+        prologue_priority = ""
+        lysandra_trust = 0
+        polemon_respect = 0
+        knows_mark_is_dangerous = False
+        accepted_for_answers = False
+        accepted_to_protect = False
 
-        store.asked_ariane_for_truth = False
-        store.asked_ariane_for_help = False
-        store.trusted_ariane = False
-        store.protected_ariane = False
-        store.blamed_polemon = False
+        opened_crate_willingly = False
+        resisted_crate = False
+        sought_help = False
 
-        store.listened_to_echoes = 0
-        store.refused_first_echo = False
-        store.told_ariane_everything = False
-        store.hid_heirs_from_ariane = False
-        store.promised_ariane = False
-        store.warned_ariane = False
-        store.hid_third_echo = False
+        asked_ariane_for_truth = False
+        asked_ariane_for_help = False
+        trusted_ariane = False
+        protected_ariane = False
+        blamed_polemon = False
 
-        store.nerissa_question = ""
-        store.prologue_completed = False
+        listened_to_echoes = 0
+        refused_first_echo = False
+        told_ariane_everything = False
+        hid_heirs_from_ariane = False
+        promised_ariane = False
+        warned_ariane = False
+        hid_third_echo = False
+
+        nerissa_question = ""
+        prologue_completed = False
