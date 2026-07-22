@@ -82,6 +82,10 @@ label ending_selector:
         "O salão devolve a Ivo cada silêncio usado como moeda. Algumas portas não se fecham por vingança: fecham porque confiar nelas deixou de ser seguro."
         jump ending_exile
 
+    if crisis_break_count() >= 2:
+        "Duas cadeiras permanecem vazias. Não por morte ou destino, mas porque confiança não sobrevive quando alguém pede, repetidas vezes, que ela se sacrifique em nome de uma solução."
+        jump ending_exile
+
     menu:
         "Qual futuro Ivo escolhe?"
 
@@ -93,7 +97,7 @@ label ending_selector:
             jump ending_single_menu
 
         "Construir uma relação coletiva, se todas tiverem vínculo profundo.":
-            if ariane_affinity >= 7 and nerissa_affinity >= 7 and melia_affinity >= 7 and lyra_affinity >= 7 and thalia_affinity >= 7 and cassia_affinity >= 7:
+            if ariane_affinity >= 7 and nerissa_affinity >= 7 and melia_affinity >= 7 and lyra_affinity >= 7 and thalia_affinity >= 7 and cassia_affinity >= 7 and ariane_crisis == "resolved" and nerissa_crisis == "resolved" and melia_crisis == "resolved" and lyra_crisis == "resolved" and thalia_crisis == "resolved" and cassia_crisis == "resolved":
                 $ ending_route = "coletiva"
                 jump ending_collective
             else:

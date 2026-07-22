@@ -88,6 +88,12 @@ default ending_route = ""
 default ending_choice_complete = False
 default ivo_integrity = 0
 default broken_oath = False
+default ariane_crisis = ""
+default nerissa_crisis = ""
+default melia_crisis = ""
+default lyra_crisis = ""
+default thalia_crisis = ""
+default cassia_crisis = ""
 default unlocked_gallery = ["Ariane", "Nerissa"]
 default unlocked_cgs = []
 
@@ -149,6 +155,10 @@ init python:
             return "Aliança frágil"
         return "Aliança em construção"
 
+    def crisis_break_count():
+        crises = [ariane_crisis, nerissa_crisis, melia_crisis, lyra_crisis, thalia_crisis, cassia_crisis]
+        return sum(1 for crisis in crises if crisis == "broken")
+
     def reset_prologue_state():
         global ariane_affinity, nerissa_affinity
         global ivo_courage, ivo_honesty, ivo_humor, ivo_compassion
@@ -168,6 +178,7 @@ init python:
         global nereu_decision, trusted_nerissa_command, asterion_response, trusted_melia_seed, lyria_response, trusted_lyra_leadership
         global akris_siege_choice, trusted_thalia_council, mirror_choice, trusted_cassia_truth, abyss_choice, saved_herdades_at_abyss, oryx_choice, faced_future_ivo
         global ending_route, ending_choice_complete, ivo_integrity, broken_oath, unlocked_cgs
+        global ariane_crisis, nerissa_crisis, melia_crisis, lyra_crisis, thalia_crisis, cassia_crisis
 
         ariane_affinity = 0
         nerissa_affinity = 0
@@ -255,4 +266,10 @@ init python:
         ending_choice_complete = False
         ivo_integrity = 0
         broken_oath = False
+        ariane_crisis = ""
+        nerissa_crisis = ""
+        melia_crisis = ""
+        lyra_crisis = ""
+        thalia_crisis = ""
+        cassia_crisis = ""
         unlocked_cgs = []

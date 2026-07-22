@@ -14,6 +14,8 @@ label chapter_11_start:
 
     centered "{size=52}CAPÍTULO 11{/size}\n{size=30}A Muralha e o Cerco{/size}"
 
+    if lyra_crisis == "":
+        call crisis_lyra
     call late_consequence_ch11
 
     "Akris não estava sob ataque de um exército. Isso era o que tornava tudo pior. As estradas ao redor da fortaleza estavam vazias; eram as mensagens que chegavam sem parar. Cada uma dizia que a cidade vizinha havia se rendido. Cada uma exigia que Thalia fechasse os portões antes que o medo entrasse."

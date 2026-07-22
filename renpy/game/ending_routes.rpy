@@ -10,27 +10,27 @@ label ending_single_menu:
     menu:
         "Com quem Ivo quer construir um futuro?"
 
-        "Ariane — uma chama escolhida com calma." if ariane_affinity >= 7:
+        "Ariane — uma chama escolhida com calma." if ariane_affinity >= 7 and ariane_crisis != "broken":
             $ ending_route = "Ariane"
             jump ending_ariane
 
-        "Nerissa — uma maré que não precisa mandar." if nerissa_affinity >= 7:
+        "Nerissa — uma maré que não precisa mandar." if nerissa_affinity >= 7 and nerissa_crisis != "broken":
             $ ending_route = "Nerissa"
             jump ending_nerissa
 
-        "Mélia — uma raiz que aprende a pedir." if melia_affinity >= 7:
+        "Mélia — uma raiz que aprende a pedir." if melia_affinity >= 7 and melia_crisis != "broken":
             $ ending_route = "Mélia"
             jump ending_melia
 
-        "Lyra — uma canção que não exige silêncio." if lyra_affinity >= 7:
+        "Lyra — uma canção que não exige silêncio." if lyra_affinity >= 7 and lyra_crisis != "broken":
             $ ending_route = "Lyra"
             jump ending_lyra
 
-        "Thalia — uma porta aberta sem máscara." if thalia_affinity >= 7:
+        "Thalia — uma porta aberta sem máscara." if thalia_affinity >= 7 and thalia_crisis != "broken":
             $ ending_route = "Thalia"
             jump ending_thalia
 
-        "Cássia — um amanhã que não precisa ser calculado." if cassia_affinity >= 7:
+        "Cássia — um amanhã que não precisa ser calculado." if cassia_affinity >= 7 and cassia_crisis != "broken":
             $ ending_route = "Cássia"
             jump ending_cassia
 

@@ -8,6 +8,8 @@ label chapter_13_start:
 
     centered "{size=52}CAPÍTULO 13{/size}\n{size=30}O Abismo de Tálassa{/size}"
 
+    if cassia_crisis == "":
+        call crisis_cassia
     call late_consequence_ch13
 
     "Desta vez, o Salão Afundado não esperava vazio. A água fora dos arcos subia em espirais lentas, carregando pequenos sinos de bronze como se fossem peixes. Cada um tocava sem som."

@@ -14,6 +14,8 @@ label chapter_09_start:
 
     centered "{size=52}CAPÍTULO 9{/size}\n{size=30}As Raízes que Lembram{/size}"
 
+    if nerissa_crisis == "":
+        call crisis_nerissa
     call late_consequence_ch09
 
     "Asterion não estava em silêncio. As raízes sob os terraços falavam pela pedra, fazendo portas se abrirem sozinhas e oliveiras deixarem cair frutos salgados. Quem dormia perto dos jardins acordava lembrando da pior coisa que já tinha perdido."
