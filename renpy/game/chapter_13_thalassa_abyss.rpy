@@ -115,6 +115,9 @@ label chapter_13_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 14 — O Homem que Voltou Tarde Demais":
+            jump chapter_14_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_13_summary

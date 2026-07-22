@@ -50,6 +50,7 @@ default chapter_10_completed = False
 default chapter_11_completed = False
 default chapter_12_completed = False
 default chapter_13_completed = False
+default chapter_14_completed = False
 default nereu_lead = ""
 default asterion_choice = ""
 default lyria_choice = ""
@@ -80,6 +81,8 @@ default mirror_choice = ""
 default trusted_cassia_truth = False
 default abyss_choice = ""
 default saved_herdades_at_abyss = False
+default oryx_choice = ""
+default faced_future_ivo = False
 default unlocked_gallery = ["Ariane", "Nerissa"]
 
 init python:
@@ -126,13 +129,13 @@ init python:
         global listened_to_echoes, refused_first_echo
         global told_ariane_everything, hid_heirs_from_ariane
         global promised_ariane, warned_ariane, hid_third_echo
-        global nerissa_question, prologue_completed, chapter_01_completed, chapter_02_completed, chapter_03_completed, chapter_04_completed, chapter_05_completed, chapter_06_completed, chapter_07_completed, chapter_08_completed, chapter_09_completed, chapter_10_completed, chapter_11_completed, chapter_12_completed, chapter_13_completed
+        global nerissa_question, prologue_completed, chapter_01_completed, chapter_02_completed, chapter_03_completed, chapter_04_completed, chapter_05_completed, chapter_06_completed, chapter_07_completed, chapter_08_completed, chapter_09_completed, chapter_10_completed, chapter_11_completed, chapter_12_completed, chapter_13_completed, chapter_14_completed
         global nereu_lead, trusted_nerissa_with_coin, protected_ariane_in_nereu
         global heard_melia_name, asterion_choice, lyria_choice, akris_choice, nix_choice
         global trusted_lyra_song, protected_mikon, trusted_thalia_with_map, saved_akris_scouts
         global trusted_cassia_vision, kept_future_secret, first_arc_completed, assembly_choice, arc_2_priority, trusted_polemon_again
         global nereu_decision, trusted_nerissa_command, asterion_response, trusted_melia_seed, lyria_response, trusted_lyra_leadership
-        global akris_siege_choice, trusted_thalia_council, mirror_choice, trusted_cassia_truth, abyss_choice, saved_herdades_at_abyss
+        global akris_siege_choice, trusted_thalia_council, mirror_choice, trusted_cassia_truth, abyss_choice, saved_herdades_at_abyss, oryx_choice, faced_future_ivo
 
         ariane_affinity = 0
         nerissa_affinity = 0
@@ -182,6 +185,7 @@ init python:
         chapter_11_completed = False
         chapter_12_completed = False
         chapter_13_completed = False
+        chapter_14_completed = False
         nereu_lead = ""
         asterion_choice = ""
         lyria_choice = ""
@@ -212,3 +216,5 @@ init python:
         trusted_cassia_truth = False
         abyss_choice = ""
         saved_herdades_at_abyss = False
+        oryx_choice = ""
+        faced_future_ivo = False
