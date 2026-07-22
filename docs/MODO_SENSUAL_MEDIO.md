@@ -23,8 +23,8 @@ como erotização.
 1. **Ariane — Termas sob a lua:** biquíni mediterrâneo estilizado, coluna,
    lanternas e conversa sobre escolher ficar; a cena encerra na intimidade
    emocional, sem conteúdo explícito.
-2. **Nerissa — Cabine de mapa:** ela pede autorização antes de se aproximar;
-   casaco naval abandonado, mar ao fundo e corte no toque de mãos.
+2. **Nerissa — Termas de Nereu:** traje de banho naval azul, mar ao fundo e
+   diálogo em que ela aprende a pedir companhia em vez de dar uma ordem.
 3. **Mélia — Estufa à noite:** intimidade calma, folhas luminosas e água de
    chuva; foco em confiança, não em exposição.
 4. **Lyra — Sala de ensaio:** música e pausa; a cena se encerra quando ela

@@ -34,6 +34,7 @@ image cg ariane_balcony = Transform("images/cgs/cg_ariane_balcony_v2.png", size=
 image cg cassia_stars = Transform("images/cgs/cg_cassia_stars.png", size=(1920, 1080))
 image cg kiss_ariane = Transform("images/cgs/cg_kiss_ariane.png", size=(1920, 1080))
 image cg sensual_ariane_bath = Transform("images/cgs/cg_sensual_ariane_bath.png", size=(1920, 1080))
+image cg sensual_nerissa_bath = Transform("images/cgs/cg_sensual_nerissa_bath.png", size=(1920, 1080))
 image cg kiss_nerissa = Transform("images/cgs/cg_kiss_nerissa.png", size=(1920, 1080))
 image cg kiss_melia = Transform("images/cgs/cg_kiss_melia.png", size=(1920, 1080))
 image cg kiss_lyra = Transform("images/cgs/cg_kiss_lyra.png", size=(1920, 1080))

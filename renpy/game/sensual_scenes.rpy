@@ -17,3 +17,22 @@ label sensual_ariane_bath:
     ivo "E é bom saber que posso dizer sim sem precisar salvar ninguém primeiro."
     "Sob a lua, os dois permanecem juntos até a água perder o último reflexo das lanternas. Quando voltam, a cidade continua enorme — mas já não parece uma distância entre eles."
     return
+
+
+label sensual_nerissa_bath:
+    if not persistent.sensual_mode:
+        return
+
+    scene cg sensual_nerissa_bath
+    with dissolve
+    play ambience "audio/ambience/harbor_night.wav" fadeout 0.5 fadein 0.5
+
+    "Em Nereu, Nerissa conhece uma varanda de banho acima do porto. O lugar é discreto, mas a vista é ampla demais para permitir que qualquer um finja não sentir o mar."
+    nerissa "Eu costumava vir aqui para pensar nas decisões que ainda não tinha tomado. Hoje eu preferi não trazer nenhuma."
+    ivo "Posso ficar mesmo sem uma pauta?"
+    nerissa "Pode. Acho que essa é a primeira vez que estou pedindo isso sem transformar em ordem."
+    "Ivo estende a toalha, e Nerissa a aceita sorrindo de um jeito que seria fácil perder se ele ainda estivesse procurando uma vitória. Os dois conversam baixo, entre os reflexos azuis da água."
+    nerissa "Ficar perto de alguém não precisa ser uma estratégia. Ainda estou aprendendo."
+    ivo "Eu também. Podemos aprender devagar."
+    "Quando os primeiros sinos do porto soam, ela não se apressa para vestir a armadura de comandante. Apenas segura a mão dele e olha o céu clarear."
+    return

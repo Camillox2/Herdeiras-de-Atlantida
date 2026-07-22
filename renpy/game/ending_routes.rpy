@@ -87,6 +87,8 @@ label ending_nerissa:
     scene cg kiss_nerissa
     with dissolve
     "Nerissa deixa o chapéu de lado. Antes do primeiro navio sair, ela o beija com a delicadeza de quem aprendeu que proximidade não é comando."
+    if persistent.sensual_mode:
+        call sensual_nerissa_bath
     "A primeira embarcação da manhã parte. Nenhum dos dois a comanda. Ainda assim, os dois ficam."
     jump ending_credits
 
