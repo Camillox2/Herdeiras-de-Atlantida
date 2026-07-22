@@ -112,6 +112,9 @@ label chapter_10_summary:
     menu:
         "O que deseja fazer?"
 
+        "Continuar para o Capítulo 11 — A Muralha e o Cerco":
+            jump chapter_11_start
+
         "Ver os vínculos":
             call screen relationships(close_action=Return())
             jump chapter_10_summary
